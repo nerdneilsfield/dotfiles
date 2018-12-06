@@ -67,3 +67,6 @@ default_height = 30
 
 [[layers]]
   name = "chinese"
+
+[[layers]]
+  name = "lang#java"
