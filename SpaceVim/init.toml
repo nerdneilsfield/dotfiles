@@ -26,7 +26,15 @@
     enable_tabline_filetype_icon = true
     enable_statusline_display_mode = false
 
+[[custom_plugins]]
+    name = "wakatime/vim-wakatime"
 # Enable autocomplete layer
+[[custom_plugins]]
+    name = "vhda/verilog_systemverilog.vim"
+
+[[layers]]
+name= "git"
+
 [[layers]]
 name = 'autocomplete'
 auto-completion-return-key-behavior = "complete"
@@ -67,3 +75,6 @@ default_height = 30
 
 [[layers]]
   name = "chinese"
+
+[[layers]]
+  name = "lang#rust"

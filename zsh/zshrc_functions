@@ -1,0 +1,11 @@
+# Use vim to print code 2 pdf with source highlight
+vim_print() {
+  vim -e -c "hardcopy > out.ps" -c q $1 >> /dev/null
+  ps2pdf out.ps
+  mv out.pdf ${1}.pdf
+}
+
+httpserver() {
+  port=`python -c "from random import randint; print(randint(6000, 65535))"`
+  python -m http.server $port
+}

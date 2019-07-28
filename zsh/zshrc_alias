@@ -1,0 +1,10 @@
+alias httpserver="python3 -m http.server "
+alias pgit="proxychains4 git"
+alias pget="proxychains4 wget"
+alias emacsw="emacs -nw"
+alias ipaddr="ifconfig | grep -E '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'"
+alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
+alias lsa='/bin/ls -lah'
+alias cot='/Applications/CotEditor.app/Contents/MacOS/CotEditor'
+alias matlabnw='/usr/local/bin/matlab -nodesktop -nosplash'
+alias run=matlabnw
