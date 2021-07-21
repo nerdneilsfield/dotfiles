@@ -2,16 +2,19 @@ alias to='jump'
 alias s='sudo systemctl'
 
 if [  -n "$(ls /etc | grep apt)" ]; then
+    echo "Packagemanger apt detect"
     alias pki='sudo apt install'
     alias pkr='sudo apt uninstall'
     alias pku='sudo apt update'
     alias pkd='sudo apt upgrade'
 elif [ -n "$(ls /etc | grep pacman)" ]; then
+    echo "Packagemanger pacan detect"
     alias pki='sudo pacman -S'
     alias pkr='sudo pacman -R'
     alias pku='sudo pacman -Su'
     alias pkd='sudo pacman -Syyu'
 elif [ -n "$(ls /etc | grep yum) "];then
+    echo "Packagemanger yum detect"
     alias pki='sudo yum install'
     alias pkr='sudo yum remove'
     alias pku='sudo yum update'
