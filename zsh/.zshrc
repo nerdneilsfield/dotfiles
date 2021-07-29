@@ -59,6 +59,6 @@ eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)" #  once enhanced)"
 
 # check tools
 source "$ZSH_CONF_DIR/tools.zsh"
-  # Set Spaceship ZSH as a prompt
-  autoload -U promptinit; promptinit
-  prompt spaceship
+# Set Spaceship ZSH as a prompt
+autoload -U promptinit; promptinit
+prompt spaceship

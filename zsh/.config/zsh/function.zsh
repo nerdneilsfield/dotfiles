@@ -30,6 +30,14 @@ unsetproxy() {
 	export all_proxy=""
 }
 
+printpx() {
+	echo "----print current proxy-------"
+	echo "http_proxy: ${http_proxy}"
+	echo "https_proxy: ${https_proxy}"
+	echo "ftp_proxy: ${ftp_proxy}"
+	echo "all_proxy: ${all_proxy}"
+}
+
 testconn() {
 	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://www.gstatic.com/generate_204
 	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.co
