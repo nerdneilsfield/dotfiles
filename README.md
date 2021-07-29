@@ -12,3 +12,7 @@
 ```
 stow -vt $HOME stow
 ```
+
+## FAQ
+
+Linux	不要链接  stow
