@@ -29,6 +29,10 @@ export TERM="xterm-256color"
 _enabled_paths=(
 	"/usr/bin"
 	"/usr/local/bin"
+	"/usr/sbin"
+	"/bin"
+	"/sbin"
+	"/usr/local/sbin"
 
 	"$HOME/.local/bin" # normal install destination
 	"$HOME/.cargo/bin" # cargo install destination

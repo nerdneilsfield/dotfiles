@@ -1,6 +1,7 @@
 export ZSH_CONF_DIR="$HOME/.config/zsh"
+export ZSH_PRIVATE_CONF_DIR="$HOME/.config/zsh_private"
 
-source "$ZSH_CONF_DIR/variables.zsh"
+source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
 
 source "$ZSH_CONF_DIR/alias.zsh"
 source "$ZSH_CONF_DIR/function.zsh"
