@@ -17,19 +17,19 @@ source "$ZSH_CONF_DIR/node.zsh"
 
 source "$ZSH_CONF_DIR/config.zsh"
 
-# # import z.lua
-# eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)"    # ZSH 初始化
+## # import z.lua
+## eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)"    # ZSH 初始化
 
-# install plugins
+## install plugins
 # source "$ZSH_CONF_DIR/zplug.zsh"
 source "$ZSH_CONF_DIR/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
-# wtf? auto completion need this guy
+## wtf? auto completion need this guy
 autoload -U compinit && compinit
 
 
-# set keybinding after plugins
+## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
 
 # system specified configuration
@@ -45,21 +45,22 @@ if [ "$(uname 2> /dev/null)" = "Darwin" ]; then
 	source "$ZSH_CONF_DIR/config.macos.zsh"
 fi
 
-# fzf
+## fzf
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 export FZF_COMPLETION_TRIGGER='ll'
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .clang-cache --exclude .ccls-cache'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# z.lua
+## z.lua
 export _ZL_MATCH_MODE=1
 export _ZL_CMD=z
 export _ZL_ADD_ONCE=1
 eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)" #  once enhanced)"
+##eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh  once enhanced)"
 
 
-# check tools
+## check tools
 source "$ZSH_CONF_DIR/tools.zsh"
-# Set Spaceship ZSH as a prompt
+## Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 prompt spaceship

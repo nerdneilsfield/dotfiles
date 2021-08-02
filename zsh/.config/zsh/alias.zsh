@@ -30,7 +30,7 @@ alias startapollo="bash docker/scripts/dev_start.sh && bash docker/scripts/dev_i
 alias trigger='git amend && git push -f'
 
 # dir
-alias .='cd .'
+#alias .='cd .'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
