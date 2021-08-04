@@ -14,6 +14,7 @@ source "$ZSH_CONF_DIR/python.zsh"
 source "$ZSH_CONF_DIR/golang.zsh"
 source "$ZSH_CONF_DIR/java.zsh"
 source "$ZSH_CONF_DIR/node.zsh"
+source "$ZSH_CONF_DIR/ros.zsh"
 
 source "$ZSH_CONF_DIR/config.zsh"
 
