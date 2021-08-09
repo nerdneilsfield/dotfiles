@@ -639,6 +639,7 @@ if index(g:bundle_group, 'coc') >= 0
 	let g:coc_global_extensions = [
 	  \'coc-clangd',
 	  \'coc-lists',
+	  \'coc-tabnine',
       \'coc-markdownlint',
       \'coc-highlight',
       \'coc-vetur',
