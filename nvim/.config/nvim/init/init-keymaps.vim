@@ -379,7 +379,7 @@ noremap <silent><space>t<c-d> :set background=dark <cr>
 "----------------------------------------------------------------------
 noremap <silent><space>ws :<c-U>split<cr>
 noremap <silent><space>wv :<c-U>vsplit<cr>
-noremap <silent><space>wq :<c-U>close<cr>
+noremap <silent><space>wq <c-w>q
 noremap <space>wh <c-w>h
 noremap <space>wl <c-w>l
 noremap <space>wj <c-w>j

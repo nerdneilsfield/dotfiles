@@ -212,7 +212,7 @@ if index(g:bundle_group, 'enhanced') >= 0
 	autocmd FileType apache setlocal commentstring=#\ %s
 	noremap <space>c/ :Commentary<cr>
 
-	" 多行编辑
+	" 多行编辑: 注意， 如果选择了再使用 i 会 hang，用 I 可以解决
 	Plug 'terryma/vim-multiple-cursors'
 	" 可以用 <C-N> 来启动一个选择
 	" next: c-n
