@@ -213,7 +213,8 @@ if index(g:bundle_group, 'enhanced') >= 0
 	noremap <space>c/ :Commentary<cr>
 
 	" 多行编辑: 注意， 如果选择了再使用 i 会 hang，用 I 可以解决
-	Plug 'terryma/vim-multiple-cursors'
+	" 已弃用，换成了 vim-visual-multi
+	" Plug 'terryma/vim-multiple-cursors'
 	" 可以用 <C-N> 来启动一个选择
 	" next: c-n
 	" skip: c-x 
@@ -229,6 +230,15 @@ if index(g:bundle_group, 'enhanced') >= 0
 	" let g:multi_cursor_prev_key            = '<C-p>'
 	" let g:multi_cursor_skip_key            = '<C-x>'
 	" let g:multi_cursor_quit_key            = '<Esc>'
+	Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+	" select words with Ctrl-N (like Ctrl-d in Sublime Text/VS Code)
+	" create cursors vertically with Ctrl-Down/Ctrl-Up
+	" select one character at a time with Shift-Arrows
+	" press n/N to get next/previous occurrence
+	" press [/] to select next/previous cursor
+	" press q to skip current and get next occurrence
+	" press Q to remove current cursor/selection
+	" start insert mode with i,a,I,A
 
 	" bookmarket
 	Plug 'MattesGroeger/vim-bookmarks'
