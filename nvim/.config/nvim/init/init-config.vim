@@ -170,5 +170,7 @@ augroup InitFileTypesGroup
 	au BufNewFile,BufRead *.asc setlocal filetype=asciidoc
 	au BufNewFile,BufRead *.vl setlocal filetype=verilog
     au BufNewFile,BufRead *.m setlocal  filetype=matlab
+	" ros related
+    au BufNewFile,BufRead *.launch setlocal  filetype=xml
 
 augroup END

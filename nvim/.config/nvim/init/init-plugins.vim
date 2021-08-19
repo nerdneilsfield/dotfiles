@@ -367,7 +367,8 @@ if index(g:bundle_group, 'filetypes') >= 0
 	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
 
 	" python 语法文件增强
-	Plug 'vim-python/python-syntax', { 'for': ['python'] }
+	"Plug 'vim-python/python-syntax', { 'for': ['python'] }
+	Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins' }
 
 	" rust 语法增强
 	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
