@@ -47,10 +47,10 @@ if [ "$(uname 2> /dev/null)" = "Darwin" ]; then
 fi
 
 ## fzf
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-export FZF_COMPLETION_TRIGGER='ll'
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .clang-cache --exclude .ccls-cache'
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+# export FZF_COMPLETION_TRIGGER='ll'
+# export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .clang-cache --exclude .ccls-cache'
+# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ## z.lua
 export _ZL_MATCH_MODE=1
