@@ -64,7 +64,7 @@ alias jb='jabba'
 
 # script
 # alias z='zerotier-cli'
-alias y='yarn'
+# alias y='yarn'
 
 # tmux
 alias tmux='tmux'
@@ -74,9 +74,17 @@ alias tn='tmux new -s'
 alias tka='tmux kill-session -a'
 alias tk='tmux kill-session -t'
 
+function startVim() {
+	if ! [ -x "$(command -v node)" ]; then
+	  echo 'Error: node is not installed.' >&2
+	  nvm >> /dev/null
+	fi
+	nvim $@
+}
+
 # vim
-alias vi='nvim'
-alias v='nvim'
+alias vi='startVim'
+alias v='startVim'
 
 # others
 alias now='date +%s'
@@ -88,3 +96,4 @@ alias j='z'
 alias refresh-dns='sudo killall -HUP mDNSResponder'
 
 alias setpx="setproxy"
+

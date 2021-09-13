@@ -14,6 +14,9 @@ command! -nargs=1 LoadScript exec 'so '.s:home.'/'.'<args>'
 " 将 vim-init 目录加入 runtimepath
 exec 'set rtp+='.s:home
 
+" 运行 nvm 来获得 `node`
+" exec '!nvm'
+
 " 将 ~/.vim 目录加入 runtimepath (有时候 vim 不会自动帮你加入）
 set rtp+=~/.vim
 
