@@ -313,8 +313,8 @@
 ;;;;;;;;;;;;;;;
 ;; CTAGS
 ;;;;;;;;;;;;;;;;;
-(use-package citre
-  :defer t
+(use-package! citre
+  ; :defer t
   :init
   ;; This is needed in `:init' block for lazy load to work.
   (require 'citre-config)
@@ -341,3 +341,18 @@
    ;; `citre-mode' is automatically enabled.  If you only want this to work for
    ;; certain modes (like `prog-mode'), set it like this.
    citre-auto-enable-citre-mode-modes '(prog-mode)))
+
+(use-package! clue
+;  :defer t
+  :init
+  (add-hook 'find-file-hook #'clue-auto-enable-clue-mode))
+  :config
+  (setq
+   ;; Set this if you use project management plugin like projectile.
+   clue-project-root-function #'projectile-project-root
+   ;; Set like this if you only want auto-enabling citre-mode to work
+   ;; for markdown files.  You can also set it to nil, then the
+   ;; auto-enabling works for all files.  By default, it works for all
+   ;; text-modes.
+   clue-auto-enable-modes '(markdown-mode))
+
