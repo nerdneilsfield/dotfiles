@@ -382,3 +382,10 @@
 
 (use-package! vterm-toggle
   :defer t)
+
+;; key frequency
+(use-package! keyfreq
+:defer t
+:init 
+(keyfreq-mode 1)
+(keyfreq-autosave-mode 1))

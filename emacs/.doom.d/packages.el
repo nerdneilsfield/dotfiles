@@ -30,6 +30,7 @@
 (package! vterm-toggle :recipe (:host github :repo "jixiuf/vterm-toggle"))
 ; (package! counsel-etags)
 (package! imenu-list)
+(package! keyfreq)
 
 (package! linum-relative)
 
