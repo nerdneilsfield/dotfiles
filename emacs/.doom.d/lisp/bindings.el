@@ -87,31 +87,31 @@
       :desc "lispyville" :n "L" (+my/prefix-M-x "lispyville ")
 
       (:prefix-map ("a" . "app")
-        "s" #'prodigy
-        "b" #'blog-admin-start
-        :desc "List process" "p" #'list-processes
-        :desc "Kill process" "P" #'counsel-list-processes
-        "x" #'align-regexp)
+       "s" #'prodigy
+       "b" #'blog-admin-start
+       :desc "List process" "p" #'list-processes
+       :desc "Kill process" "P" #'counsel-list-processes
+       "x" #'align-regexp)
       (:prefix "b"                      ; buffer
-        :desc "Switch buffer" "b" #'ivy-switch-buffer
-        "h" #'+doom-dashboard/open
-        "r" #'revert-buffer-no-confirm
-        "R" #'reload-buffer-no-confirm
-        "U" #'+my/untabify-buffer)
+       :desc "Switch buffer" "b" #'ivy-switch-buffer
+       "h" #'+doom-dashboard/open
+       "r" #'revert-buffer-no-confirm
+       "R" #'reload-buffer-no-confirm
+       "U" #'+my/untabify-buffer)
       (:prefix "c"                      ; code
-        :desc "Toggle Comment"         "/" #'doom/toggle-comment-region-or-line
-        :desc "Cspell check buffer"    "c" #'cspell-check-buffer
-        :desc "Cspell check directory" "C" #'cspell-check-directory)
+       :desc "Toggle Comment"         "/" #'doom/toggle-comment-region-or-line
+       :desc "Cspell check buffer"    "c" #'cspell-check-buffer
+       :desc "Cspell check directory" "C" #'cspell-check-directory)
       (:prefix "TAB"
-        :desc "Switch workspace" "TAB" #'+workspace/other)
+       :desc "Switch workspace" "TAB" #'+workspace/other)
       (:prefix "f"                      ; file
-        :desc "Deer"      "j" #'deer)
+       :desc "Deer"      "j" #'deer)
       (:prefix "g"                      ; git
-        "s" nil
-        :desc "Smerge" "s" smerge-basic-map
-        :desc "Magit browse commit" "oc" #'+vc/git-browse-commit
-        :desc "Magit wip worktree"  "w"  #'magit-wip-log-worktree
-        :desc "M-x magit-*" "*" (+my/prefix-M-x "magit-"))
+       "s" nil
+       :desc "Smerge" "s" smerge-basic-map
+       :desc "Magit browse commit" "oc" #'+vc/git-browse-commit
+       :desc "Magit wip worktree"  "w"  #'magit-wip-log-worktree)
+       :desc "M-x magit-*" "*" (+my/prefix-M-x "magit-"))
       (:prefix "h"                      ; help
         :desc "View *Messages*" "m" #'view-echo-area-messages
         "C" #'helpful-command)
@@ -157,9 +157,9 @@
         "v" #'add-dir-local-variable
         "o" #'symbol-overlay-put
         "q" #'symbol-overlay-remove-all)
-      (:prefix "p"                      ; project
+      (:prefix "p"
         "*" (+my/prefix-M-x "projectile-")
-        :desc "Update projectile list" "u" #'update-projectile-known-projects)
+       :desc "Update projectile list" "u" #'update-projectile-known-projects)
       (:prefix ("d" . "debug")
         :desc "Start dap debugger" "d" #'+my/dap-start
         "b" #'dap-breakpoint-toggle
