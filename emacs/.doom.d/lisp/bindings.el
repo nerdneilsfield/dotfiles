@@ -110,11 +110,11 @@
        "s" nil
        :desc "Smerge" "s" smerge-basic-map
        :desc "Magit browse commit" "oc" #'+vc/git-browse-commit
-       :desc "Magit wip worktree"  "w"  #'magit-wip-log-worktree)
+       :desc "Magit wip worktree"  "w"  #'magit-wip-log-worktree
        :desc "M-x magit-*" "*" (+my/prefix-M-x "magit-"))
       (:prefix "h"                      ; help
         :desc "View *Messages*" "m" #'view-echo-area-messages
-        "C" #'helpful-command)
+        :desc "Help Command" "C" #'helpful-command)
       (:prefix-map ("e" . "error")
         :desc "Flymake next error"      "N" #'flymake-goto-next-error
         :desc "Flymake previous error"  "P" #'flymake-goto-prev-error
