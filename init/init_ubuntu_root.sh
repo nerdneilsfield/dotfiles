@@ -104,7 +104,7 @@ function InstallFzf() {
 
 function InstallStarShip() {
 	mkdir -p /tmp/install_app && cd /tmp/install_app
-	SS_VERSION=$(GetLatestRelease "junegunn/fzf")
+	SS_VERSION=$(GetLatestRelease "starship/starship")
 	wget -O /tmp/install_app/starship_latest.tar.gz "https://github.com/starship/starship/releases/download/v${SS_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz"
 	tar xf startship_latest.tar.gz
 	mv starship /usr/local/bin
@@ -166,11 +166,6 @@ function InstallGithubCli() {
 	mv share/man/man1/* /usr/local/share/man/man1/
 }
 
-function InstallStarShip() {
-	mkdir -p /tmp/install_app && cd /tmp/install_app
-	wget -O /tmp/install_app/statship.tar.gz "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-musl.tar.gz"
-	tar xvf 
-}
 
 function InstallNinjaBuild() {
 	mkdir -p /tmp/install_app && cd /tmp/install_app
