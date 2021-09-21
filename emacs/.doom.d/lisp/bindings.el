@@ -181,211 +181,234 @@
         "l" #'avy-goto-line
         "b" #'avy-pop-mark)
       (:prefix "s"                      ; snippet
-        "t" #'yas-describe-tables))
+        "t" #'yas-describe-tables)
+      (:prefix "c"
+       :desc "Find declarations" "C-d" #'lsp-find-declaration
+       :desc "Find implementation" "C-i" #'lsp-find-implementation
+       (:prefix "R"
+        :desc "Search input in current directory" "i" #'color-rg-search-input
+        :desc "Search current symbol with current directory" "s" #'color-rg-search-symbol
+        :desc "Search user's input in project" "I" #'color-rg-search-in-project
+        :desc "Search current symbol in project" "S" #'color-rg-search-symbol-in-project
+        :desc "Search current symbol in current file" "F" #'color-rg-search-symbol-in-current-file
+        :desc "Search user's input in current file" "f" #'color-rg-search-input-in-current-file
+        :desc "Search current symbol with current directory and special file extensions" "T" #'color-rg-search-symbol-with-type
+        :desc "color-rg-search-project-with-type" "t" #'color-rg-search-project-with-type)
+       (:prefix "u"
+         :desc "Citre jump" "d" #'citre-jump
+         :desc "Citre jump back" "o" #'citre-jump-back
+         :desc "Citre jump back reading" "r" #'citre-jump-completing-read
+         :desc "Citre peek" "i" #'citre-peek
+         :desc "Citre completiong" "c" #'citre-completion-at-point
+         :desc "Clue copy" "y" #'clue-copy
+         :desc "Clue following the link" "f" #'clue-following-link
+         :desc "Clue paste" "p" #'clue-paste)))
+
       ; (:prefix "/"                      ; search
       ;   :desc "Project"   "/" #'+ivy/project-search
       ;   :desc "Project (hidden)" "h" #'+ivy/project-search-with-hidden-files
       ;   :desc "Comments"  "c" #'counsel-imenu-comments))
 
+
 (map!
  (:after helm
-   "Bookmarks" "RET" #'helm-bookmarks)
+  "Bookmarks" "RET" #'helm-bookmarks)
  (:after ranger
-   (:map ranger-normal-mode-map
-     "M-1" nil
-     "M-2" nil
-     "M-3" nil
-     "M-4" nil
-     "M-5" nil
-     "M-6" nil
-     "M-7" nil
-     "M-8" nil
-     "M-9" nil
-     "M-0" nil
-     "g" nil
-     "q" #'ranger-close-and-kill-inactive-buffers
-     "f" #'counsel-find-file
-     "F" #'dired-narrow                 ; use `; g` to quit dired-narrow
-     "M-g" #'ranger-go
-     "C-TAB" #'ranger-next-tab
-     "C-S-TAB" #'ranger-prev-tab
-     "U" #'dired-unmark-all-files
-     "u" #'dired-unmark
-     "(" #'dired-hide-details-mode
-     "+" #'dired-create-directory))
+  (:map ranger-normal-mode-map
+   "M-1" nil
+   "M-2" nil
+   "M-3" nil
+   "M-4" nil
+   "M-5" nil
+   "M-6" nil
+   "M-7" nil
+   "M-8" nil
+   "M-9" nil
+   "M-0" nil
+   "g" nil
+   "q" #'ranger-close-and-kill-inactive-buffers
+   "f" #'counsel-find-file
+   "F" #'dired-narrow                   ; use `; g` to quit dired-narrow
+   "M-g" #'ranger-go
+   "C-TAB" #'ranger-next-tab
+   "C-S-TAB" #'ranger-prev-tab
+   "U" #'dired-unmark-all-files
+   "u" #'dired-unmark
+   "(" #'dired-hide-details-mode
+   "+" #'dired-create-directory))
  (:after lispy
-   (:map lispy-mode-map
-     :i "_" #'special-lispy-different
-     :i [remap kill-line] #'lispy-kill
-     :i [remap delete-backward-char] #'lispy-delete-backward
-     :n "M-<left>" #'lispy-forward-barf-sexp
-     :n "M-<right>" #'lispy-forward-slurp-sexp
-     :n "C-M-<left>" #'lispy-backward-slurp-sexp
-     :n "C-M-<right>" #'lispy-backward-barf-sexp))
+  (:map lispy-mode-map
+   :i "_" #'special-lispy-different
+   :i [remap kill-line] #'lispy-kill
+   :i [remap delete-backward-char] #'lispy-delete-backward
+   :n "M-<left>" #'lispy-forward-barf-sexp
+   :n "M-<right>" #'lispy-forward-slurp-sexp
+   :n "C-M-<left>" #'lispy-backward-slurp-sexp
+   :n "C-M-<right>" #'lispy-backward-barf-sexp))
  (:after lispyville
-   (:map lispyville-mode-map
-     :n "M-r"   nil
-     :n "M-s"   nil
-     :n "M-v"   nil
-     :n "C-M-r" #'lispy-raise-sexp
-     :n "C-M-s" #'lispy-splice
-     :n "M-V"   #'lispy-convolute-sexp
-     :n "TAB" #'lispyville-prettify))
+  (:map lispyville-mode-map
+   :n "M-r"   nil
+   :n "M-s"   nil
+   :n "M-v"   nil
+   :n "C-M-r" #'lispy-raise-sexp
+   :n "C-M-s" #'lispy-splice
+   :n "M-V"   #'lispy-convolute-sexp
+   :n "TAB" #'lispyville-prettify))
  (:after elisp-mode
-   :map emacs-lisp-mode-map
-   :n "gh" #'helpful-at-point)
+  :map emacs-lisp-mode-map
+  :n "gh" #'helpful-at-point)
  (:after lsp-ui
-   :map lsp-ui-mode-map
-   "C-j" #'toggle-lsp-ui-doc
-   :localleader
-   "r" #'lsp-rename)
+  :map lsp-ui-mode-map
+  "C-j" #'toggle-lsp-ui-doc
+  :localleader
+  "r" #'lsp-rename)
  (:after lsp-ui-peek
-   :map lsp-ui-peek-mode-map
-   "h" #'lsp-ui-peek--select-prev-file
-   "j" #'lsp-ui-peek--select-next
-   "k" #'lsp-ui-peek--select-prev
-   "l" #'lsp-ui-peek--select-next-file)
+  :map lsp-ui-peek-mode-map
+  "h" #'lsp-ui-peek--select-prev-file
+  "j" #'lsp-ui-peek--select-next
+  "k" #'lsp-ui-peek--select-prev
+  "l" #'lsp-ui-peek--select-next-file)
  (:after python
-   :localleader
-   :map python-mode-map
-   (:prefix ("i" . "Import")
-     :desc "Import at point" "i" #'importmagic-fix-symbol-at-point
-     :desc "Import all"      "a" #'importmagic-fix-imports
-     :desc "Sort imports"    "s" #'+python/python-sort-imports)
-   (:prefix ("v" . "ENV")
-     "c" #'conda-env-activate
-     "C" #'conda-env-deactivate
-     "w" #'pyvenv-workon
-     "v" #'pyvenv-activate
-     "V" #'pyvenv-deactivate
-     "p" #'pipenv-activate
-     "P" #'pipenv-deactivate))
+  :localleader
+  :map python-mode-map
+  (:prefix ("i" . "Import")
+   :desc "Import at point" "i" #'importmagic-fix-symbol-at-point
+   :desc "Import all"      "a" #'importmagic-fix-imports
+   :desc "Sort imports"    "s" #'+python/python-sort-imports)
+  (:prefix ("v" . "ENV")
+   "c" #'conda-env-activate
+   "C" #'conda-env-deactivate
+   "w" #'pyvenv-workon
+   "v" #'pyvenv-activate
+   "V" #'pyvenv-deactivate
+   "p" #'pipenv-activate
+   "P" #'pipenv-deactivate))
  (:after pyenv-mode
-   (:map pyenv-mode-map
-     "C-c C-s" nil
-     "C-c C-u" nil))
+  (:map pyenv-mode-map
+   "C-c C-s" nil
+   "C-c C-u" nil))
  (:after js2-mode
-   (:map js2-mode-map
-     :localleader
-     :desc "Import js"  "i" 'import-js-import
-     :desc "Import all" "f" 'import-js-fix))
+  (:map js2-mode-map
+   :localleader
+   :desc "Import js"  "i" 'import-js-import
+   :desc "Import all" "f" 'import-js-fix))
  (:after rjsx-mode
-   (:map rjsx-mode-map
-     :localleader
-     :desc "Import js"  "i" 'import-js-import
-     :desc "Import all" "f" 'import-js-fix))
+  (:map rjsx-mode-map
+   :localleader
+   :desc "Import js"  "i" 'import-js-import
+   :desc "Import all" "f" 'import-js-fix))
  (:after tide
-   :map tide-references-mode-map
-   "C-k" 'tide-find-previous-reference
-   "p" 'tide-find-previous-reference
-   "C-j" 'tide-find-next-reference
-   "n" 'tide-find-next-reference
-   "C-l" 'tide-goto-reference)
+  :map tide-references-mode-map
+  "C-k" 'tide-find-previous-reference
+  "p" 'tide-find-previous-reference
+  "C-j" 'tide-find-next-reference
+  "n" 'tide-find-next-reference
+  "C-l" 'tide-goto-reference)
  (:after org
-   (:map org-mode-map
-     "M-t" #'org-todo
-     :localleader
-     "s" #'org-schedule
-     "w" #'org-refile
-     "z" #'org-add-note
-     "L" #'org-toggle-link-display
-     "a" nil
-     (:prefix ("a" . "Archive")
-       :desc "Org default archive as DONE" "a" (λ! (org-todo "DONE") (org-archive-subtree-default))
-       :desc "Org archive as DONE"         "s" (λ! (org-todo "DONE") (org-archive-subtree)))
-     "A" #'org-attach))
+  (:map org-mode-map
+   "M-t" #'org-todo
+   :localleader
+   "s" #'org-schedule
+   "w" #'org-refile
+   "z" #'org-add-note
+   "L" #'org-toggle-link-display
+   "a" nil
+   (:prefix ("a" . "Archive")
+    :desc "Org default archive as DONE" "a" (λ! (org-todo "DONE") (org-archive-subtree-default))
+    :desc "Org archive as DONE"         "s" (λ! (org-todo "DONE") (org-archive-subtree)))
+   "A" #'org-attach))
  (:after evil-vars
-   (:map evil-window-map
-     :leader
-     (:prefix "w"
-       :desc "evil-window-decrease-height" "-" (λ! (evil-window-decrease-height 10))
-       :desc "evil-window-increase-height" "+" (λ! (evil-window-increase-height 10))
-       :desc "evil-window-decrease-width" "<" (λ! (evil-window-decrease-width 20))
-       :desc "evil-window-increase-width" ">" (λ! (evil-window-increase-width 20)))))
+  (:map evil-window-map
+   :leader
+   (:prefix "w"
+    :desc "evil-window-decrease-height" "-" (λ! (evil-window-decrease-height 10))
+    :desc "evil-window-increase-height" "+" (λ! (evil-window-increase-height 10))
+    :desc "evil-window-decrease-width" "<" (λ! (evil-window-decrease-width 20))
+    :desc "evil-window-increase-width" ">" (λ! (evil-window-increase-width 20)))))
  (:after evil-org
-   (:map evil-org-mode-map
-     :i "C-d" nil
-     :i "C-t" nil
-     :i "C-h" nil
-     :i "C-k" nil))
+  (:map evil-org-mode-map
+   :i "C-d" nil
+   :i "C-t" nil
+   :i "C-h" nil
+   :i "C-k" nil))
  (:after markdown-mode
-   (:map markdown-mode-map
-     :desc "Markdown Cycle" :nv [tab] #'markdown-cycle
-     :desc "Insert item below" :ni "<C-return>"   (λ! (+org/insert-item-below 1))
-     :desc "Insert item above" :ni "<S-C-return>" (λ! (+org/insert-item-above 1))
-     (:localleader
-       (:when IS-MAC
-         :desc "Reveal in Typora" "o" #'+macos/reveal-in-typora)
-       (:when IS-LINUX
-         :desc "Reveal in Typora" "o" #'+shell/reveal-in-typora)
-       :desc "Fix Copy"           "F" #'+my/markdown-copy-fix
-       :desc "Insert header line" "-" #'org-table-insert-hline
-       :desc "Crete Table from region" "|" #'org-table-create-or-convert-from-region
-       :desc "Edit" "x" (+my/simulate-key "C-c C-s")
-       (:prefix ("i" . "Insert")
-         "r" #'markdown-table-insert-row
-         "c" #'markdown-table-insert-column))))
+  (:map markdown-mode-map
+   :desc "Markdown Cycle" :nv [tab] #'markdown-cycle
+   :desc "Insert item below" :ni "<C-return>"   (λ! (+org/insert-item-below 1))
+   :desc "Insert item above" :ni "<S-C-return>" (λ! (+org/insert-item-above 1))
+   (:localleader
+    (:when IS-MAC
+     :desc "Reveal in Typora" "o" #'+macos/reveal-in-typora)
+    (:when IS-LINUX
+     :desc "Reveal in Typora" "o" #'+shell/reveal-in-typora)
+    :desc "Fix Copy"           "F" #'+my/markdown-copy-fix
+    :desc "Insert header line" "-" #'org-table-insert-hline
+    :desc "Crete Table from region" "|" #'org-table-create-or-convert-from-region
+    :desc "Edit" "x" (+my/simulate-key "C-c C-s")
+    (:prefix ("i" . "Insert")
+     "r" #'markdown-table-insert-row
+     "c" #'markdown-table-insert-column))))
  (:after grep
-   :map grep-mode-map
-   "SPC" nil)
+  :map grep-mode-map
+  "SPC" nil)
  (:after wgrep
-   :map wgrep-mode-map
-   :n "RET" #'ivy-occur-press-and-switch)
+  :map wgrep-mode-map
+  :n "RET" #'ivy-occur-press-and-switch)
  (:after ivy
-   :map ivy-occur-grep-mode-map
-   "C-d" nil
-   "SPC" nil
-   "DEL" #'ivy-occur-delete-candidate
-   :map ivy-minibuffer-map
-   "TAB" #'ivy-partial-or-done
-   "<C-return>" #'ivy-immediate-done
-   "C-b" nil
-   "C-j" #'ivy-call-and-recenter
-   "C-;" #'ivy-avy
-   "C-k" #'ivy-kill-line
-   "C-v" #'ivy-scroll-up-command
-   "A-v" #'ivy-scroll-down-command
-   "M-v" #'yank)
+  :map ivy-occur-grep-mode-map
+  "C-d" nil
+  "SPC" nil
+  "DEL" #'ivy-occur-delete-candidate
+  :map ivy-minibuffer-map
+  "TAB" #'ivy-partial-or-done
+  "<C-return>" #'ivy-immediate-done
+  "C-b" nil
+  "C-j" #'ivy-call-and-recenter
+  "C-;" #'ivy-avy
+  "C-k" #'ivy-kill-line
+  "C-v" #'ivy-scroll-up-command
+  "A-v" #'ivy-scroll-down-command
+  "M-v" #'yank)
  (:after minibuffer
-   :map minibuffer-local-map
-   "C-k" 'kill-line)
+  :map minibuffer-local-map
+  "C-k" 'kill-line)
  (:after magit-mode
-   (:map magit-mode-map
-     "M-p" nil
-     "M-n" nil
-     "M-w" nil))
+  (:map magit-mode-map
+   "M-p" nil
+   "M-n" nil
+   "M-w" nil))
  (:after magit-diff
-   (:map magit-diff-mode-map            ; for magit diff/rev mode
-     "C-o" #'magit-diff-visit-file-other-window))
+  (:map magit-diff-mode-map             ; for magit diff/rev mode
+   "C-o" #'magit-diff-visit-file-other-window))
  (:after magit-blame
-   (:map magit-blame-mode-map
-     :n "o" #'magit-blame--git-link-commit))
+  (:map magit-blame-mode-map
+   :n "o" #'magit-blame--git-link-commit))
  (:after git-rebase
-   (:map git-rebase-mode-map
-     "M-j" #'git-rebase-move-line-down
-     "M-k" #'git-rebase-move-line-up
-     "SPC" nil))
+  (:map git-rebase-mode-map
+   "M-j" #'git-rebase-move-line-down
+   "M-k" #'git-rebase-move-line-up
+   "SPC" nil))
  (:after evil-vars
-   :map evil-ex-completion-map
-   "C-b" nil
-   "C-k" #'kill-line
-   "C-d" #'delete-forward-char)
+  :map evil-ex-completion-map
+  "C-b" nil
+  "C-k" #'kill-line
+  "C-d" #'delete-forward-char)
  (:after evil-collection-info
-   :map Info-mode-map
-   "/" #'Info-search
-   "?" #'Info-search-backward)
+  :map Info-mode-map
+  "/" #'Info-search
+  "?" #'Info-search-backward)
  (:after company
-   (:map company-active-map
-     "TAB"   nil
-     ;; Don't interfere with `evil-delete-backward-word' in insert mode
-     "C-v"   #'company-next-page
-     "A-v"   #'company-previous-page
-     "C-j"   #'company-show-location
-     "C-i"   #'company-complete-selection))
+  (:map company-active-map
+   "TAB"   nil
+   ;; Don't interfere with `evil-delete-backward-word' in insert mode
+   "C-v"   #'company-next-page
+   "A-v"   #'company-previous-page
+   "C-j"   #'company-show-location
+   "C-i"   #'company-complete-selection))
  (:after vterm
-   (:map vterm-mode-map
-     "M-e" nil
-     "M-w" #'+workspace/close-window-or-workspace))
+  (:map vterm-mode-map
+   "M-e" nil
+   "M-w" #'+workspace/close-window-or-workspace))
  (:after term
-   (:map term-raw-map
-     :i "M-v" #'term-paste)))
+  (:map term-raw-map
+   :i "M-v" #'term-paste)))
