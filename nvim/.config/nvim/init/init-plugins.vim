@@ -661,6 +661,7 @@ if index(g:bundle_group, 'coc') >= 0
       \'coc-git',
 	  \'coc-fzf-preview',
 	  \'coc-rust-analyzer',
+	  \'coc-html',
       \]
 
 	" Use <c-space> to trigger completion.
