@@ -106,7 +106,7 @@ function InstallStarShip() {
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	SS_VERSION=$(GetLatestRelease "starship/starship")
 	wget -O /tmp/install_app/starship_latest.tar.gz "https://github.com/starship/starship/releases/download/v${SS_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz"
-	tar xf startship_latest.tar.gz
+	tar xf starship_latest.tar.gz
 	mv starship /usr/local/bin
 }
 
