@@ -75,8 +75,8 @@ alias tka='tmux kill-session -a'
 alias tk='tmux kill-session -t'
 
 function startVim() {
-	if ! [ -x "$(command -v node)" ]; then
-	  echo 'Error: node is not installed.' >&2
+	if ! [ -x "$(command -v npm)" ]; then
+	  echo 'Error: nvm is not invoked.' >&2
 	  nvm >> /dev/null
 	fi
 	nvim $@
