@@ -357,6 +357,7 @@ function InstallModernTools() {
 	InstallFd
 	InstallStarShip
 	InstallGithubCli
+	InstallFzf
 }
 
 function InstallNetworkTools() {

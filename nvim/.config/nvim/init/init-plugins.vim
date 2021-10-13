@@ -918,6 +918,21 @@ endif
 
 
 "----------------------------------------------------------------------
+" Zen Mode
+"----------------------------------------------------------------------
+" https://github.com/folke/zen-mode.nvim
+
+Plug 'folke/zen-mode.nvim'
+
+lua << EOF
+  require("zen-mode").setup {
+    -- your configuration comes here
+    -- or leave it empty to use the default settings
+    -- refer to the configuration section below
+  }
+EOF
+
+"----------------------------------------------------------------------
 " 结束插件安装
 "----------------------------------------------------------------------
 call plug#end()
