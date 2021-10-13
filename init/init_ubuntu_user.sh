@@ -29,6 +29,17 @@ function InstallNvm() {
 }
 
 
+function InstallRust() {
+	echo "----install rustup ------"
+}
+
+function InstallGoTools() {
+	echo "-----install golang toolchain ------"
+}
+
+function InstallDoomEmacs() {
+}
+
 function CloneConfigs() {
 	cd ~/Source/configs/
 	gh repo clone nerdneilsfield/dotfiles

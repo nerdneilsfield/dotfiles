@@ -67,14 +67,27 @@ deb http://mirrors.ustc.edu.cn/ubuntu ${CODENAME}-security universe
 deb http://mirrors.ustc.edu.cn/ubuntu ${CODENAME}-security multiverse
 EOF
 	apt-get update
+	apt-get -y install python3-pip
+	pip install -U pip wheel
+	pip install -U apt-select
+	apt-select -C $1 -c -t 3
+	mv /etc/apt/sources.list /etc/apt/sources.list_ustc
+	mv sources.list /etc/apt/sources.list
+	apt update
 }
 
 function UpgradeSystem() {
 	apt-get update
-	apt-get upgrade
+	apt-get -y upgrade
 }
 
+
 function InstallBasic(){
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Basic From Mirror------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim
 	apt-get install -y cifs-utils exfat-utils
 }
@@ -89,6 +102,11 @@ EOF
 }
 
 function InstallLazyGit(){	
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Lazygit From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app/
 	LAZYGIT_VERSION=$(GetLatestRelease "jesseduffield/lazygit")
 	wget -O /tmp/install_app/lazygit_latest.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
@@ -96,6 +114,11 @@ function InstallLazyGit(){
 }
 
 function InstallFzf() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Fzf From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	FZF_VERSION=$(GetLatestRelease "junegunn/fzf")
 	wget -O /tmp/install_app/fzf_latest.tar.gz "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
@@ -103,6 +126,11 @@ function InstallFzf() {
 }
 
 function InstallStarShip() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install StarShip From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	SS_VERSION=$(GetLatestRelease "starship/starship")
 	wget -O /tmp/install_app/starship_latest.tar.gz "https://github.com/starship/starship/releases/download/v${SS_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz"
@@ -111,6 +139,11 @@ function InstallStarShip() {
 }
 
 function InstallFd() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Fd From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	FD_VERSION=$(GetLatestRelease "sharkdp/fd")
 	wget -O /tmp/install_app/fd_latest.tar.gz "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
@@ -123,6 +156,11 @@ function InstallFd() {
 }
 
 function InstallBat() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Bat From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	BAT_VERSION=$(GetLatestRelease "sharkdp/bat")
 	wget -O /tmp/install_app/bat_latest.tar.gz "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
@@ -134,6 +172,11 @@ function InstallBat() {
 }
 
 function InstallExa() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Exa From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	EXA_VERSION=$(GetLatestRelease "ogham/exa")
 	wget -O /tmp/install_app/exa_latest.zip "https://github.com/ogham/exa/releases/download/v${EXA_VERSION}/exa-linux-x86_64-musl-v${EXA_VERSION}.zip"
@@ -141,6 +184,11 @@ function InstallExa() {
 }
 
 function InstallGitui() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Gitui From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	GITUI_VERSION=$(GetLatestRelease "extrawurst/gitui")
 	wget -O /tmp/install_app/gitui_latest.tar.gz "https://github.com/extrawurst/gitui/releases/download/v${GITUI_VERSION}/gitui-linux-musl.tar.gz"
@@ -148,6 +196,11 @@ function InstallGitui() {
 }
 
 function InstallRg() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Rg From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	RG_VERSION=$(GetLatestRelease "BurntSushi/ripgrep")
 	wget -O /tmp/install_app/rg_latest.tar.gz "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl.tar.gz"
@@ -158,6 +211,11 @@ function InstallRg() {
 }
 
 function InstallGithubCli() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install GithubCli From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	CLI_VERSION=$(GetLatestRelease "cli/cli")
 	wget -O /tmp/install_app/github_cli_latest.tar.gz "https://github.com/cli/cli/releases/download/v${CLI_VERSION}/gh_${CLI_VERSION}_linux_amd64.tar.gz"
@@ -166,8 +224,28 @@ function InstallGithubCli() {
 	mv share/man/man1/* /usr/local/share/man/man1/
 }
 
+function InstallNeovimGithub() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "-----------Install Neovim From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && /tmp/install_app
+	NVIM_VERSION=$(GetLatestRelease  )
+	wget -o /tmp/install_app/neovim.tar.gz "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux64.tar.gz"
+	tar -xf /tmp/install_app/neovim.tar.gz
+	cd /tmp/install_app/nvm-linux64
+	cp bin/* /usr/local/bin/
+	cp lib/* /usr/local/lib/
+	cp share/* /usr/local/share/
+}
+
 
 function InstallNinjaBuild() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Ninja Build From Github------------"
+	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	Ninja_VERSION=$(GetLatestRelease "ninja-build/ninja")
 	wget -O /tmp/install_app/ninja_build.zip "https://github.com/ninja-build/ninja/releases/download/v${Ninja_VERSION}/ninja-linux.zip"
@@ -176,15 +254,20 @@ function InstallNinjaBuild() {
 }
 
 function InstallVersionControl() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install Version Control From Github------------"
+	echo "-------------------------------------------------"
 	curl -s https://packagecloud.io/install/repositories/dirk-thomas/vcstool/script.deb.sh | bash
+	add-apt-repository ppa:git-core/ppa
 	apt update
 	apt-get install -y git git-lfs  subversion mercurial repo myrepos python3-vcstool
 } 
 
 function InstallGccToolChain() {
-	add-apt-repository -y ppa:ubuntu-toolchain-r/ppa
+	add-apt-repository -y ppa:ubuntu-toolchain-r/test
 	apt update
-	apt install -y binutils gcc-10
+	apt install -y binutils gcc-10 gcc-11 gcc-9
 }
 
 function InstallLlvm() {
@@ -221,7 +304,13 @@ EOF
 	apt-get -y  install libclc-13-dev
 	# libunwind
 	apt-get -y  install libunwind-13-dev
+	#clang-tidy
+	apt install -y clang-tidy
+	ln -sf /usr/bin/clangd-13 /usr/bin/clangd
+	ln -sf /usr/bin/clang-format-13 /usr/bin/clang-format
+	ln -sf /usr/bin/clang-tidy-13 /usr/bin/clang-tidy-13
 }
+
 
 function InstallCmake(){
 	CODENAME=$(lsb_release -c | awk '{print $2}')
@@ -235,18 +324,25 @@ EOF
 
 
 function InstallBuildEssentail() {
-	apt-get install -y build-essential ccache
+	apt-get install -y build-essential ccache autoconf texinfo pkg-config
 	InstallGccToolChain
 	InstallLlvm
 	InstallCmake
 	InstallNinjaBuild
 }
 
+# function InstallNeovim() {
+# 	add-apt-repository -y ppa:neovim-ppa/stable	
+# 	apt update
+# 	apt install -y neovim python3-neovim lua-compat53 
+# }
+
 function InstallNeovim() {
-	add-apt-repository -y ppa:neovim-ppa/stable	
-	apt update
-	apt install -y neovim python3-neovim lua-compat53 
+	InstallNeovimGithub
+	apt install -y python3-neovim luajit
+	ln -sf /usr/bin/luajit /usr/bin/lua	
 }
+
 
 
 function InstallModernTools() {
@@ -267,9 +363,13 @@ function InstallNetworkTools() {
 	apt install -y tinc nmap net-tools
 }
 
+function InstallEmacs() {
+	add-apt-repository ppa:kelleyk/emacs
+	apt install -y emacs27 
+}
 
 function InstallProxyTools() {
-	echo $2
+	echo "Hello World"
 }
  
 # INSTALL_PARTS=(     \ 
@@ -286,7 +386,7 @@ function InstallProxyTools() {
 
 
 function main() {
-	ChangeMirror
+	ChangeMirror "CN"
 	UpdateSystem
 	InstallBasic
 	InstallNetworkTools
