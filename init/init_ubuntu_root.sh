@@ -231,13 +231,14 @@ function InstallNeovimGithub() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && /tmp/install_app
-	NVIM_VERSION=$(GetLatestRelease  )
-	wget -o /tmp/install_app/neovim.tar.gz "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux64.tar.gz"
-	tar -xf /tmp/install_app/neovim.tar.gz
-	cd /tmp/install_app/nvm-linux64
-	cp bin/* /usr/local/bin/
-	cp lib/* /usr/local/lib/
-	cp share/* /usr/local/share/
+	NVIM_VERSION=$(GetLatestRelease  "neovim/neovim")
+	echo "-----The version of NVIM is ${NVIM_VERSION}-----"
+	wget -O /tmp/install_app/neovim.tar.gz "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux64.tar.gz"
+	tar xf /tmp/install_app/neovim.tar.gz
+	cd /tmp/install_app/nvim-linux64
+	cp -r bin/* /usr/local/bin/
+	cp -r lib/* /usr/local/lib/
+	cp -r share/* /usr/local/share/
 }
 
 
@@ -259,7 +260,7 @@ function InstallVersionControl() {
 	echo "---------------Install Version Control From Github------------"
 	echo "-------------------------------------------------"
 	curl -s https://packagecloud.io/install/repositories/dirk-thomas/vcstool/script.deb.sh | bash
-	add-apt-repository ppa:git-core/ppa
+	add-apt-repository -y ppa:git-core/ppa
 	apt update
 	apt-get install -y git git-lfs  subversion mercurial repo myrepos python3-vcstool
 } 
@@ -398,4 +399,4 @@ function main() {
 	AddUser
 }
 
-main
+#main
