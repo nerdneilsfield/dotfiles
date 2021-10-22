@@ -272,6 +272,12 @@ function InstallGccToolChain() {
 	apt install -y binutils gcc-10 gcc-11 gcc-9
 }
 
+function InstallFcitx() {
+	apt update
+	apt install -y fcitx-bin fcitx-table-all fcitx-modules fcitx-frontend-all fcitx-rime fcitx-pinyin librime
+}
+
+
 function InstallLlvm() {
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	tee /etc/apt/sources.list.d/llvm-latest.list &>/dev/null << EOF
