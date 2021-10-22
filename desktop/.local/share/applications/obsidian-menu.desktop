@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Terminal=false
+Icon=obsidian.png
+Exec=sh -c "exec ~/.local/bin/obsidian"
+StartupWMClass=Obsidian
+Name=Obsidian
+Name[zh_CN]=Obsidian
+Comment=Note Taking,Productivity
+Comment[zh_CN]=Note Taking,Productivity
+Categories=Network;Application;
+
