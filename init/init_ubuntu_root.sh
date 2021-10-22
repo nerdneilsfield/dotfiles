@@ -90,6 +90,7 @@ function InstallBasic(){
 	echo "-------------------------------------------------"
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim
 	apt-get install -y cifs-utils exfat-utils
+	apt-get install -y neofetch
 }
 
 function InstallRos() {
