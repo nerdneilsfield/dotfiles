@@ -45,6 +45,17 @@ function InstallDoomEmacs() {
 	git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
 }
 
+function SetFcitxAsDefault() {
+	tee ~/.xprofile 2>&1 << EOF
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+fcitx&
+EOF
+im-config -n fcitx
+echo "Please relogin to make it work"
+}
+
 function CloneConfigs() {
 	cd ~/Source/configs/
 	gh repo clone nerdneilsfield/dotfiles

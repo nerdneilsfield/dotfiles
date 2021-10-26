@@ -90,6 +90,7 @@ function InstallBasic(){
 	echo "-------------------------------------------------"
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux
 	apt-get install -y cifs-utils exfat-utils
+	apt-get install -y neofetch
 }
 
 function InstallRos() {
@@ -271,6 +272,12 @@ function InstallGccToolChain() {
 	apt install -y binutils gcc-10 gcc-11 gcc-9
 }
 
+function InstallFcitx() {
+	apt update
+	apt install -y fcitx-bin fcitx-table-all fcitx-modules fcitx-frontend-all fcitx-rime fcitx-pinyin librime
+}
+
+
 function InstallLlvm() {
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	tee /etc/apt/sources.list.d/llvm-latest.list &>/dev/null << EOF
@@ -372,6 +379,16 @@ function InstallEmacs() {
 
 function InstallProxyTools() {
 	echo "Hello World"
+}
+
+function InstallMicrosoftApp() {
+    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+    sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
+	sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+	rm microsoft.gpg
+	apt update
+	apt install -y microsoft-edge-beta code
 }
  
 # INSTALL_PARTS=(     \ 
