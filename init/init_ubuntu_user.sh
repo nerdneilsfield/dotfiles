@@ -23,14 +23,18 @@ function GenLocalSSHKey() {
 
 
 function InstallNvm() {
-	su $GLOABAL_USER
-	CheckNotRoot
+	# su $GLOABAL_USER
+	#CheckNotRoot
 	git clone https://github.com/nvm-sh/nvm.git ~/.config/nvm 
+	source ~/.config/nvm/nvm.sh
+	nvm ls-remote
+	nvm install --lts
 }
 
 
 function InstallRust() {
 	echo "----install rustup ------"
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 }
 
 function InstallGoTools() {
@@ -38,6 +42,7 @@ function InstallGoTools() {
 }
 
 function InstallDoomEmacs() {
+	git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
 }
 
 function CloneConfigs() {

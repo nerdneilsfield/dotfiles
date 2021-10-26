@@ -88,7 +88,7 @@ function InstallBasic(){
 	echo "---------------Install Basic From Mirror------------"
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
-	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim
+	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux
 	apt-get install -y cifs-utils exfat-utils
 }
 
@@ -262,7 +262,7 @@ function InstallVersionControl() {
 	curl -s https://packagecloud.io/install/repositories/dirk-thomas/vcstool/script.deb.sh | bash
 	add-apt-repository -y ppa:git-core/ppa
 	apt update
-	apt-get install -y git git-lfs  subversion mercurial repo myrepos python3-vcstool
+	apt-get install -y git git-lfs  subversion mercurial  myrepos python3-vcstool
 } 
 
 function InstallGccToolChain() {
@@ -366,7 +366,7 @@ function InstallNetworkTools() {
 }
 
 function InstallEmacs() {
-	add-apt-repository ppa:kelleyk/emacs
+	add-apt-repository -y ppa:kelleyk/emacs
 	apt install -y emacs27 
 }
 
