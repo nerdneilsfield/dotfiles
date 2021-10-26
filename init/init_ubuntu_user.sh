@@ -47,7 +47,7 @@ export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 fcitx&
 EOF
-
+im-config -n fcitx
 echo "Please relogin to make it work"
 }
 
