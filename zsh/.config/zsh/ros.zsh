@@ -26,3 +26,7 @@ init_ros() {
 			;;
 	esac
 }
+
+init_current_ros() {
+	source devel/setup.zsh
+}
