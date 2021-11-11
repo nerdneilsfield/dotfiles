@@ -8,11 +8,12 @@ if [  -n "$(ls /etc | grep apt)" ]; then
     alias pku='sudo apt update'
     alias pkd='sudo apt upgrade'
 elif [ -n "$(ls /etc | grep pacman)" ]; then
-    echo "Packagemanger pacan detect"
+    echo "Packagemanger pacman detect"
     alias pki='sudo pacman -S'
     alias pkr='sudo pacman -R'
     alias pku='sudo pacman -Su'
     alias pkd='sudo pacman -Syyu'
+	export LANG=C.UTF-8; export LC_CTYPE=C.UTF-8;
 elif [ -n "$(ls /etc | grep yum) "];then
     echo "Packagemanger yum detect"
     alias pki='sudo yum install'
