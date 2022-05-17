@@ -15,6 +15,8 @@ install_poetry() {
         rm -rf ${HOME}/.local/poetry
         curl -sS https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
         POETRY_HOME=${HOME}/.local/poetry python3 /tmp/get-poetry.py --no-modify-path -y -f
+        mkdir -p ${HOME}/.config/zfunc
+        poetry completions zsh > ~/.config/zfunc/_poetry
 }
 # setup pyenv
 export PYENV_ROOT="$HOME/.local/pyenv"
@@ -25,3 +27,4 @@ eval "$(pyenv init -)"
 export POETRY_HOME="$HOME/.local/poetry"
 command -v poetry >/dev/null || export PATH="$POETRY_HOME/bin:$PATH"
 source ${HOME}/.local/poetry/env
+fpath+=${HOME}/.zfunc
