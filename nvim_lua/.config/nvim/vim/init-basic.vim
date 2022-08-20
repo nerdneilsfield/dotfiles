@@ -184,7 +184,7 @@ let g:did_install_default_menus = 1  " do not load menu
 " Path to Python 3 interpreter (must be an absolute path), make startup
 " faster. See https://neovim.io/doc/user/provider.html.
 if executable('python')
-	echo exepath('python')
+	echo exepath('python`~')
    if g:is_win
     let g:python3_host_prog=substitute(exepath('python'), '.exe$', '', 'g')
   elseif g:is_linux || g:is_mac
