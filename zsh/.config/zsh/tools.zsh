@@ -30,9 +30,27 @@ fi
 export GITHUB_LOCATION="$HOME/Source/app"
 export LOCAL_BIN="$HOME/.local/bin/"
 
+
 # ===================================================================
 # install tools exist
 # ===================================================================
+
+install_fzf_shell() {
+	setpx
+	set -e
+	set -o xtrace
+	export FZF_REPO=$HOME/.fzf
+	if [ ! -d "$FZF_REPO" ]; then
+		git clone https://github.com/junegunn/fzf.git $FZF_REPO
+	fi 
+	cd $FZF_REPO
+	git pull origin master
+	#$FZF_REPO/install
+	rm -rf $FZF_REPO/bin
+	cd -
+}
+
+
 install_fzf () {
 	setpx
 	set -e
@@ -206,6 +224,10 @@ go_tools () {
 #=======================
 # Tool Usage
 #=======================
+
+install_fzf_zsh() {
+
+}
 
 export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build} --type f"
 export FZF_PREVIEW_COMMAND="bat --style=numbers,changes --wrap never --color always {} || cat {} || tree -C {}"
