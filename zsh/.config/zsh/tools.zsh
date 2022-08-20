@@ -235,7 +235,9 @@ export FZF_PREVIEW_COMMAND="bat --style=numbers,changes --wrap never --color alw
 export FZF_COMPLETION_TRIGGER='ll'
 # export FZF_DEFAULT_OPTS="--min-height 30 --preview-window down:60% --preview-window noborder --preview '($FZF_PREVIEW_COMMAND) 2> /dev/null'"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview '${FZF_PREVIEW_COMMAND}'"
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.config/zsh/fzf/completion.zsh ] && source ~/.config/zsh/fzf/completion.zsh
+[ -f ~/.config/zsh/fzf/key-bindings.zsh ] && source ~/.config/zsh/fzf/key-bindings.zsh
+
 
 
 # alias fpreview="fzf --min-height 30 --preview-window down:60% --preview-window noborder --preview '($FZF_PREVIEW_COMMAND) 2> /dev/null'"
@@ -246,4 +248,9 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview '${FZF
 
 fh() {
   eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
+}
+
+
+install_nvchad() {
+	git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 && nvim
 }
