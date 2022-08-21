@@ -46,4 +46,7 @@ M.plugins = {
   }
 }
 
+-- chadrc
+M.mappings = require "custom.mappings"
+
 return M
