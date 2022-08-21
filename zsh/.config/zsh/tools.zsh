@@ -254,3 +254,7 @@ fh() {
 install_nvchad() {
 	git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 && nvim
 }
+
+backup_nvim() {
+	mv ~/.config/nvim  "~/.config/nvim_back_${date +'%Y-%m-%d-%S'}"
+}
