@@ -10,43 +10,43 @@ local M = {}
 -- }
 
 M.plugins = {
-  user = require "custom.plugins",
-  override = {
-    ["hrsh7th/nvim-cmp"] = require "custom.plugins.configs.cmp",
-    ["williamboman/mason.nvim"] = {
-        ensure_installed = {
-            -- lua stuff
-            "lua-language-server",
-            "stylua",
+	user = require("custom.plugins"),
+	override = {
+		["hrsh7th/nvim-cmp"] = require("custom.plugins.configs.cmp"),
+		["williamboman/mason.nvim"] = {
+			ensure_installed = {
+				-- lua stuff
+				"lua-language-server",
+				"stylua",
 
-            -- web dev
-            --   "css-lsp",
-            --   "html-lsp",
-            --   "typescript-language-server",
-            --   "deno",
-            --   "emmet-ls",
-            "json-lsp",
+				-- web dev
+				--   "css-lsp",
+				--   "html-lsp",
+				--   "typescript-language-server",
+				--   "deno",
+				--   "emmet-ls",
+				"json-lsp",
 
-            -- shell
-            "shfmt",
-            "shellcheck",
+				-- shell
+				"shfmt",
+				"shellcheck",
 
-            -- c++/clang
-            "clang-format",
-            "clangd",
-            "cmake-language-server",
-            "cmakelang",
-            "cpplint",
-            "cpptools",
+				-- c++/clang
+				"clang-format",
+				"clangd",
+				"cmake-language-server",
+				"cmakelang",
+				"cpplint",
+				"cpptools",
 
-            ---- zls
-            "zls"
-        },
-    },
-  }
+				---- zls
+				"zls",
+			},
+		},
+	},
 }
 
 -- chadrc
-M.mappings = require "custom.mappings"
+M.mappings = require("custom.mappings")
 
 return M
