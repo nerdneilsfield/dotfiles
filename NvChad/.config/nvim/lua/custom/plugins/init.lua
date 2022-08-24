@@ -43,10 +43,15 @@ return {
 
 	["liuchengxu/vista.vim"] = {
 		event = "BufRead",
-		config = function() end,
+	 config = function() end,
 	},
 
 	["mbbill/undotree"] = {},
+	["Pocco81/true-zen.nvim"] = {
+		config = function()
+			require("true-zen").setup()
+		end,
+	},
 	-- ["williamboman/mason.nvim"] = {
 	-- 	ensure_installed = {
 	-- 		-- lua stuff

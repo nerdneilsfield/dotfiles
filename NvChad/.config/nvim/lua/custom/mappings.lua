@@ -34,6 +34,7 @@ M.file = {
 		["<leader>wv"] = { "<C-w>v", "split window vertically" },
 		["<leader>ws"] = { "<C-w>s", "split window horizontally" },
 		["<leader>wq"] = { "<C-w>q", "close the window" },
+		["<leader>wm"] = { "<C-w>o", "max the window" },
 		["<leader>wt"] = { "<cmd> NvimTreeToggle <CR>", "toggle the tree" },
 		["<leader>we"] = { "<cmd> NvimTreeFocus <CR>", "focus the tree" },
 	},
@@ -97,6 +98,16 @@ M.vista = {
 M.undotree = {
 	n = {
 		["<leader>wu"] = { "<cmd> UndotreeToggle<CR>", "toggle undotree" },
+	},
+}
+
+M.truezen = {
+	n = {
+		["<leader>zf"] = { "<cmd> TZFocus <CR>", "zen focus" },
+		["<leader>zm"] = { "<cmd> TZMinimalist <CR>", "zen minimalist" },
+    ["<leader>zn"] = { "<cmd> TZNarrow <CR>", "zen narrow" },
+		["<leader>zv"] = { "<cmd> '<,'>TZNarrow <CR>", "zen narrow" },
+		["<leader>za"] = { "<cmd> TZAtaraxis <CR>", "zen ataraxis" },
 	},
 }
 return M
