@@ -225,6 +225,48 @@ function InstallGithubCli() {
 	mv share/man/man1/* /usr/local/share/man/man1/
 }
 
+function InstallDifftastic() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Difftastic From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	DIFF_VERSION=$(GetLatestRelease "Wilfred/difftastic")
+	wget -O /tmp/install_app/difft_latest.tar.gz "https://github.com/Wilfred/difftastic/releases/download/${DIFF_VERSION}/difft-x86_64-unknown-linux-gnu.tar.gz"
+	tar xf difft_latest.tar.gz
+  chmod a+x difft
+	mv difft /usr/local/bin
+}
+
+function InstallPueue() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Pueue From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	PUEUE_VERSION=$(GetLatestRelease "Nukesor/pueue")
+	wget -O /tmp/install_app/pueued "https://github.com/Nukesor/pueue/releases/download/v${PUEUE_VERSION}/pueued-linux-x86_64"
+  chmod a+x pueued
+	mv pueued /usr/local/bin
+	wget -O /tmp/install_app/pueue "https://github.com/Nukesor/pueue/releases/download/v${PUEUE_VERSION}/pueue-linux-x86_64"
+  chmod a+x pueue
+	mv pueue /usr/local/bin
+}
+
+function InstallSd() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Sd From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	wget -O /tmp/install_app/sd "https://github.com/chmln/sd/releases/download/v0.7.6/sd-v0.7.6-x86_64-unknown-linux-musl"
+  chmod a+x sd
+	mv sd /usr/local/bin
+}
+
 function InstallNeovimGithub() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
@@ -240,6 +282,65 @@ function InstallNeovimGithub() {
 	cp -r bin/* /usr/local/bin/
 	cp -r lib/* /usr/local/lib/
 	cp -r share/* /usr/local/share/
+}
+
+function InstallClashPremium(){
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install Clash Premium Binary-----------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+  wget -O /tmp/install_app/clash-premium-v3.gz "https://github.com/Dreamacro/clash/releases/download/premium/clash-linux-amd64-v3-2022.07.07.gz"
+  gzip -d /tmp/install_app/clash-premium-v3.gz && chmod a+x  clash-premium-v3 
+  cp clash-premium-v3 /usr/local/bin/clash-premium-v3
+}
+
+function InstallClash(){
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install Clash Binary-------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	CLASH_VERSION=$(GetLatestRelease  "Dreamacro/clash")
+  wget -O /tmp/install_app/clash-v3.gz "https://github.com/Dreamacro/clash/releases/download/v${CLASH_VERSION}/clash-linux-amd64-v3-v${CLASH_VERSION}.gz" 
+  gzip -d /tmp/install_app/clash-v3.gz && chmod a+x  clash-v3 
+  cp clash-v3 /usr/local/bin/clash
+}
+
+function InstallTrojanGo(){
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install TrojanGo ----------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------" 
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+  wget -O /tmp/install_app/trojan-go-linux-amd64.zip  https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-amd64.zip
+  mkdir -p /tmp/install_app/trojan-go && cd /tmp/install_app/trojan-go/
+  unzip ../trojan-go-linux-amd64.zip
+  chmod a+x ./trojan-go
+  cd .. && cp -r /tmp/install_app/trojan-go /usr/local/share/
+  ln -sf /usr/local/share/trojan-go/trojan-go /usr/local/bin/trojan-go
+}
+
+function InstallGostTunnel() {
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install GostTunnel ---------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------" 
+  
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	GOST_VERSION=$(GetLatestRelease  "ginuerzh/gost")
+  wget -O /tmp/install_app/gost-linux-amd64.gz "https://github.com/ginuerzh/gost/releases/download/v${GOST_VERSION}/gost-linux-amd64-${GOST_VERSION}.gz"
+  gzip -d /tmp/install_app/gost-linux-amd64.gz && chmod a+x  gost-linux-amd64
+  cp gost-linux-amd64 /usr/local/bin/gost
+}
+
+function InstallV2ray() {
+
+
 }
 
 
@@ -366,6 +467,9 @@ function InstallModernTools() {
 	InstallStarShip
 	InstallGithubCli
 	InstallFzf
+  InstallDifftastic
+  InstallSd
+  InstallPueue
 }
 
 function InstallNetworkTools() {
@@ -378,7 +482,25 @@ function InstallEmacs() {
 }
 
 function InstallProxyTools() {
-	echo "Hello World"
+  InstallClashPremium
+  InstallClash
+  InstallTrojanGo
+  InstallV2ray
+}
+
+function InstallZig() {
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install Zig ---------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------" 
+  
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+  wget -O zig-linux.tar.xz "https://ziglang.org/builds/zig-linux-x86_64-0.10.0-dev.3685+dae7aeb33.tar.xz"
+  tar xvf zig-linux.tar.xz
+  cp zig-linux-x86_64-0.10.0-dev.3685+dae7aeb33 /usr/local/share/zig-linux-x86_64
+  ln -sf /usr/local/share/zig-linux-x86_64/zig /usr/local/bin/zig
+  chmod a+x /usr/local/bin/zig
 }
 
 function InstallMicrosoftApp() {
