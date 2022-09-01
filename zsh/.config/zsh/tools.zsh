@@ -258,3 +258,8 @@ install_nvchad() {
 backup_nvim() {
 	mv ~/.config/nvim  "~/.config/nvim_back_${date +'%Y-%m-%d-%S'}"
 }
+
+#=======================
+#=====git diff difft====
+export GIT_EXTERNAL_DIFF=difft
+
