@@ -267,6 +267,35 @@ function InstallSd() {
 	mv sd /usr/local/bin
 }
 
+
+function InstallProcs() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Procs From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	PROCS_VERSION=$(GetLatestRelease "dalance/procs")
+	wget -O /tmp/install_app/procs.zip "https://github.com/dalance/procs/releases/download/v${PROCS_VERSION}/procs-v${PROCS_VERSION}-x86_64-linux.zip"
+  unzip /tmp/install_app/procs.zip
+  chmod a+x /tmp/install_app/procs
+  mv /tmp/install_app/procs /usr/local/bin
+}
+
+function InstallGping(){
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install GPing From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	GPING_VERSION=$(GetLatestRelease "orf/gping")
+	wget -O /tmp/install_app/gping.tar.gz "https://github.com/orf/gping/releases/download/gping-v${GPING_VERSION}/gping-Linux-x86_64.tar.gz"
+  tar xvf /tmp/install_app/gping.tar.gz
+  chmod a+x /tmp/install_app/gping
+  mv /tmp/install_app/gping /usr/local/bin
+}
+
 function InstallNeovimGithub() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"

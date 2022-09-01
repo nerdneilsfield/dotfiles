@@ -45,6 +45,34 @@ function InstallDoomEmacs() {
 	git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
 }
 
+function InstallHow2() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install How2 From npm -----------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+  # check a npm is installed
+  nvm
+  if ! which npm > /dev/null; then
+    echo "npm is not installed"
+    exit 1
+  fi
+  npm install -g how2
+}
+
+function InstallTldr() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install tldr From pip -----------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+  if ! which python3 > /dev/null; then
+    echo "python3 is not installed"
+    exit 1
+  fi
+  python3 -m pip install --user tldr
+}
+
 function SetFcitxAsDefault() {
 	tee ~/.xprofile 2>&1 << EOF
 export GTK_IM_MODULE=fcitx
