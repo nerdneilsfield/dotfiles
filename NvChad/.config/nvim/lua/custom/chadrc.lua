@@ -38,9 +38,35 @@ M.plugins = {
 				"cmakelang",
 				"cpplint",
 				"cpptools",
+				"codelldb",
 
 				---- zls
 				"zls",
+
+				---- python
+				"pyright",
+				"blue",
+				"isort",
+				"debugpy",
+				"vulture",
+				"pylint",
+
+				--- go
+				"gopls",
+				"golangci-lint",
+				"goimports",
+				"delve",
+
+				--- latex
+				"ltex-ls",
+
+        --- makrdown
+        "cbfmt",
+        "markdownlint",
+        "marksman",
+
+				--- rust
+				"rust-analyzer",
 			},
 		},
 	},
