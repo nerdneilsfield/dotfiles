@@ -60,15 +60,23 @@ M.plugins = {
 				--- latex
 				"ltex-ls",
 
-        --- makrdown
-        "cbfmt",
-        "markdownlint",
-        "marksman",
+				--- makrdown
+				"cbfmt",
+				"markdownlint",
+				"marksman",
 
 				--- rust
 				"rust-analyzer",
 			},
 		},
+		-- ["NvChad/ui"] = {
+		-- 	statusline = {
+		-- 		separator_style = "round",
+		-- 		overriden_modules = function()
+		-- 			return require("custom.plugins.configs.vista")
+		-- 		end,
+		-- 	},
+		-- },
 	},
 }
 

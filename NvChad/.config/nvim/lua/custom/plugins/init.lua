@@ -27,6 +27,13 @@ return {
 			require("custom.plugins.configs.null-ls")
 		end,
 	},
+	["tzachar/cmp-tabnine"] = {
+		after = "nvim-cmp",
+		run = "./install.sh",
+		config = function()
+			require("custom.plugins.configs.tabnine")
+		end,
+	},
 	["folke/which-key.nvim"] = {
 		disable = false,
 		keys = { "<leader>", "<localleader>" },
@@ -43,9 +50,16 @@ return {
 
 	["liuchengxu/vista.vim"] = {
 		event = "BufRead",
-	 config = function() end,
+		config = function() end,
 	},
-
+  ["xolox/vim-misc"] = {},
+	["xolox/vim-easytags"] = {},
+  ["skywind3000/asynctasks.vim"] = {
+    config = function()
+      vim.g.asyncrun_open=10
+    end,
+  },
+  ["skywind3000/asyncrun.vim"] = {},
 	["mbbill/undotree"] = {},
 	["Pocco81/true-zen.nvim"] = {
 		config = function()
