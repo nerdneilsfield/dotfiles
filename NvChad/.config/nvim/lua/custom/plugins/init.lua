@@ -52,14 +52,23 @@ return {
 		event = "BufRead",
 		config = function() end,
 	},
-  ["xolox/vim-misc"] = {},
-	["xolox/vim-easytags"] = {},
-  ["skywind3000/asynctasks.vim"] = {
-    config = function()
-      vim.g.asyncrun_open=10
-    end,
-  },
-  ["skywind3000/asyncrun.vim"] = {},
+	--  ["xolox/vim-misc"] = {},
+	-- ["xolox/vim-easytags"] = {},
+	["skywind3000/asynctasks.vim"] = {
+		config = function()
+			vim.g.asyncrun_open = 10
+		end,
+	},
+	["skywind3000/asyncrun.vim"] = {},
+	["ludovicchabant/vim-gutentags"] = {
+		config = function()
+		end,
+	},
+	["skywind3000/gutentags_plus"] = {
+    after = "vim-gutentags",
+		config = function()
+		end,
+	},
 	["mbbill/undotree"] = {},
 	["Pocco81/true-zen.nvim"] = {
 		config = function()
