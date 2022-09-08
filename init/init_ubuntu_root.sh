@@ -367,10 +367,10 @@ function InstallGostTunnel() {
   cp gost-linux-amd64 /usr/local/bin/gost
 }
 
-function InstallV2ray() {
-
-
-}
+# function InstallV2ray() {
+#
+#
+# }
 
 
 function InstallNinjaBuild() {
