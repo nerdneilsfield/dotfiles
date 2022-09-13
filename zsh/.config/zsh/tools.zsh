@@ -234,7 +234,7 @@ install_rust_built_local_tools(){
     "tokei"
     "boringtun-cli"
     "hyperfine"
-    "mdbook"
+    # "mdbook"
     "navi"
     "czkawka_cli"
     "broot"
@@ -244,6 +244,14 @@ install_rust_built_local_tools(){
   for _rust_tool in $_tools; do
     echo install $_rust_tool
     cargo quickinstall $_rust_tool
+  done
+
+  local _tools_force_build_from_souce=(
+  "mdbook"
+)
+for _rust_tool in $_tools_force_build_from_souce; do
+    echo install $_rust_tool
+    cargo install $_rust_tool
   done
 }
 
