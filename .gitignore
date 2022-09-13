@@ -1,3 +1,5 @@
 SpaceVim/.netrwhist
 .DS_Store
 swap-pane
+tags
+nvim/.config/nvim/autoload

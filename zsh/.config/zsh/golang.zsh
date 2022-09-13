@@ -1,4 +1,13 @@
-export GOROOT=/usr/local/go
+#export GOROOT=/usr/local/go
+# if exist /usr/local/go then set
+if [[ -d "/usr/local/go" ]]; then
+  export GOROOT=/usr/local/go
+elif [[ -d "/opt/homebrew/opt/golang/libexec/" ]]; then
+  export GOROOT=/opt/homebrew/opt/golang/libexec
+elif [[ -d "/usr/lib/go/" ]]; then
+  export GOROOT=/usr/lib/go
+fi
+
 export GOPATH=$HOME/Source/Go
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 
@@ -16,3 +25,50 @@ alias goss='fmt && gostrict'
 alias gdv='godotenv'
 alias got='APP_ENV=dev go test --cover --race ./...'
 alias gor='APP_ENV=stage go run main.go'
+
+
+install_go_tools () {
+  mkdir -p $HOME/Source/app
+	cd $HOME/Source/app
+	setproxy
+	export GOPROXY=https://goproxy.io 
+	# gopls
+	local _gogettools=(
+		"golang.org/x/tools/gopls@latest"
+		"github.com/uudashr/gopkgs/cmd/gopkgs@latest"
+		"github.com/ramya-rao-a/go-outline@latest"
+		"github.com/haya14busa/goplay/cmd/goplay@latest"
+		"github.com/fatih/gomodifytags@latest"
+		"github.com/josharian/impl@latest"
+		"github.com/cweill/gotests/...@latest"
+		"github.com/golangci/golangci-lint/cmd/golangci-lint@latest"
+		"golang.org/x/tools/cmd/goimports@latest"
+    "github.com/nerdneilsfield/gox@v1.0.2"
+    "mvdan.cc/gofumpt@latest"
+    "github.com/segmentio/golines@latest"
+	)
+
+	echo $PWD
+	echo update go get tools
+	for _gogettool in $_gogettools; do
+		echo update go install tools: $_gogettool
+		GO111MODULE=on go install $_gogettool
+	done
+
+	# local -A _gotools=(
+	# 	"go-delve/delve" "go-delve/delve/cmd/dlv" "incu6us/goimports-reviser"
+	# )
+	# 
+	# echo update go install tools
+ #  echo GITHUB_LOCATION="https://github.com"
+	# for k v (${(kv)_gotools}) {
+	# 	echo update go install tools: $k
+	# 	local local_location=$GITHUB_LOCATION/$k
+	# 	local repo_url=https://github.com/$k
+	# 	if [ ! -d "$local_location" ]; then
+	# 		git clone $repo_url $local_location
+	# 	fi
+	# 	cd $local_location
+	# 	go install github.com/$v
+	# }
+}

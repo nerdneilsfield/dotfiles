@@ -57,7 +57,7 @@ function cminsdebug() {
 
 function cmrelease(){
     _cmrelease
-    cmake --build build/release -j 'nproc'
+    cmake --build build/release -j$(nproc)
 }
 
 function gcco() {
@@ -90,4 +90,73 @@ function clangr() {
 function clang++r() {
 	clang++ --std=c++17 -Wall -Wextra -g -o "${1}.c.out" "${1}"
 	./"${1}.c.out"
+}
+
+function install_ctags() {
+  echo "=====install/update ctags========="
+  local _localtion_url="https://github.com/universal-ctags/ctags.git"
+  local _localtion_path="$HOME/Source/app/universal-ctags/ctags"
+
+  echo $_localtion_path
+  if [[ ! -d "${_localtion_path}" ]]; then
+    git clone --recursive $_localtion_url $_localtion_path
+  else
+    cd $_localtion_path
+    git pull
+  fi
+
+  echo "----build ctags-------"
+  cd $_localtion_path
+  ./autogen.sh
+  ./configure --prefix=$HOME/.local
+  make
+  make install # may require extra privileges depending on where to install
+
+}
+
+function install_cpp_tools(){
+  mkdir -p $HOME/Source/app
+
+  local _pip_tools=(
+    "cmake-format"
+    "cmakelang"
+    "gersemi"
+    "cmake-language-server"
+    "cpplint"
+  )
+  echo $PWD
+	echo update cpp tools
+	for _cpp_pip_tool in $_pip_tools; do
+		echo update go install tools: $_cpp_pip_tool
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -U --user $_cpp_pip_tool 
+	done
+
+  echo "================finish=========="
+
+  local _cpp_cmake_install_tools=(
+    "danmar/cppcheck"
+  )
+
+  echo $PWD
+  echo "============================="
+  echo "update cpp cmake install tools"
+  for _cpp_install_tool in $_cpp_cmake_install_tools; do
+    echo "update ${_cpp_install_tool}"
+    local _localtion_url="https://github.com/${_cpp_install_tool}"
+    local _localtion_path="$HOME/Source/app/${_cpp_install_tool}"
+    echo $_localtion_path
+    echo $_localtion_url
+    if [[ ! -d "${_localtion_path}" ]]; then
+      git clone --recursive $_localtion_url $_localtion_path
+    else
+      cd $_localtion_path
+      git pull
+    fi
+
+    echo "build tools"
+    cd $_localtion_path
+    cmake -B build/release -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release
+    cmake --build build/release -j $(nproc)
+    cmake --install build/release
+  done
 }

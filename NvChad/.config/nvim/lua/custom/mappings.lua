@@ -105,9 +105,30 @@ M.truezen = {
 	n = {
 		["<leader>zf"] = { "<cmd> TZFocus <CR>", "zen focus" },
 		["<leader>zm"] = { "<cmd> TZMinimalist <CR>", "zen minimalist" },
-    ["<leader>zn"] = { "<cmd> TZNarrow <CR>", "zen narrow" },
+		["<leader>zn"] = { "<cmd> TZNarrow <CR>", "zen narrow" },
 		["<leader>zv"] = { "<cmd> '<,'>TZNarrow <CR>", "zen narrow" },
 		["<leader>za"] = { "<cmd> TZAtaraxis <CR>", "zen ataraxis" },
 	},
 }
+
+ M.gutentags = {
+	n = {
+-- 		["<leader>cps"] = { "<cmd> GscopeFind s expand('<cword>') <CR>", "Find symbol (reference) under cursor" },
+-- 		["<leader>cpg"] = { "<cmd> GscopeFind g expand('<cword>') <CR>", "Find symbol definition under cursor" },
+-- 		["<leader>cpc"] = { "<cmd> GscopeFind c <C-R><C-W> <CR>", "Functions calling by this function" },
+-- 		["<leader>cpt"] = { "<cmd> GscopeFind t <C-R><C-W> <CR>", "Find text string under cursor" },
+-- 		["<leader>cpe"] = { "<cmd> GscopeFind e <C-R><C-W> <CR>", "Find egrep pattern under cursor" },
+-- 		["<leader>cpf"] = { "<cmd> GscopeFind f <C-R><C-R>=expand('<cfile>') <CR> <CR>", "Find file name under cursor" },
+-- 		["<leader>cpi"] = {
+-- 			"<cmd> GscopeFind i <C-R><C-R>=expand('<cfile>') <CR>",
+-- 			"Find files #including the file name under cursor",
+-- 		},
+-- 		["<leader>cpd"] = { "<cmd> GscopeFind d <C-R><C-W> <CR>", "Functions called by this function" },
+-- 		["<leader>cpa"] = { "<cmd> GscopeFind a <C-R><C-W> <CR>", "Find places where current symbol is assigned" },
+-- 		["<leader>cpz"] = { "<cmd> GscopeFind z <C-R><C-W> <CR>", "Find current word in ctags database" },
+		["<leader>cpu"] = { "<cmd> GutentagsUpdate <CR>", "Update tags" },
+		["<leader>cpk"] = { "<cmd> GscopeKill <CR>", "Kill Cscope" },
+	},
+}
+
 return M
