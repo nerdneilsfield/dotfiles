@@ -236,9 +236,13 @@ install_rust_built_local_tools(){
     "hyperfine"
     # "mdbook"
     "navi"
-    "czkawka_cli"
+    "czkawka_cli" # duplicate file finder
     "broot"
     "xsv"
+    "gping"
+    "hexyl" # a hex viewer in command line
+    "ffsend"
+    "onefetch"
   )
 
   for _rust_tool in $_tools; do
@@ -248,6 +252,7 @@ install_rust_built_local_tools(){
 
   local _tools_force_build_from_souce=(
   "mdbook"
+  "rustscan"
 )
 for _rust_tool in $_tools_force_build_from_souce; do
     echo install $_rust_tool
@@ -260,6 +265,9 @@ install_python_related_local_tools() {
   local _python_tools=(
     "glances"
     "tldr"
+    "yt-dlp"
+    "gitsome"
+    "jrnl"
   )
   for _python_tool in $_python_tools; do
       echo install _python_tool
