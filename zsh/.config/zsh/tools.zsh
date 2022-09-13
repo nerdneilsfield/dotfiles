@@ -208,13 +208,61 @@ fh() {
   eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
 }
 
+chtsh(){
+  curl cht.sh/$1/$2
+}
+
 
 install_nvchad() {
 	git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 && nvim
 }
 
+install_neofetch(){
+  wget -O ~/.local/bin/neofetch "https://github.com/dylanaraps/neofetch/raw/master/neofetch"
+  chmod +x ~/.local/bin/neofetch
+}
+
 backup_nvim() {
-	mv ~/.config/nvim  "~/.config/nvim_back_${date +'%Y-%m-%d-%S'}"
+  local _now_date=$(date +'%Y-%m-%d-%S')
+  echo "now_date ${_now_date}"
+  mv ~/.config/nvim  "~/.config/nvim_back_${_now_date}"
+}
+
+install_rust_built_local_tools(){
+  cargo install cargo-quickinstall
+  local _tools=(
+    "tokei"
+    "boringtun-cli"
+    "hyperfine"
+    "mdbook"
+    "navi"
+    "czkawka_cli"
+    "broot"
+    "xsv"
+  )
+
+  for _rust_tool in $_tools; do
+    echo install $_rust_tool
+    cargo quickinstall $_rust_tool
+  done
+}
+
+install_python_related_local_tools() {
+  # python3 -m pip install -U pip
+  local _python_tools=(
+    "glances"
+    "tldr"
+  )
+  for _python_tool in $_python_tools; do
+      echo install _python_tool
+      python3 -m pip install --user $_python_tool
+    done
+}
+
+install_modertools_local() {
+  install_neofetch
+  install_rust_built_local_tools
+  install_python_related_local_tools
 }
 
 #=======================
