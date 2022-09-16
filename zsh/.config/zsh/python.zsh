@@ -36,7 +36,7 @@ install_python_tools() {
     "isort"
     "pyright"
     "pydocstyle"
-    "flake8"
+    # "flake8" // conflict with blue 
     "debugpy"
     "pylint"
     "sourcery"
