@@ -90,7 +90,7 @@ function InstallBasic(){
 	echo "-------------------------------------------------"
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux
 	apt-get install -y cifs-utils exfat-utils
-	apt-get install -y neofetch
+	apt-get install -y xclip
 }
 
 function InstallRos() {
@@ -400,6 +400,7 @@ function InstallGccToolChain() {
 	add-apt-repository -y ppa:ubuntu-toolchain-r/test
 	apt update
 	apt install -y binutils gcc-10 gcc-11 gcc-9
+  apt install -y gcc-12
 }
 
 function InstallFcitx() {
@@ -539,7 +540,7 @@ function InstallMicrosoftApp() {
 	sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
 	rm microsoft.gpg
 	apt update
-	apt install -y microsoft-edge-beta code
+	apt install -y microsoft-edge-stable code
 }
  
 # INSTALL_PARTS=(     \ 
