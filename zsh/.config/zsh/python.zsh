@@ -30,7 +30,7 @@ eval "$(pyenv init -)"
 # fpath+=${HOME}/.zfunc
 
 install_python_tools() {
-  local _python_tools=$(
+  local _python_tools=(
     "blue"
     "autopep8"
     "isort"
@@ -44,7 +44,7 @@ install_python_tools() {
   )
 
   for _tool in $_python_tools; do
-      echo install $_tool
+      echo "install $_tool"
       python3 -m pip install --user -U $_tool
     done
 }
