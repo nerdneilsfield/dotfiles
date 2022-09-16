@@ -97,6 +97,8 @@ function InstallRos() {
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	tee /etc/apt/sources.list.d/ros-latest.list &>/dev/null << EOF
 deb https://mirrors.tuna.tsinghua.edu.cn/ros/ubuntu/ ${CODENAME} main
+deb https://mirrors.ustc.edu.cn/ros/ubuntu/ ${CODENAME} main
+deb https://mirrors.shanghaitech.edu.cn/ros/ubuntu/ ${CODENAME} main
 EOF
 	apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 	apt-get update
