@@ -1,6 +1,8 @@
 alias to='jump'
 alias s='sudo systemctl'
 
+export LC_ALL="en_US.UTF-8"
+
 if [  -n "$(ls /etc | grep apt)" ]; then
     echo "Packagemanger apt detect"
     alias pki='sudo apt install'
@@ -13,7 +15,7 @@ elif [ -n "$(ls /etc | grep pacman)" ]; then
     alias pkr='sudo pacman -R'
     alias pku='sudo pacman -Su'
     alias pkd='sudo pacman -Syyu'
-	export LANG=C.UTF-8; export LC_CTYPE=C.UTF-8;
+	  #export LANG=C.UTF-8; export LC_CTYPE=C.UTF-8;
 elif [ -n "$(ls /etc | grep yum) "];then
     echo "Packagemanger yum detect"
     alias pki='sudo yum install'
