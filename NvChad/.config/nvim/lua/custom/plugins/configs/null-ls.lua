@@ -23,15 +23,15 @@ local sources = {
 	b.formatting.cmake_format,
 	b.formatting.gersemi,
 	b.diagnostics.cppcheck,
-  b.diagnostics.checkmake,
-  b.diagnostics.cpplint,
-	null_ls.builtins.diagnostics.clang_check,
+	-- b.diagnostics.checkmake,
+	b.diagnostics.cpplint,
+	-- null_ls.builtins.diagnostics.clang_check,
 
 	-- python
 	null_ls.builtins.diagnostics.vulture,
 	null_ls.builtins.formatting.blue,
 	null_ls.builtins.formatting.isort,
-	null_ls.builtins.code_actions.refactoring,
+	-- null_ls.builtins.code_actions.refactoring,
 
 	-- rust
 	null_ls.builtins.formatting.rustfmt,
@@ -40,14 +40,14 @@ local sources = {
 	null_ls.builtins.formatting.gofmt,
 	null_ls.builtins.formatting.gofumpt,
 	null_ls.builtins.formatting.goimports,
-	null_ls.builtins.formatting.goimports_reviser,
+	-- null_ls.builtins.formatting.goimports_reviser,
 
 	-- Shell
-	b.formatting.shfmt,
+	-- b.formatting.shfmt,
 	b.diagnostics.shellcheck.with({ diagnostics_format = "#{m} [#{c}]" }),
 
-  -- zsh
-  null_ls.builtins.diagnostics.zsh,
+	-- zsh
+	-- null_ls.builtins.diagnostics.zsh,
 
 	-- markdown
 	null_ls.builtins.diagnostics.markdownlint,
