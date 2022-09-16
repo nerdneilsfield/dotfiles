@@ -6,6 +6,7 @@ function MakeLocalDirectory {
 	mkdir -p ~/.local/lib
 	mkdir -p ~/.local/share
 	mkdir -p ~/Source/configs
+  mkdir -p ~/Source/apps
 	mkdir -p ~/.config
 	mkdir -p ~/.ssh
 }
@@ -27,7 +28,7 @@ function InstallNvm() {
 	#CheckNotRoot
 	git clone https://github.com/nvm-sh/nvm.git ~/.config/nvm 
 	source ~/.config/nvm/nvm.sh
-	nvm ls-remote
+	# nvm ls-remote
 	nvm install --lts
 }
 
@@ -35,6 +36,7 @@ function InstallNvm() {
 function InstallRust() {
 	echo "----install rustup ------"
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  cargo install carog-quickinstall
 }
 
 function InstallGoTools() {
