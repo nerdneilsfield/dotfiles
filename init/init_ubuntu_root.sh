@@ -100,6 +100,17 @@ deb https://mirrors.tuna.tsinghua.edu.cn/ros/ubuntu/ ${CODENAME} main
 EOF
 	apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 	apt-get update
+ case "$CODENAME" in
+  "bionic")
+      apt install ros-melodic-desktop
+      ;;
+  "focal")
+      apt install ros-noetic-desktop
+      ;;
+  *)
+      echo "ros1 only support Ubuntu 18.04 and 20.04"
+      ;;
+  esac 
 }
 
 function InstallLazyGit(){	
@@ -368,7 +379,7 @@ function InstallGostTunnel() {
 }
 
 function InstallV2ray() {
-
+  echo "wait for ...."
 
 }
 
