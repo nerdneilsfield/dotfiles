@@ -7,6 +7,8 @@ require("cmp_tabnine.config").setup({
 	ignored_file_types = { -- default is not to ignore
 		-- uncomment to ignore in lua:
 		-- lua = true
+    md = true,
+    markdown = true,
 	},
 	show_prediction_strength = false,
 })
