@@ -27,4 +27,7 @@ fi
 # # color
 # zstyle :prompt:pure:path color 214
 # zstyle :prompt:pure:prompt:error color 160
-# zstyle :prompt:pure:prompt:success color 031
+# zstyle :prompt:pure:prompt:success color 03
+
+export CC=/usr/bin/clang-16
+export CXX=/usr/bin/clang++-16

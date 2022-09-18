@@ -27,6 +27,8 @@ export TERM="xterm-256color"
 
 # path
 _enabled_paths=(
+
+	"$N_PREFIX/bin" #n
 	"/usr/bin"
 	"/usr/local/bin"
 	"/usr/sbin"
@@ -38,10 +40,7 @@ _enabled_paths=(
 	"$HOME/.cargo/bin" # cargo install destination
 	"$HOME/usr/bin"
 	"$HOME/usr/local/bin"
-
 	"$HOME/Source/gems/bin" # gems
-
-	"$N_PREFIX/bin" #n
 
 	"/usr/local/opt/openjdk/bin"   # macos
 	"$HOME/Library/Python/3.9/bin" # ansible
