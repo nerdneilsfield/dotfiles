@@ -27,7 +27,27 @@ fi
 # # color
 # zstyle :prompt:pure:path color 214
 # zstyle :prompt:pure:prompt:error color 160
-# zstyle :prompt:pure:prompt:success color 03
 
 export CC=/usr/bin/clang-16
 export CXX=/usr/bin/clang++-16
+
+install_nvim () {
+	setpx
+	set -e
+	set -o xtrace
+
+    # install dependencies
+    sudo apt install gettext libtool-bin
+
+	export NVIM_REPO=https//github.com/neovim/neovim
+    local NVIM_REPO=$HOME/Source/app/neovim
+	if [ ! -d "$NVIM_REPO" ]; then
+		git clone https://github.com/neovim/neovim.git $NVIM_REPO
+	fi
+	cd $NVIM_REPO
+	git pull origin master
+	make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=/usr/local -j $(nproc)
+	sudo make install
+	cd -
+	nvim --version
+}

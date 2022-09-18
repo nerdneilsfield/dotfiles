@@ -8,3 +8,4 @@ init/nvim-linux64
 nvim/.config/nvim/autoload
 nvim/.config/nvim/autoload
 nvim/.config/nvim/autoload
+.vscode

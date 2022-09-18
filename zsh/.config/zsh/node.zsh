@@ -17,3 +17,17 @@ if [ -d "$HOME/.config/nvm" ]; then
 fi
 
 # nvm use default
+
+install_fnm() {
+    cargo quickinstall fnm
+    fnm install --lts
+    # mkdir -p $HOME/.config/zsh_generated
+    # fnm env > $HOME/.config/zsh_generated/fnm.sh
+    mkdir -p ~/.zsh_func
+    fnm completions --shell zsh  > ~/.zsh_func/fnm_completions.zsh
+}
+
+if [ -f $HOME/.cargo/bin/fnm ]; then
+    #  source $HOME/.config/zsh_generated/fnm.sh
+    eval "$(fnm env --use-on-cd)"
+ fi

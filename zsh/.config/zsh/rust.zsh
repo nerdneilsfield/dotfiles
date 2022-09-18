@@ -17,3 +17,12 @@ install_rustup(){
     echo "Installing rustup...."
     curl https://sh.rustup.rs -sSf | sh -s -- -y
 }
+
+install_rust_tools() {
+  # some cargo extension
+  cargo install cargo-quickinstall
+  cargo install --locked cargo-outdated
+
+  # rust lsp
+  cargo install rust-analyzer
+}

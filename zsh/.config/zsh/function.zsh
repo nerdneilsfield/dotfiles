@@ -43,6 +43,10 @@ testconn() {
 	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.co
 }
 
+setpx_and_test(){
+	setpxup $1; setpx; testconn;
+}
+
 
 write_hostips(){
   # use tee to write hostips to /usr/local/bin/hostips

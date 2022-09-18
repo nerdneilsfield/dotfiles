@@ -135,6 +135,7 @@ function install_cpp_tools(){
 
   local _cpp_cmake_install_tools=(
     "danmar/cppcheck"
+    "rizsotto/Bear"
   )
 
   echo $PWD

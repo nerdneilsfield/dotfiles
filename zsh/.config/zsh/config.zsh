@@ -57,6 +57,9 @@ done
 # https://superuser.com/questions/1092033/how-can-i-make-zsh-tab-completion-fix-capitalization-errors-for-directories-and
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
+mkdir -p ~/.zsh_func
+fpath=(~/.zsh_func $fpath)
+
 # History config
 HISTSIZE=10000
 SAVEHIST=10000
