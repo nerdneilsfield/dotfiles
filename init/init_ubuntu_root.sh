@@ -91,7 +91,9 @@ function InstallBasic(){
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux python3-pip
 	apt-get install -y cifs-utils exfat-utils
 	apt-get install -y xclip
-  apt-get install -y linux-modules-extra-$(uname -r)-generic
+	apt-get install -y luajit
+	ln -sf /usr/bin/luajit /usr/bin/lua
+  apt-get install -y linux-modules-extra-$(uname -r)
 }
 
 function InstallRos() {
