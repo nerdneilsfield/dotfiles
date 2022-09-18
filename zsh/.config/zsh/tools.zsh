@@ -145,21 +145,6 @@ export LOCAL_BIN="$HOME/.local/bin/"
 # 	go get -d github.com/jesseduffield/lazygit
 # }
 #
-# update_nvim () {
-# 	setpx
-# 	set -e
-# 	set -o xtrace
-# 	export NVIM_REPO=$GITHUB_LOCATION/neovim/neovim
-# 	if [ ! -d "$NVIM_REPO" ]; then
-# 		git clone https://github.com/neovim/neovim.git $NVIM_REPO
-# 	fi
-# 	cd $NVIM_REPO
-# 	git pull origin master
-# 	sudo make CMAKE_BUILD_TYPE=Release
-# 	sudo make install
-# 	cd -
-# 	nvim --version
-# }
 #
 # update_vim () {
 # 	setpx
