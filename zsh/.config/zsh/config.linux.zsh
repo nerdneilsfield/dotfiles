@@ -48,4 +48,4 @@ install_nvim () {
 	sudo make install
 	cd -
 	nvim --version
-# }
+}
