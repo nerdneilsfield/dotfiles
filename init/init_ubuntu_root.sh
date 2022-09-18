@@ -145,8 +145,7 @@ function InstallStarShip() {
 	echo "-------------------------------------------------"
 	echo "---------------Install StarShip From Github------------"
 	echo "-------------------------------------------------"
-	echo "-------------------------------------------------"
-	mkdir -p /tmp/install_app && cd /tmp/install_app
+	echo "-------------------------------------------------" mkdir -p /tmp/install_app && cd /tmp/install_app
 	SS_VERSION=$(GetLatestRelease "starship/starship")
 	wget -O /tmp/install_app/starship_latest.tar.gz "https://github.com/starship/starship/releases/download/v${SS_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz"
 	tar xf starship_latest.tar.gz
@@ -568,6 +567,16 @@ function InstallMicrosoftApp() {
 # for PART in "${INSTALL_PARTS[*]}"; do
 # 	echo ${PART};
 # done
+
+InstallGuiTools() {
+	apt install -y gnome-tweaks grub-customizer
+}
+
+InstallGraphicsDrivers() {
+	add-apt-repository ppa:graphics-drivers/ppa
+	apt update
+	ubuntu-drivers install
+}
 
 
 function main() {
