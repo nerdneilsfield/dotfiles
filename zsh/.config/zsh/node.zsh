@@ -19,7 +19,13 @@ fi
 # nvm use default
 
 install_fnm() {
-    cargo quickinstall fnm
+	  CODENAME=$(lsb_release -c | awk '{print $2}')
+    echo $CODENAME
+    if [[ $CODENAME=="bionic" ]];then 
+      cargo install --force fnm
+    else 
+      cargo quickinstall fnm
+    fi
     fnm install --lts
     # mkdir -p $HOME/.config/zsh_generated
     # fnm env > $HOME/.config/zsh_generated/fnm.sh
