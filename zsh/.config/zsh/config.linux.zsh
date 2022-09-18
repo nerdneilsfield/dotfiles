@@ -32,12 +32,11 @@ export CC=/usr/bin/clang-16
 export CXX=/usr/bin/clang++-16
 
 install_nvim () {
-	setpx
 	set -e
 	set -o xtrace
 
-    # install dependencies
-    sudo apt install gettext libtool-bin
+  # install dependencies
+  sudo apt install gettext libtool-bin
 
 	export NVIM_REPO=https//github.com/neovim/neovim
     local NVIM_REPO=$HOME/Source/app/neovim

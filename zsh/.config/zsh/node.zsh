@@ -19,10 +19,12 @@ fi
 # nvm use default
 
 install_fnm() {
-	  CODENAME=$(lsb_release -c | awk '{print $2}')
-    echo $CODENAME
-    if [[ $CODENAME=="bionic" ]];then 
-      cargo install --force fnm
+    if command -v lsb_release>>/dev/null; then
+      CODENAME=$(lsb_release -c | awk '{print $2}')
+      echo $CODENAME
+      if [[ $CODENAME=="bionic" ]];then 
+        cargo install --force fnm
+      fi
     else 
       cargo quickinstall fnm
     fi
