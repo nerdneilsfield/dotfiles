@@ -83,8 +83,8 @@ function startVim() {
 }
 
 # vim
-alias vi='startVim'
-alias v='startVim'
+alias vi='nvim'
+alias v='nvim'
 
 # others
 alias now='date +%s'
@@ -96,4 +96,5 @@ alias j='z'
 alias refresh-dns='sudo killall -HUP mDNSResponder'
 
 alias setpx="setproxy"
+alias unsetpx="unsetproxy"
 

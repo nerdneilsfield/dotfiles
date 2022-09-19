@@ -115,3 +115,9 @@ copypath() {
 show_rgb() {
 	printf "\e[38;2;%s;%s;%sm ■■■■■■■■■■■■ \e[0m\n" "${1}" "${2}" "${3}"
 }
+
+function GetLatestRelease() {
+    curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"v*([^"]+)".*/\1/'
+}

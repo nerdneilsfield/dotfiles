@@ -20,9 +20,12 @@ fi
 
 install_fnm() {
     if command -v lsb_release>>/dev/null; then
-      CODENAME=$(lsb_release -c | awk '{print $2}')
+      local CODENAME=$(lsb_release -c | awk '{print $2}')
       echo $CODENAME
-      if [[ $CODENAME=="bionic" ]];then 
+      if [[ ${CODENAME}!="bionic" ]];then 
+        cargo quickinstall fnm
+      else
+        echo "is bionic, build from souce"
         cargo install --force fnm
       fi
     else 
@@ -39,3 +42,15 @@ if [ -f $HOME/.cargo/bin/fnm ]; then
     #  source $HOME/.config/zsh_generated/fnm.sh
     eval "$(fnm env --use-on-cd)"
  fi
+ 
+# Created by mirror-config-china
+export IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
+export NODIST_IOJS_MIRROR=https://npm.taobao.org/mirrors/iojs
+export NVM_IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
+export NVMW_IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
+export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+export NODIST_NODE_MIRROR=https://npm.taobao.org/mirrors/node
+export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+export NVMW_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+export NVMW_NPM_MIRROR=https://npm.taobao.org/mirrors/npm
+# End of mirror-config-china
