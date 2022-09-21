@@ -81,6 +81,16 @@ function UpgradeSystem() {
 	apt-get -y upgrade
 }
 
+function DisableIPv6 {
+	echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /et/sysctl.conf
+	sysctl -p
+}
+
+function InstallGo(){
+	add-apt-repository ppa:longsleep/golang-backports
+	apt install golang
+}
 
 function InstallBasic(){
 	echo "-------------------------------------------------"
@@ -90,7 +100,7 @@ function InstallBasic(){
 	echo "-------------------------------------------------"
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux python3-pip
 	apt-get install -y cifs-utils exfat-utils
-	apt-get install -y xclip
+	apt-get install -y xclip pv
 	apt-get install -y luajit
 	ln -sf /usr/bin/luajit /usr/bin/lua
   apt-get install -y linux-modules-extra-$(uname -r)
@@ -414,8 +424,14 @@ function InstallVersionControl() {
 function InstallGccToolChain() {
 	add-apt-repository -y ppa:ubuntu-toolchain-r/test
 	apt update
-	apt install -y binutils gcc-10 gcc-11 gcc-9
-  apt install -y gcc-12
+	apt install -y binutils gcc-10 gcc-11 gcc-9 libstdc++-11-dev libstdc++-10-dev libstdc++-9-dev
+        apt install -y gcc-12
+}
+
+function InstallPythonToolChain(){
+	add-apt-repository ppa:deadsnakes/ppa
+	apt update
+	apt install python3.11-dev python3.11 python3.10 python3.10-dev
 }
 
 function InstallFcitx() {
@@ -433,36 +449,37 @@ deb-src http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME} main
 # 12
 deb http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME}-12 main
 deb-src http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME}-12 main
-# 13
-deb http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME}-13 main
-deb-src http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME}-13 main
+# 16
+deb http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME}-16 main
+deb-src http://apt.llvm.org/${CODENAME}/ llvm-toolchain-${CODENAME}-16 main
 EOF
    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
    # Fingerprint: 6084 F3CF 814B 57C1 CF12 EFD5 15CF 4D18 AF4F 7421
     apt-get update
 	   # LLVM
-	apt-get -y  install libllvm-13-ocaml-dev libllvm13 llvm-13 llvm-13-dev llvm-13-doc llvm-13-examples llvm-13-runtime
+	apt-get -y  install libllvm-16-ocaml-dev libllvm16 llvm-16 llvm-16-dev llvm-16-doc llvm-16-examples llvm-16-runtime
 	# Clang and co
-	apt-get -y  install clang-13 clang-tools-13 clang-13-doc libclang-common-13-dev libclang-13-dev libclang1-13 clang-format-13 python-clang-13 clangd-13
+	apt-get -y  install clang-16 clang-tools-16 clang-16-doc libclang-common-16-dev libclang-16-dev libclang1-16 clang-format-16 python-clang-16 clangd-16
 	# libfuzzer
-	apt-get -y  install libfuzzer-13-dev
+	apt-get -y  install libfuzzer-16-dev
 	# lldb
-	apt-get -y  install lldb-13
+	apt-get -y  install lldb-16
 	# lld (linker)
-	apt-get -y  install lld-13
+	apt-get -y  install lld-16
 	# libc++
-	apt-get -y  install libc++-13-dev libc++abi-13-dev
+	apt-get -y  install libc++-16-dev libc++abi-16-dev
 	# OpenMP
-	apt-get -y  install libomp-13-dev
+	apt-get -y  install libomp-16-dev
 	# libclc
-	apt-get -y  install libclc-13-dev
+	apt-get -y  install libclc-16-dev
 	# libunwind
-	apt-get -y  install libunwind-13-dev
+	apt-get -y  install libunwind-16-dev
 	#clang-tidy
 	apt install -y clang-tidy
-	ln -sf /usr/bin/clangd-13 /usr/bin/clangd
-	ln -sf /usr/bin/clang-format-13 /usr/bin/clang-format
-	ln -sf /usr/bin/clang-tidy-13 /usr/bin/clang-tidy-13
+	apt insall -y libc++-16-dev
+	# ln -sf /usr/bin/clangd-16 /usr/bin/clangd
+	# ln -sf /usr/bin/clang-format-16 /usr/bin/clang-format
+	# ln -sf /usr/bin/clang-tidy-16 /usr/bin/clang-tidy-16
 }
 
 

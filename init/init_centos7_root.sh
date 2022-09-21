@@ -88,18 +88,34 @@ function InstallBasic(){
 	echo "---------------Install Basic From Mirror------------"
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
-	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux
+	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux python3-pip
 	apt-get install -y cifs-utils exfat-utils
-	apt-get install -y neofetch
+	apt-get install -y xclip
+	apt-get install -y luajit
+	ln -sf /usr/bin/luajit /usr/bin/lua
+  apt-get install -y linux-modules-extra-$(uname -r)
 }
 
 function InstallRos() {
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	tee /etc/apt/sources.list.d/ros-latest.list &>/dev/null << EOF
 deb https://mirrors.tuna.tsinghua.edu.cn/ros/ubuntu/ ${CODENAME} main
+deb https://mirrors.ustc.edu.cn/ros/ubuntu/ ${CODENAME} main
+deb https://mirrors.shanghaitech.edu.cn/ros/ubuntu/ ${CODENAME} main
 EOF
 	apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 	apt-get update
+ case "$CODENAME" in
+  "bionic")
+      apt install ros-melodic-desktop
+      ;;
+  "focal")
+      apt install ros-noetic-desktop
+      ;;
+  *)
+      echo "ros1 only support Ubuntu 18.04 and 20.04"
+      ;;
+  esac 
 }
 
 function InstallLazyGit(){	
@@ -131,8 +147,7 @@ function InstallStarShip() {
 	echo "-------------------------------------------------"
 	echo "---------------Install StarShip From Github------------"
 	echo "-------------------------------------------------"
-	echo "-------------------------------------------------"
-	mkdir -p /tmp/install_app && cd /tmp/install_app
+	echo "-------------------------------------------------" mkdir -p /tmp/install_app && cd /tmp/install_app
 	SS_VERSION=$(GetLatestRelease "starship/starship")
 	wget -O /tmp/install_app/starship_latest.tar.gz "https://github.com/starship/starship/releases/download/v${SS_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz"
 	tar xf starship_latest.tar.gz
@@ -225,6 +240,77 @@ function InstallGithubCli() {
 	mv share/man/man1/* /usr/local/share/man/man1/
 }
 
+function InstallDifftastic() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Difftastic From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	DIFF_VERSION=$(GetLatestRelease "Wilfred/difftastic")
+	wget -O /tmp/install_app/difft_latest.tar.gz "https://github.com/Wilfred/difftastic/releases/download/${DIFF_VERSION}/difft-x86_64-unknown-linux-gnu.tar.gz"
+	tar xf difft_latest.tar.gz
+  chmod a+x difft
+	mv difft /usr/local/bin
+}
+
+function InstallPueue() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Pueue From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	PUEUE_VERSION=$(GetLatestRelease "Nukesor/pueue")
+	wget -O /tmp/install_app/pueued "https://github.com/Nukesor/pueue/releases/download/v${PUEUE_VERSION}/pueued-linux-x86_64"
+  chmod a+x pueued
+	mv pueued /usr/local/bin
+	wget -O /tmp/install_app/pueue "https://github.com/Nukesor/pueue/releases/download/v${PUEUE_VERSION}/pueue-linux-x86_64"
+  chmod a+x pueue
+	mv pueue /usr/local/bin
+}
+
+function InstallSd() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Sd From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	wget -O /tmp/install_app/sd "https://github.com/chmln/sd/releases/download/v0.7.6/sd-v0.7.6-x86_64-unknown-linux-musl"
+  chmod a+x sd
+	mv sd /usr/local/bin
+}
+
+
+function InstallProcs() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install Procs From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	PROCS_VERSION=$(GetLatestRelease "dalance/procs")
+	wget -O /tmp/install_app/procs.zip "https://github.com/dalance/procs/releases/download/v${PROCS_VERSION}/procs-v${PROCS_VERSION}-x86_64-linux.zip"
+  unzip /tmp/install_app/procs.zip
+  chmod a+x /tmp/install_app/procs
+  mv /tmp/install_app/procs /usr/local/bin
+}
+
+function InstallGping(){
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "--------Install GPing From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	GPING_VERSION=$(GetLatestRelease "orf/gping")
+	wget -O /tmp/install_app/gping.tar.gz "https://github.com/orf/gping/releases/download/gping-v${GPING_VERSION}/gping-Linux-x86_64.tar.gz"
+  tar xvf /tmp/install_app/gping.tar.gz
+  chmod a+x /tmp/install_app/gping
+  mv /tmp/install_app/gping /usr/local/bin
+}
+
 function InstallNeovimGithub() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
@@ -240,6 +326,65 @@ function InstallNeovimGithub() {
 	cp -r bin/* /usr/local/bin/
 	cp -r lib/* /usr/local/lib/
 	cp -r share/* /usr/local/share/
+}
+
+function InstallClashPremium(){
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install Clash Premium Binary-----------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+  wget -O /tmp/install_app/clash-premium-v3.gz "https://github.com/Dreamacro/clash/releases/download/premium/clash-linux-amd64-v3-2022.07.07.gz"
+  gzip -d /tmp/install_app/clash-premium-v3.gz && chmod a+x  clash-premium-v3 
+  cp clash-premium-v3 /usr/local/bin/clash-premium-v3
+}
+
+function InstallClash(){
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install Clash Binary-------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	CLASH_VERSION=$(GetLatestRelease  "Dreamacro/clash")
+  wget -O /tmp/install_app/clash-v3.gz "https://github.com/Dreamacro/clash/releases/download/v${CLASH_VERSION}/clash-linux-amd64-v3-v${CLASH_VERSION}.gz" 
+  gzip -d /tmp/install_app/clash-v3.gz && chmod a+x  clash-v3 
+  cp clash-v3 /usr/local/bin/clash
+}
+
+function InstallTrojanGo(){
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install TrojanGo ----------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------" 
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+  wget -O /tmp/install_app/trojan-go-linux-amd64.zip  https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-amd64.zip
+  mkdir -p /tmp/install_app/trojan-go && cd /tmp/install_app/trojan-go/
+  unzip ../trojan-go-linux-amd64.zip
+  chmod a+x ./trojan-go
+  cd .. && cp -r /tmp/install_app/trojan-go /usr/local/share/
+  ln -sf /usr/local/share/trojan-go/trojan-go /usr/local/bin/trojan-go
+}
+
+function InstallGostTunnel() {
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install GostTunnel ---------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------" 
+  
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	GOST_VERSION=$(GetLatestRelease  "ginuerzh/gost")
+  wget -O /tmp/install_app/gost-linux-amd64.gz "https://github.com/ginuerzh/gost/releases/download/v${GOST_VERSION}/gost-linux-amd64-${GOST_VERSION}.gz"
+  gzip -d /tmp/install_app/gost-linux-amd64.gz && chmod a+x  gost-linux-amd64
+  cp gost-linux-amd64 /usr/local/bin/gost
+}
+
+function InstallV2ray() {
+  echo "wait for ...."
+
 }
 
 
@@ -270,6 +415,7 @@ function InstallGccToolChain() {
 	add-apt-repository -y ppa:ubuntu-toolchain-r/test
 	apt update
 	apt install -y binutils gcc-10 gcc-11 gcc-9
+  apt install -y gcc-12
 }
 
 function InstallFcitx() {
@@ -366,6 +512,9 @@ function InstallModernTools() {
 	InstallStarShip
 	InstallGithubCli
 	InstallFzf
+  InstallDifftastic
+  InstallSd
+  InstallPueue
 }
 
 function InstallNetworkTools() {
@@ -378,7 +527,25 @@ function InstallEmacs() {
 }
 
 function InstallProxyTools() {
-	echo "Hello World"
+  InstallClashPremium
+  InstallClash
+  InstallTrojanGo
+  InstallV2ray
+}
+
+function InstallZig() {
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------"
+  echo "----------Install Zig ---------------------"
+  echo "-------------------------------------------------"
+  echo "-------------------------------------------------" 
+  
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+  wget -O zig-linux.tar.xz "https://ziglang.org/builds/zig-linux-x86_64-0.10.0-dev.3685+dae7aeb33.tar.xz"
+  tar xvf zig-linux.tar.xz
+  cp zig-linux-x86_64-0.10.0-dev.3685+dae7aeb33 /usr/local/share/zig-linux-x86_64
+  ln -sf /usr/local/share/zig-linux-x86_64/zig /usr/local/bin/zig
+  chmod a+x /usr/local/bin/zig
 }
 
 function InstallMicrosoftApp() {
@@ -388,7 +555,7 @@ function InstallMicrosoftApp() {
 	sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
 	rm microsoft.gpg
 	apt update
-	apt install -y microsoft-edge-beta code
+	apt install -y microsoft-edge-stable code
 }
  
 # INSTALL_PARTS=(     \ 
@@ -402,6 +569,16 @@ function InstallMicrosoftApp() {
 # for PART in "${INSTALL_PARTS[*]}"; do
 # 	echo ${PART};
 # done
+
+InstallGuiTools() {
+	apt install -y gnome-tweaks grub-customizer
+}
+
+InstallGraphicsDrivers() {
+	add-apt-repository ppa:graphics-drivers/ppa
+	apt update
+	ubuntu-drivers install
+}
 
 
 function main() {
