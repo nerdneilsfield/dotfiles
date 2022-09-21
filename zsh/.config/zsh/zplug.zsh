@@ -8,7 +8,7 @@ if [ ! -f "$ZPLUG/init.zsh" ]; then
 	[ ! -d "$ZPLUG" ] && mkdir -p "$ZPLUG" 2> /dev/null
 	# [ ! -f "$HOME/.z" ] && touch "$HOME/.z"
 	if [ -x "$(which git)" ]; then
-		setpx	
+		# setpx	
 		git clone https://github.com/zplug/zplug $ZPLUG
 	else
 		echo "ERROR: please install git before installation !!"
