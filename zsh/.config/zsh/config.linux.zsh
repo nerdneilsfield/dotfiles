@@ -36,7 +36,7 @@ install_nvim () {
 	set -o xtrace
 
   # install dependencies
-  sudo apt install gettext libtool-bin
+  pki gettext libtool-bin
 
 	export NVIM_REPO=https//github.com/neovim/neovim
     local NVIM_REPO=$HOME/Source/app/neovim
