@@ -25,4 +25,11 @@ install_rust_tools() {
 
   # rust lsp
   cargo install rust-analyzer
+
+  # cross compile
+  cargo install cargo-zigbuild
+}
+
+install_toml_lsp() {
+  npm install -g @taplo/cli
 }
