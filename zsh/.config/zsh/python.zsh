@@ -48,3 +48,7 @@ install_python_tools() {
       python3 -m pip install --user -U $_tool
     done
 }
+
+add_python_ppa(){
+  sudo add-apt-repository ppa:deadsnakes/ppa
+}

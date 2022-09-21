@@ -89,3 +89,7 @@ install_go_tools () {
 	install_yamlfmt
 
 }
+
+add_golang_ppa() {
+	sudo add-apt-repository ppa:longsleep/golang-backports
+}

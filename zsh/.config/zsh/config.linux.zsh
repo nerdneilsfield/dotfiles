@@ -50,3 +50,10 @@ install_nvim () {
 	cd -
 	nvim --version
 }
+
+
+disable_ipv6 {
+	sudo echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+	sudo echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /et/sysctl.conf
+	sudo sysctl -p
+}
