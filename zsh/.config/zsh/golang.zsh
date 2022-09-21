@@ -26,11 +26,26 @@ alias gdv='godotenv'
 alias got='APP_ENV=dev go test --cover --race ./...'
 alias gor='APP_ENV=stage go run main.go'
 
+create_go_path(){
+	mkdir ~/Source/Go
+}
+
+install_yamlfmt() {
+	go install github.com/google/yamlfmt/cmd/yamlfmt@latest
+}
+
+install_yaml_lsp() {
+	npm install -g yaml-language-server
+}
+
+install_yaml_lint(){
+	python3 -m pip install --user -U yamllint
+}
 
 install_go_tools () {
   mkdir -p $HOME/Source/app
 	cd $HOME/Source/app
-	setproxy
+	# setproxy
 	export GOPROXY=https://goproxy.io 
 	# gopls
 	local _gogettools=(
@@ -43,9 +58,9 @@ install_go_tools () {
 		"github.com/cweill/gotests/...@latest"
 		"github.com/golangci/golangci-lint/cmd/golangci-lint@latest"
 		"golang.org/x/tools/cmd/goimports@latest"
-    "github.com/nerdneilsfield/gox@v1.0.2"
-    "mvdan.cc/gofumpt@latest"
-    "github.com/segmentio/golines@latest"
+	"github.com/nerdneilsfield/gox@v1.0.2"
+	"mvdan.cc/gofumpt@latest"
+	"github.com/segmentio/golines@latest"
 	)
 
 	echo $PWD
@@ -71,4 +86,6 @@ install_go_tools () {
 	# 	cd $local_location
 	# 	go install github.com/$v
 	# }
+	install_yamlfmt
+
 }
