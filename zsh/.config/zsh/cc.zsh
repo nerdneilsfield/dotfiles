@@ -114,6 +114,13 @@ function install_ctags() {
 
 }
 
+function install_mold() {
+  git clone --depth 1 https://github.com/rui314/mold.git $HOME/Source/app/mold
+  cd $HOME/Source/app/mold
+  make -j$(nproc)
+  sudo make install
+}
+
 function install_cpp_tools(){
   mkdir -p $HOME/Source/app
 
