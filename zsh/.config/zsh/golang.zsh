@@ -93,3 +93,7 @@ install_go_tools () {
 add_golang_ppa() {
 	sudo add-apt-repository ppa:longsleep/golang-backports
 }
+
+install_golang_ppa(){
+	sudo apt install golang
+}
