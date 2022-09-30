@@ -74,3 +74,15 @@ fw_open_port_tcp(){
         echo "firewall-cmd not found"
     fi
 }
+
+fw_open_port_udp(){
+    # if command firewall-cmd exists
+    if command -v firewall-cmd &> /dev/null
+    then
+        sudo firewall-cmd --zone=public --add-port=$1/udp --permanent
+        sudo firewall-cmd --reload
+        sudo firewall-cmd --list-ports | grep $1
+    else
+        echo "firewall-cmd not found"
+    fi
+}
