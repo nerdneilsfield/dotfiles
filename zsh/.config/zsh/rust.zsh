@@ -24,7 +24,7 @@ install_rust_tools() {
   cargo install --locked cargo-outdated
 
   # rust lsp
-  cargo install rust-analyzer
+  rustup component add rust-analyzer
 
   # cross compile
   cargo install cargo-zigbuild
