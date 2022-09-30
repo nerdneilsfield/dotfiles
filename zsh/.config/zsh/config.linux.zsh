@@ -9,6 +9,7 @@ if [  -n "$(ls /etc | grep apt)" ]; then
     alias pkr='sudo apt uninstall'
     alias pku='sudo apt update'
     alias pkd='sudo apt upgrade'
+    source $ZSH_CONF_DIR/config.ubuntu.zsh
 elif [ -n "$(ls /etc | grep pacman)" ]; then
     echo "Packagemanger pacman detect"
     alias pki='sudo pacman -S'
@@ -22,6 +23,7 @@ elif [ -n "$(ls /etc | grep yum) "];then
     alias pkr='sudo yum remove'
     alias pku='sudo yum update'
     alias pkd='sudo yum upgrade'
+    source $ZSH_CONF_DIR/config.centos.zsh
 fi
 
 # # color
@@ -41,7 +43,7 @@ install_nvim () {
 	export NVIM_REPO=https//github.com/neovim/neovim
     local NVIM_REPO=$HOME/Source/app/neovim
 	if [ ! -d "$NVIM_REPO" ]; then
-		git clone https://github.com/neovim/neovim.git $NVIM_REPO
+		git clone --depth 1 https://github.com/neovim/neovim.git $NVIM_REPO
 	fi
 	cd $NVIM_REPO
 	git pull origin master
@@ -54,7 +56,21 @@ install_nvim () {
 
 disable_ipv6() {
     sudo ping
-	sudo tee "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
-	sudo tee "net.ipv6.conf.default.disable_ipv6 = 1" >> /et/sysctl.conf
+	sudo echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+	sudo echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
 	sudo sysctl -p
+}
+
+
+# open the port firewall
+fw_open_port_tcp(){
+    # if command firewall-cmd exists
+    if command -v firewall-cmd &> /dev/null
+    then
+        sudo firewall-cmd --zone=public --add-port=$1/tcp --permanent
+        sudo firewall-cmd --reload
+        sudo firewall-cmd --list-ports | grep $1
+    else
+        echo "firewall-cmd not found"
+    fi
 }

@@ -78,3 +78,10 @@ setopt hist_verify
 setopt hist_no_store
 setopt interactivecomments
 zstyle ':completion:*' rehash true
+
+make_basic_directory(){
+	mkdir -p $HOME/Source/app
+	mkdir -p $HOME/.local/bin
+	mkdir -p $HOME/Source/Go
+	mkdir -p $HOME/.config
+}
