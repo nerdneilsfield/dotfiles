@@ -1,14 +1,47 @@
 install_zls() {
-        git clone --recurse-submodules --depth 1 https://github.com/zigtools/zls $HOME/Source/app/zls
-        cd $HOME/Source/app/zls
+        # if directory zls not exists
+        if [[ ! -d "$HOME/Source/app/zls" ]]; then
+                git clone --recursive --depth 1 https://github.com/zigtools/zls $HOME/Source/app/zls
+                cd $HOME/Source/app/zls
+        else
+                cd $HOME/Source/app/zls
+                git pull
+        fi
         zig build -Drelease-safe
         cp -r ./zig-out/bin/zls $HOME/.local/bin
         $HOME/.local/bin/zls --config
 }
 
 install_zigmod() {
-        git clone --recurse-submodules --depth 1 https://github.com/zigtools/zigmod $HOME/Source/app/zigmod
-        cd $HOME/Source/app/zigmod
-        zig build -Drelease-safe
+        if [[ ! -d "$HOME/Source/app/zigmod" ]]; then
+                git clone --recursive --depth 1 https://github.com/nektro/zigmod $HOME/Source/app/zigmod
+                cd $HOME/Source/app/zigmod
+        else
+                cd $HOME/Source/app/zigmod
+                git pull
+        fi
+        zig build 
         cp -r ./zig-out/bin/zigmod $HOME/.local/bin
+}
+
+install_zigup() {
+        ZIG_VER=$(GetLatestRelease "marler8997/zigup")
+        mkdir -p $HOME/Source/app/zigup
+        wget -O "$HOME/Source/app/zigup/zigup_${ZIG_VER}.zip" "https://github.com/marler8997/zigup/releases/download/v${ZIG_VER}/zigup.ubuntu-latest-x86_64.zip"
+        cd $HOME/Source/app/zigup
+        unzip "zigup_${ZIG_VER}.zip"
+        rm -rf $HOME/.local/bin/zigup
+        mv zigup $HOME/.local/bin/zigup
+        chmod +x $HOME/.local/bin/zigup
+        $HOME/.local/bin/zigup --help
+}
+
+install_zig() {
+        # check if zigup exists
+        if [[ ! -f "$HOME/.local/bin/zigup" ]]; then
+                install_zigup
+        fi
+
+        # install zig
+        $HOME/.local/bin/zigup master --install-dir $HOME/.cache/zig
 }
