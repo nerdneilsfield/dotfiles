@@ -482,7 +482,7 @@ EOF
 	# lld (linker)
 	apt-get -y  install lld-16
 	# libc++
-	apt-get -y  install libc++-16-dev libc++abi-16-dev
+	apt-get -y  install libc++-16-dev libc++abi-16-dev libclang-16-dev
 	# OpenMP
 	apt-get -y  install libomp-16-dev
 	# libclc
