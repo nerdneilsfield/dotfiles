@@ -2,34 +2,32 @@
 # check tools exist
 # ===================================================================
 
-if ! type fzf > /dev/null; then
-	echo fzf not found! use 'install_fzf' to install.
+if ! type fzf >/dev/null; then
+  echo fzf not found! use 'install_fzf' to install.
 fi
 
-if ! type rg > /dev/null; then
-	echo rg not found! use 'install_ripgrep' to install.
+if ! type rg >/dev/null; then
+  echo rg not found! use 'install_ripgrep' to install.
 fi
 
-if ! type fd > /dev/null; then
-	echo fd not found! use 'install_fd' to install.
+if ! type fd >/dev/null; then
+  echo fd not found! use 'install_fd' to install.
 fi
 
-if ! type bat > /dev/null; then
-	echo bat not found! use 'install_bat' to install.
+if ! type bat >/dev/null; then
+  echo bat not found! use 'install_bat' to install.
 fi
 
-if ! type lazygit > /dev/null; then
-	echo lazygit not found! use 'install_lazygit' to install.
+if ! type lazygit >/dev/null; then
+  echo lazygit not found! use 'install_lazygit' to install.
 fi
 
-if ! type nvim > /dev/null; then
-	echo nvim not found! use 'update_nvim' to install.
+if ! type nvim >/dev/null; then
+  echo nvim not found! use 'update_nvim' to install.
 fi
-
 
 export GITHUB_LOCATION="$HOME/Source/app"
 export LOCAL_BIN="$HOME/.local/bin/"
-
 
 # ===================================================================
 # install tools exist
@@ -42,7 +40,7 @@ export LOCAL_BIN="$HOME/.local/bin/"
 # 	export FZF_REPO=$HOME/.fzf
 # 	if [ ! -d "$FZF_REPO" ]; then
 # 		git clone https://github.com/junegunn/fzf.git $FZF_REPO
-# 	fi 
+# 	fi
 # 	cd $FZF_REPO
 # 	git pull origin master
 # 	#$FZF_REPO/install
@@ -58,7 +56,7 @@ export LOCAL_BIN="$HOME/.local/bin/"
 # 	export FZF_REPO=$GITHUB_LOCATION/junegunn/fzf
 # 	if [ ! -d "$FZF_REPO" ]; then
 # 		git clone https://github.com/junegunn/fzf.git $FZF_REPO
-# 	fi 
+# 	fi
 # 	cd $FZF_REPO
 # 	git pull origin master
 # 	$FZF_REPO/install
@@ -73,7 +71,7 @@ export LOCAL_BIN="$HOME/.local/bin/"
 # 	export RG_REPO=$GITHUB_LOCATION/BurntSushi/ripgrep
 # 	if [ ! -d "$RG_REPO" ]; then
 # 		git clone https://github.com/BurntSushi/ripgrep.git $RG_REPO
-# 	fi 
+# 	fi
 # 	cd $RG_REPO
 # 	git pull origin master
 # 	cargo build --release
@@ -89,7 +87,7 @@ export LOCAL_BIN="$HOME/.local/bin/"
 # 	export FD_REPO=$GITHUB_LOCATION/sharkdp/fd
 # 	if [ ! -d "$FD_REPO" ]; then
 # 		git clone https://github.com/sharkdp/fd.git $FD_REPO
-# 	fi 
+# 	fi
 # 	cd $FD_REPO
 # 	git pull origin master
 # 	cargo build --release
@@ -157,12 +155,11 @@ export LOCAL_BIN="$HOME/.local/bin/"
 # 	cd $VIM_REPO
 # 	git pull origin master
 # 	# https://github.com/vim/vim/blob/master/src/INSTALL
-# 	make 
+# 	make
 # 	sudo make install
 # 	cd -
 # 	vim --version
 # }
-
 
 #=======================
 # Tool Usage
@@ -181,8 +178,6 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview '${FZF
 [ -f ~/.config/zsh/fzf/completion.zsh ] && source ~/.config/zsh/fzf/completion.zsh
 [ -f ~/.config/zsh/fzf/key-bindings.zsh ] && source ~/.config/zsh/fzf/key-bindings.zsh
 
-
-
 # alias fpreview="fzf --min-height 30 --preview-window down:60% --preview-window noborder --preview '($FZF_PREVIEW_COMMAND) 2> /dev/null'"
 
 # cdf - cd into the directory of the selected file
@@ -193,16 +188,29 @@ fh() {
   eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
 }
 
-chtsh(){
+chtsh() {
   curl cht.sh/$1/$2
 }
 
-
-install_nvchad() {
-	git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 && nvim
+install_tpm(){
+  mkdir -p $HOME/.tmux/plugins
+  if [[ -d $HOME/.tmux/plugins/tpm ]]; then
+    echo "=========tpm already installed, updating======"
+    cd $HOME/.tmux/plugins/tpm
+    git pull
+    echo "========tpm updated========"
+  else
+    echo "=========installing tpm======"
+    git clone --recursive --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    echo "=========tpm installed======"
+  fi
 }
 
-install_neofetch(){
+install_nvchad() {
+  git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 && nvim
+}
+
+install_neofetch() {
   wget -O ~/.local/bin/neofetch "https://github.com/dylanaraps/neofetch/raw/master/neofetch"
   chmod +x ~/.local/bin/neofetch
 }
@@ -210,10 +218,10 @@ install_neofetch(){
 backup_nvim() {
   local _now_date=$(date +'%Y-%m-%d-%S')
   echo "now_date ${_now_date}"
-  mv ~/.config/nvim  "~/.config/nvim_back_${_now_date}"
+  mv ~/.config/nvim "~/.config/nvim_back_${_now_date}"
 }
 
-install_rust_built_local_tools(){
+install_modertools_rust() {
   cargo install cargo-quickinstall
   local _tools=(
     "tokei"
@@ -228,24 +236,27 @@ install_rust_built_local_tools(){
     "hexyl" # a hex viewer in command line
     "ffsend"
     "onefetch"
+    "mdbook"
+    "rustscan"
+    "lemmeknow"
   )
 
-  for _rust_tool in $_tools; do
-    echo install $_rust_tool
-    cargo quickinstall $_rust_tool
-  done
+  local CODENAME=$(lsb_release -c | awk '{print $2}')
+  # if codename is bionic or xenial
+  local _install_command="cargo quickinstall"
+  if [[ $CODENAME == "bionic" || $CODENAME == "xenial" ]]; then
+    _install_command="cargo install --locked"
+  fi
 
-  local _tools_force_build_from_souce=(
-  "mdbook"
-  "rustscan"
-)
-for _rust_tool in $_tools_force_build_from_souce; do
-    echo install $_rust_tool
-    cargo install $_rust_tool
+  for _rust_tool in $_tools; do
+    echo "-----------------------------"
+    echo "install $_rust_tool"
+    _install_command $_rust_tool
+    echo "-----------------------------"
   done
 }
 
-install_python_related_local_tools() {
+install_modertools_python() {
   # python3 -m pip install -U pip
   local _python_tools=(
     "glances"
@@ -255,18 +266,36 @@ install_python_related_local_tools() {
     "jrnl"
   )
   for _python_tool in $_python_tools; do
-      echo install _python_tool
-      python3 -m pip install --user $_python_tool
-    done
+    echo install _python_tool
+    python3 -m pip install --user $_python_tool
+  done
+}
+
+install_modertools_go() {
+  echo "======================================"
+  echo "=========Install Modertools Go========"
+  echo "======================================"
+  local _golang_tools=(
+    # "github.com/zulk/nali"
+    "moul.io/assh/v2"
+    "github.com/muesli/duf"
+    "github.com/rclone/rclone"
+    "github.com/jesseduffield/lazydocker"
+    # "github.com/junegunn/fzf"
+  )
+
+  for _golang_tool in $_golang_tools; do
+    echo "=====install $_golang_tool====="
+    go install "${_golang_tool}@latest"
+  done
 }
 
 install_modertools_local() {
   install_neofetch
-  install_rust_built_local_tools
-  install_python_related_local_tools
+  install_modertools_rust
+  install_modertools_python
 }
 
 #=======================
 #=====git diff difft====
 export GIT_EXTERNAL_DIFF=difft
-
