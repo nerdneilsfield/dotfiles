@@ -73,6 +73,11 @@ return {
 			require("true-zen").setup()
 		end,
 	},
+	["gbprod/yanky.nvim"] = {
+		config = function()
+			require("yanky").setup()
+		end,
+	},
 	-- Override plugin definition options
 	["goolord/alpha-nvim"] = {
 		disable = false,
