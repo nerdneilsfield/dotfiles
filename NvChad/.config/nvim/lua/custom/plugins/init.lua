@@ -27,13 +27,13 @@ return {
 			require("custom.plugins.configs.null-ls")
 		end,
 	},
-	-- ["tzachar/cmp-tabnine"] = {
-	-- 	after = "nvim-cmp",
-	-- 	run = "./install.sh",
-	-- 	config = function()
-	-- 		require("custom.plugins.configs.tabnine")
-	-- 	end,
-	-- },
+	["tzachar/cmp-tabnine"] = {
+		after = "nvim-cmp",
+		run = "./install.sh",
+		config = function()
+			require("custom.plugins.configs.tabnine")
+		end,
+	},
 	["folke/which-key.nvim"] = {
 		disable = false,
 		keys = { "<leader>", "<localleader>" },

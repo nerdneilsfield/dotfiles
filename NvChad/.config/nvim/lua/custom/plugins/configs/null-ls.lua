@@ -47,7 +47,7 @@ local sources = {
 	b.diagnostics.shellcheck.with({ diagnostics_format = "#{m} [#{c}]" }),
 
 	-- zsh
-	-- null_ls.builtins.diagnostics.zsh,
+	null_ls.builtins.diagnostics.zsh,
 
 	-- markdown
 	null_ls.builtins.diagnostics.markdownlint,

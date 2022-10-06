@@ -1,8 +1,8 @@
 return {
 	-- preselect = cmp.PreselectMode.None,
 	sources = {
-		{ name = "copilot" },
 		{ name = "cmp-tabnine" },
+		{ name = "copilot" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "buffer" },
