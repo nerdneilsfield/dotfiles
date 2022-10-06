@@ -7,28 +7,25 @@
 --   end,
 -- })
 
-
 --- gutentags && gutentags_plus
-vim.g.gutentags_project_root = {'.root', '.svn', '.git', '.hg', '.project'}
-vim.g.gutentags_ctags_tagfile = '.tags'
-vim.g.gutentags_modules = {"ctags", "gtags_cscope"}
+vim.g.gutentags_project_root = { ".root", ".svn", ".git", ".hg", ".project" }
+vim.g.gutentags_ctags_tagfile = ".tags"
+vim.g.gutentags_modules = { "ctags", "gtags_cscope" }
 vim.g.gutentags_cache_dir = vim.fn.expand("~/.cache/tags")
-vim.g.gutentags_ctags_extra_args = {"--fields=+niazS", "--extra=+q", "--c++-kinds=+px", "--c-kinds=+px", "--output-format=e-ctags"}
+vim.g.gutentags_ctags_extra_args = { "--fields=+niazS", "--extra=+q", "--c++-kinds=+px", "--c-kinds=+px", "--output-format=e-ctags" }
 vim.g.gutentags_auto_add_gtags_cscope = 0
 vim.g.gutentags_plus_switch = 1
 vim.g.gutentags_plus_nomap = 1
-
-
---- async run
+-- --- async run
 vim.g.asyncrun_open = 10
-vim.g.asyncrun_rootmarks = {'.svn', '.git', '.root', '_darcs', 'build.xml'}
-
+vim.g.asyncrun_rootmarks = { ".svn", ".git", ".root", "_darcs", "build.xml" }
+--
 local function map(mode, lhs, rhs, opts)
-    local options = { noremap = true }
-    if opts then
-        options = vim.tbl_extend("force", options, opts)
-    end
-    vim.api.nvim_set_keymap(mode, lhs, rhs, options)
+	local options = { noremap = true }
+	if opts then
+		options = vim.tbl_extend("force", options, opts)
+	end
+	vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
 
 -- map("n", "<leader>cps", ":GscopeFind s <C-R><C-W><cr>")

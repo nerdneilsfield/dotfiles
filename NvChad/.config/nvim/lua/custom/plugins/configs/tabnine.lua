@@ -11,5 +11,5 @@ tabnine.setup({
 		-- uncomment to ignore in lua:
 		-- lua = true
 	},
-	show_prediction_strength = false
+	show_prediction_strength = true,
 })

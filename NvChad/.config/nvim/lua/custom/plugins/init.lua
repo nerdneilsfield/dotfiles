@@ -1,5 +1,6 @@
 return {
 	["neovim/nvim-lspconfig"] = {
+    after="lspkinds",
 		config = function()
 			require("plugins.configs.lspconfig")
 			require("custom.plugins.configs.lspconfig")
@@ -7,6 +8,7 @@ return {
 	},
 	-- for first auth to github
 	-- ["github/copilot.vim"] = {},
+  ["onsails/lspkind.nvim"] = {},
 	["zbirenbaum/copilot.lua"] = {
 		config = function()
 			vim.defer_fn(function()
@@ -19,7 +21,12 @@ return {
 			end, 100)
 		end,
 	},
-	["zbirenbaum/copilot-cmp"] = {},
+	["zbirenbaum/copilot-cmp"] = {
+		after = "copilot.lua",
+		config = function()
+			require("copilot_cmp").setup()
+		end,
+	},
 	-- ["liuchengxu/vista.vim"] = {},
 	["jose-elias-alvarez/null-ls.nvim"] = {
 		after = "nvim-lspconfig",
@@ -78,6 +85,11 @@ return {
 			require("yanky").setup()
 		end,
 	},
+  ["hrsh7th/cmp-cmdline"] = {},
+  ["delphinus/cmp-ctags"] = {},
+  ["ray-x/cmp-treesitter"] = {},
+  ["kdheepak/cmp-latex-symbols"] ={},
+
 	-- Override plugin definition options
 	["goolord/alpha-nvim"] = {
 		disable = false,
@@ -99,18 +111,18 @@ return {
 				--   "typescript-language-server",
 				--   "deno",
 				--   "emmet-ls",
-				"json-lsp",
+				-- "json-lsp",
 
 				-- shell
 				"shfmt",
 				"shellcheck",
 
 				-- c++/clang
-				"clang-format",
-				"clangd",
-				"cmake-language-server",
-				"cmakelang",
-				"cpplint",
+				-- "clang-format",
+				-- "clangd",
+				-- "cmake-language-server",
+				-- "cmakelang",
+				-- "cpplint",
 				"cpptools",
 				"codelldb",
 
@@ -118,29 +130,31 @@ return {
 				"zls",
 
 				---- python
-				"pyright",
-				"blue",
-				"isort",
-				"debugpy",
-				"vulture",
-				"pylint",
+				-- "pyright",
+				-- "blue",
+				-- "isort",
+				-- "debugpy",
+				-- "vulture",
+				-- "pylint",
 
 				--- go
-				"gopls",
-				"golangci-lint",
-				"goimports",
-				"delve",
+				-- "gopls",
+				-- "golangci-lint",
+				-- "goimports",
+				-- "delve",
 
 				--- latex
-				"ltex-ls",
+				-- "ltex-ls",
 
 				--- makrdown
 				"cbfmt",
 				"markdownlint",
 				"marksman",
 
+				--- include some java
+
 				--- rust
-				"rust-analyzer",
+				-- "rust-analyzer",
 			},
 		},
 	},
