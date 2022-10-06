@@ -35,7 +35,7 @@ export CXX=/usr/bin/clang++-16
 
 install_nvim () {
 	set -e
-	set -o xtrace
+	# set -o xtrace
 
   # install dependencies
   pki gettext libtool-bin
@@ -47,7 +47,8 @@ install_nvim () {
 	fi
 	cd $NVIM_REPO
 	git pull origin master
-	make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=/usr/local -j $(nproc)
+  rm -rf build
+	make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=/usr/local -j $(nproc)
 	sudo make install
 	cd -
 	nvim --version
