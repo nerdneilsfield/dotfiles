@@ -18,16 +18,22 @@ install_rustup(){
     curl https://sh.rustup.rs -sSf | sh -s -- -y
 }
 
+install_rust_analyzer(){
+  # rust lsp
+  # rustup component add rust-analyzer
+  mkdir -p $HOME/.local/bin
+  curl -L https://github.com/rust-lang/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
+  chmod +x $HOME/.local/bin/rust-analyzer
+
+}
+
 install_rust_tools() {
   # some cargo extension
   cargo install cargo-quickinstall
   cargo install --locked cargo-outdated
-
-  # rust lsp
-  rustup component add rust-analyzer
-
   # cross compile
   cargo install cargo-zigbuild
+  install_rust_analyzer
 }
 
 install_toml_lsp() {
