@@ -106,6 +106,7 @@ function install_cpp_tools_ctags() {
   ./autogen.sh
   ./configure --prefix=$HOME/.local
   sed -i "1 i #define SETLOCALE_NULL_MAX 0" gnulib/hard-locale.c
+  export CC=gcc
   make
   make install # may require extra privileges depending on where to install
 
