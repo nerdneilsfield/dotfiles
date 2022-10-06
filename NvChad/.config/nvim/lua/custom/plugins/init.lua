@@ -1,14 +1,7 @@
 return {
-	["neovim/nvim-lspconfig"] = {
-    after="lspkinds",
-		config = function()
-			require("plugins.configs.lspconfig")
-			require("custom.plugins.configs.lspconfig")
-		end,
-	},
+  ["onsails/lspkind.nvim"] = {},
 	-- for first auth to github
 	-- ["github/copilot.vim"] = {},
-  ["onsails/lspkind.nvim"] = {},
 	["zbirenbaum/copilot.lua"] = {
 		config = function()
 			vim.defer_fn(function()
@@ -90,6 +83,13 @@ return {
   ["ray-x/cmp-treesitter"] = {},
   ["kdheepak/cmp-latex-symbols"] ={},
 
+	["neovim/nvim-lspconfig"] = {
+    after={"lspkind", "hrsh7th/cmp-cmdline", "delphinus/cmp-ctags", "ray-x/cmp-treesitter", "kdheepak/cmp-latex-symbols"},
+		config = function()
+			require("plugins.configs.lspconfig")
+			require("custom.plugins.configs.lspconfig")
+		end,
+	},
 	-- Override plugin definition options
 	["goolord/alpha-nvim"] = {
 		disable = false,
