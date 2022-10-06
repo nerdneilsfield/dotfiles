@@ -88,7 +88,7 @@ function clang++r() {
   ./"${1}.c.out"
 }
 
-function install_ctags() {
+function install_cpp_tools_ctags() {
   echo "=====install/update ctags========="
   local _localtion_url="https://github.com/universal-ctags/ctags.git"
   local _localtion_path="$HOME/Source/app/universal-ctags/ctags"
@@ -105,6 +105,7 @@ function install_ctags() {
   cd $_localtion_path
   ./autogen.sh
   ./configure --prefix=$HOME/.local
+  sed -i "1 i #define SETLOCALE_NULL_MAX 0" gnulib/hard-locale.c
   make
   make install # may require extra privileges depending on where to install
 
