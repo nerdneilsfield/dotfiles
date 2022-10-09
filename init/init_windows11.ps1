@@ -53,3 +53,12 @@ function InstallGame() {
 function InstallFont() {
         scoop install SourceCodePro-NF-Mono RobotoMono-NF-Mono JetBrainsMono-NF-Mono Iosevka-NF-Mono Inconsolata-NF-Mono IBMPlexMono-NF-Mono FiraCode-NF-Mono
 }
+
+function EnableWsl() {
+        Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+        Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
+}
+
+function InstallWsl() {
+        wsl --install
+}
