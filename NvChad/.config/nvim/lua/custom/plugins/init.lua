@@ -84,7 +84,7 @@ return {
   ["kdheepak/cmp-latex-symbols"] ={},
 
 	["neovim/nvim-lspconfig"] = {
-    after={"lspkind", "hrsh7th/cmp-cmdline", "delphinus/cmp-ctags", "ray-x/cmp-treesitter", "kdheepak/cmp-latex-symbols"},
+    -- after={"lspkind",  "delphinus/cmp-ctags", "ray-x/cmp-treesitter", "kdheepak/cmp-latex-symbols"},
 		config = function()
 			require("plugins.configs.lspconfig")
 			require("custom.plugins.configs.lspconfig")
