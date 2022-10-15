@@ -251,7 +251,7 @@ install_modertools_rust() {
   for _rust_tool in $_tools; do
     echo "-----------------------------"
     echo "install $_rust_tool"
-    _install_command $_rust_tool
+    $_install_command $_rust_tool
     echo "-----------------------------"
   done
 }

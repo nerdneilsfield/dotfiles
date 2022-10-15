@@ -11,7 +11,7 @@ alias ct='cargo test'
 alias cins="cargo install"
 
 install_rustup(){
-    setproxy
+    # setproxy
 	set -e
 	set -o xtrace
     echo "Installing rustup...."

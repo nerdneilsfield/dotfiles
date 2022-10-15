@@ -43,22 +43,23 @@ testconn() {
 	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.co
 }
 
-setpx_and_test(){
-	setpxup $1; setpx; testconn;
+setpx_and_test() {
+	setpxup $1
+	setpx
+	testconn
 }
 
-
-write_hostips(){
-  # use tee to write hostips to /usr/local/bin/hostips
-cat << EOF >> $HOME/.local/bin/hostips
+write_hostips() {
+	# use tee to write hostips to /usr/local/bin/hostips
+	cat <<EOF >>$HOME/.local/bin/hostips
 #/usr/bin/bash
 	
 ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}' | head -n 1
 EOF
 
-chmod +x $HOME/.local/bin/hostips
+	chmod +x $HOME/.local/bin/hostips
 
-sudo mv $HOME/.local/bin/hostips /usr/local/bin/
+	sudo mv $HOME/.local/bin/hostips /usr/local/bin/
 }
 # pxio () {
 # 	export https_proxy=http://10.10.43.3:1080
@@ -117,7 +118,8 @@ show_rgb() {
 }
 
 function GetLatestRelease() {
-    curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-    grep '"tag_name":' |                                            # Get tag line
-    sed -E 's/.*"v*([^"]+)".*/\1/'
+	curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+		grep '"tag_name":' |                                             # Get tag line
+		sed -E 's/.*"v*([^"]+)".*/\1/'
 }
+
