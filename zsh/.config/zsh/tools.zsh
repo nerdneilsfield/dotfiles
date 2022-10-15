@@ -222,7 +222,7 @@ backup_nvim() {
 }
 
 install_modertools_rust() {
-  cargo install cargo-quickinstall
+  # cargo install cargo-quickinstall
   local _tools=(
     "tokei"
     "boringtun-cli"
@@ -243,15 +243,16 @@ install_modertools_rust() {
 
   local CODENAME=$(lsb_release -c | awk '{print $2}')
   # if codename is bionic or xenial
-  local _install_command="cargo quickinstall"
+  local _install_command="quickinstall"
   if [[ $CODENAME == "bionic" || $CODENAME == "xenial" ]]; then
-    _install_command="cargo install --locked"
+    _install_command="install --locked"
   fi
 
   for _rust_tool in $_tools; do
     echo "-----------------------------"
-    echo "install $_rust_tool"
-    $_install_command $_rust_tool
+    echo "------install ${_rust_tool}------"
+    echo "$_install_command $_rust_tool"
+    cargo $_install_command $_rust_tool
     echo "-----------------------------"
   done
 }
