@@ -4,14 +4,18 @@ local capabilities = require("plugins.configs.lspconfig").capabilities
 local lspconfig = require("lspconfig")
 local servers = {
 	"zls",
+  "bashls",
 	"cssls",
 	"html",
   "jsonls",
 	"clangd",
 	"cmake",
+  "eslint",
+  "jsonls",
 	"pyright",
 	"gopls",
 	"ltex",
+  "html",
 	"tsserver",
 	"svlangserver",
 	"rust_analyzer",
