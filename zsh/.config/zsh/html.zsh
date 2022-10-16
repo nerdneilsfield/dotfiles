@@ -14,8 +14,16 @@ install_json_lsp() {
         npm i -g vscode-json-languageserver
 }
 
+install_eslint_lsp(){
+        npm i -g vscode-langservers-extracted
+}
+
 install_prettier(){
         npm i -g prettier
+}
+
+install_volar_lsp() {
+  npm i -g @volar/server
 }
 
 install_html_tools() {
@@ -24,4 +32,6 @@ install_html_tools() {
         install_javascript_lsp
         install_json_lsp
         install_prettier
-}
+        install_eslint_lsp
+        install_volar_lsp
+} 
