@@ -57,3 +57,7 @@ install_python_ppa(){
    sudo apt install python3.11-full python3.11-dev 
    curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo python3.11
 }
+
+install_pip(){
+  curl -sSL https://bootstrap.pypa.io/get-pip.py | $1
+}

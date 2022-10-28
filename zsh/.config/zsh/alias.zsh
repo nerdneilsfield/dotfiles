@@ -98,3 +98,8 @@ alias refresh-dns='sudo killall -HUP mDNSResponder'
 alias setpx="setproxy"
 alias unsetpx="unsetproxy"
 
+# trans
+alias trans_zh="trans -to \"zh-CN\" -text"
+alias trans_en="trans -to \"en\" -text"
+alias trans_ja="trans -to \"ja\" -text"
+
