@@ -4,6 +4,8 @@ export CC_SRC_DIR="cd $HOME/Source/langs/c++"
 
 alias CCDIR="cd $CC_SRC_DIR"
 
+export CMAKE_PREFIX_PATH=$HOME/.local/lib/cmake:$CMAKE_PREFIX_PATH
+
 export LD_LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/local/lib:/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH
 export LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/local/lib:/usr/local/lib:/usr/lib:$LIBRARY_PATH
 export C_INCLUDE_PATH=$HOME/usr/local/include:$HOME/usr/include:/usr/local/include:/usr/include:$C_INCLUDE_PATH
@@ -66,11 +68,11 @@ function gccr() {
 }
 
 function g++o() {
-  g++ --std=c++17 -Wall -Wextra -g -o "${1}.g.out" "${1}"
+  g++ --std=c++20 -Wall -Wextra -g -o "${1}.g.out" "${1}"
 }
 
 function g++r() {
-  g++ --std=c++17 -Wall -Wextra -g -o "${1}.g.out" "${1}"
+  g++ --std=c++20 -Wall -Wextra -g -o "${1}.g.out" "${1}"
   ./"${1}.g.out"
 }
 
@@ -84,7 +86,7 @@ function clangr() {
 }
 
 function clang++r() {
-  clang++ --std=c++17 -Wall -Wextra -g -o "${1}.c.out" "${1}"
+  clang++ --std=c++20 -Wall -Wextra -g -o "${1}.c.out" "${1}"
   ./"${1}.c.out"
 }
 
