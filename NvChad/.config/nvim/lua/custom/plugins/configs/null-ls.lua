@@ -28,9 +28,10 @@ local sources = {
 	-- null_ls.builtins.diagnostics.clang_check,
 
 	-- python
-	null_ls.builtins.diagnostics.vulture,
-	null_ls.builtins.formatting.blue,
+	--- null_ls.builtins.diagnostics.vulture,
+	--- null_ls.builtins.formatting.blue,
 	null_ls.builtins.formatting.isort,
+	null_ls.builtins.formatting.black,
 	-- null_ls.builtins.code_actions.refactoring,
 
 	-- rust
@@ -55,6 +56,6 @@ local sources = {
 }
 
 null_ls.setup({
-	debug = true,
+	debug = false,
 	sources = sources,
 })
