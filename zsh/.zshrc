@@ -20,7 +20,6 @@ source "$ZSH_CONF_DIR/node.zsh"
 source "$ZSH_CONF_DIR/ros.zsh"
 source "$ZSH_CONF_DIR/zig.zsh"
 
-
 ## # import z.lua
 ## eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)"    # ZSH 初始化
 
@@ -65,6 +64,7 @@ eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)" #  once enhanced)"
 
 ## check tools
 source "$ZSH_CONF_DIR/tools.zsh"
+source "$ZSH_CONF_DIR/editor.zsh"
 ## Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 # prompt -p spaceship
