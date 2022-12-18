@@ -48,3 +48,6 @@ map("n", "<leader>cpi", "<Plug>GscopeFindInclude")
 map("n", "<leader>cpd", "<Plug>GscopeFindCalledFunc")
 map("n", "<leader>cpa", "<Plug>GscopeFindAssign")
 map("n", "<leader>cpz", "<Plug>GscopeFindCtag")
+
+-- yank
+map("n", "<leader>y", "<Plug>OSCYank")

@@ -78,6 +78,9 @@ return {
 			require("yanky").setup()
 		end,
 	},
+  ['ojroques/vim-oscyank'] = {
+    branch = "main",
+  },
   ["hrsh7th/cmp-cmdline"] = {},
   ["delphinus/cmp-ctags"] = {},
   ["ray-x/cmp-treesitter"] = {},

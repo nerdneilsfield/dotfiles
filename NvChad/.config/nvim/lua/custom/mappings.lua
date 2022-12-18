@@ -131,4 +131,10 @@ M.truezen = {
 	},
 }
 
+M.oscyank = {
+  n  = {
+     ["<leader>yy"] = { "<cmd> OSCYankReg + <CR>", "Copy to clipboard" },
+     ["<leader>yc"] = { "OSCYank", "Copy to clipboard" },
+  }
+}
 return M
