@@ -51,3 +51,5 @@ map("n", "<leader>cpz", "<Plug>GscopeFindCtag")
 
 -- yank
 map("n", "<leader>y", "<Plug>OSCYank")
+
+-- require("nvim-tree").setup()
