@@ -19,9 +19,9 @@ install_pyenv() {
 #         poetry completions zsh > ~/.config/zfunc/_poetry
 # }
 # setup pyenv
-export PYENV_ROOT="$HOME/.local/pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+# export PYENV_ROOT="$HOME/.local/pyenv"
+# command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"
 
 #setup poetry
 # export POETRY_HOME="$HOME/.local/poetry"
@@ -45,7 +45,7 @@ install_python_tools() {
 
   for _tool in $_python_tools; do
       echo "install $_tool"
-      python3 -m pip install --user -U $_tool
+      pip3 install --user -U $_tool
     done
 }
 
