@@ -1,9 +1,0 @@
--- local st_modules = require "nvchad_ui.statusline.modules"
---
---
--- return {
---    mode = function()
---       local x = st_modules.mode() .. "  "
---       x = x .. vim.g.vista_nearest_method_or_function
---    end,
--- }
