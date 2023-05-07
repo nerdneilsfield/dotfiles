@@ -212,6 +212,20 @@ function InstallBat() {
 	mv autocomplete/_bat /usr/share/zsh/vendor-completions/
 }
 
+function InstallGdu() {
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	echo "---------------Install GDU From Github------------"
+	echo "-------------------------------------------------"
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
+	GDU_VERSION=$(GetLatestRelease "dundee/gdu")
+	wget -O /tmp/install_app/gdu_latest.tar.gz  https://github.com/dundee/gdu/releases/download/v${GDU_VERSION}/gdu_linux_amd64_static.tgz
+	tar xf gdu_latest.tar.gz
+	mv gdu_linux_amd64_static  /usr/local/bin/gdu
+}
+
+
 function InstallExa() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
@@ -544,6 +558,7 @@ function InstallModernTools() {
 	InstallStarShip
 	InstallGithubCli
 	InstallFzf
+    InstallGdu
   InstallDifftastic
   InstallSd
   InstallPueue

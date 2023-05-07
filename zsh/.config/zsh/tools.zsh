@@ -282,6 +282,7 @@ install_modertools_go() {
     "github.com/muesli/duf"
     "github.com/rclone/rclone"
     "github.com/jesseduffield/lazydocker"
+	"github.com/dundee/gdu/v5/cmd/gdu"
     # "github.com/junegunn/fzf"
   )
 
