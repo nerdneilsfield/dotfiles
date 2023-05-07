@@ -215,7 +215,7 @@ function InstallBat() {
 function InstallGdu() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
-	echo "---------------Install Bat From Github------------"
+	echo "---------------Install GDU From Github------------"
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
@@ -558,6 +558,7 @@ function InstallModernTools() {
 	InstallStarShip
 	InstallGithubCli
 	InstallFzf
+    InstallGdu
   InstallDifftastic
   InstallSd
   InstallPueue
