@@ -206,19 +206,9 @@ install_tpm(){
   fi
 }
 
-install_nvchad() {
-  git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 && nvim
-}
-
 install_neofetch() {
   wget -O ~/.local/bin/neofetch "https://github.com/dylanaraps/neofetch/raw/master/neofetch"
   chmod +x ~/.local/bin/neofetch
-}
-
-backup_nvim() {
-  local _now_date=$(date +'%Y-%m-%d-%S')
-  echo "now_date ${_now_date}"
-  mv ~/.config/nvim "~/.config/nvim_back_${_now_date}"
 }
 
 install_modertools_rust() {
