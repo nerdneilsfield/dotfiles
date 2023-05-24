@@ -6,13 +6,28 @@ alias CCDIR="cd $CC_SRC_DIR"
 
 export CMAKE_PREFIX_PATH=$HOME/.local/lib/cmake:$CMAKE_PREFIX_PATH
 
-export LD_LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/local/lib:/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/local/lib:/usr/local/lib:/usr/lib:$LIBRARY_PATH
-export C_INCLUDE_PATH=$HOME/usr/local/include:$HOME/usr/include:/usr/local/include:/usr/include:$C_INCLUDE_PATH
-export CPP_INCLUDE_PATH=$HOME/usr/local/include:$HOME/usr/include:/usr/local/include:/usr/include:$CPP_INCLUDE_PATH
+export LD_LIBRARY_PATH=$HOME/.local/lib:/usr/local/lib:/usr/lib
+export LIBRARY_PATH=$HOME/.local/lib:/usr/local/lib:/usr/lib
+export C_INCLUDE_PATH=$HOME/.local/include:/usr/local/include:/usr/include
+export CPP_INCLUDE_PATH=$HOME/.local/include:/usr/local/include:/usr/include
 # export LDFLAGS="-L/usr/local/opt/qt/lib:-L/usr/local/lib:$LDFLAGS"
 # export CFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CFLAGS"
 # export CPPFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CPPFLAGS"
+
+if hash clang-16 2>/dev/null; then
+  export CC=`where clang-16`
+  export CXX=`where clang++-16`
+elif hash gcc-12 2>/dev/null; then
+  export CC=`where gcc-12`
+  export CXX=`where g++-12`
+elif hash clang 2>/dev/null; then
+  export CC=`where clang`
+  export CXX=`where clang++`
+else
+  export CC=`where gcc`
+  export CXX=`where g++`
+fi
+
 
 alias _cmk='cmake -G "Ninja"'
 
@@ -241,3 +256,32 @@ function install_cpp_tools() {
   install_cpp_tools_cppcheck
   install_cpp_tools_bear
 }
+
+function set_cxx(){
+  case "$1" in
+    "gcc")
+     echo "Change to gcc"
+     if hash gcc-12 2>/dev/null; then
+       export CC=`where gcc-12`
+       export CXX=`where g++-12`
+     else
+       export CC=`where gcc`
+       export CXX=`where g++`
+     fi 
+    ;;
+    "clang")
+     echo "Change to clang"
+     if hash clang-16 2>/dev/null; then
+       export CC=`where clang-16`
+       export CXX=`where clang++-16`
+     else
+       export CC=`where clang`
+       export CXX=`where clang++`
+     fi 
+    ;;
+    *)
+      echo "useage: set_cxx [gcc|clang]"
+    ;;
+  esac
+}
+

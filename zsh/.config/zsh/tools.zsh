@@ -222,27 +222,44 @@ install_modertools_rust() {
     "czkawka_cli" # duplicate file finder
     "broot"
     "xsv"
-    "gping"
+    # "gping"
     "hexyl" # a hex viewer in command line
     "ffsend"
     "onefetch"
     "mdbook"
     "rustscan"
-    "lemmeknow"
+    # "lemmeknow"
+    "xcp" # better cp
+    "choose" # cut and awk
+    "xh" # an alternative to httpie
+    "mdcat" # cat for makrdown
+    "rm-improved" # safe rm
+    "just" # build system
+    "grex" # regex generator
+    "helix" # a better editor
+    "bandwhich" # network bandwith monitor
+    # "dog" # a dns client
+    "bottom"
+    "git-cliff" # git-cliff
+    "miniserve" # mini http server
+    "pastel" # color manager
+    "monolith" # save html file to one file
+    "tealdeer" # a fast tldr
+    "sd" # sed alternative
   )
 
   local CODENAME=$(lsb_release -c | awk '{print $2}')
   # if codename is bionic or xenial
-  local _install_command="quickinstall"
+  local _install_command="binstall"
   if [[ $CODENAME == "bionic" || $CODENAME == "xenial" ]]; then
-    _install_command="install --locked"
+    _install_command="install"
   fi
 
   for _rust_tool in $_tools; do
     echo "-----------------------------"
     echo "------install ${_rust_tool}------"
     echo "$_install_command $_rust_tool"
-    cargo $_install_command $_rust_tool
+    cargo $_install_command -y $_rust_tool
     echo "-----------------------------"
   done
 }
@@ -251,13 +268,14 @@ install_modertools_python() {
   # python3 -m pip install -U pip
   local _python_tools=(
     "glances"
-    "tldr"
+    # "tldr"
     "yt-dlp"
     "gitsome"
-    "jrnl"
+    "httpie"
+    # "jrnl"
   )
   for _python_tool in $_python_tools; do
-    echo install _python_tool
+    echo install $_python_tool
     python3 -m pip install --user $_python_tool
   done
 }
@@ -272,7 +290,7 @@ install_modertools_go() {
     "github.com/muesli/duf"
     "github.com/rclone/rclone"
     "github.com/jesseduffield/lazydocker"
-	"github.com/dundee/gdu/v5/cmd/gdu"
+	  "github.com/dundee/gdu/v5/cmd/gdu"
     # "github.com/junegunn/fzf"
   )
 
@@ -286,8 +304,19 @@ install_modertools_local() {
   install_neofetch
   install_modertools_rust
   install_modertools_python
+  install_modertools_go
 }
 
 #=======================
 #=====git diff difft====
 export GIT_EXTERNAL_DIFF=difft
+
+
+show_ip_addr() {
+  ip addr | grep -E "192.168" | awk '{print $2}' | cut -d "/" --field 1
+  ip addr | grep -E "10.11" | awk '{print $2}' | cut -d "/" --field 1
+  ip addr | grep -E "10.15" | awk '{print $2}' | cut -d "/" --field 1
+  ip addr | grep -E "10.19" | awk '{print $2}' | cut -d "/" --field 1
+  ip addr | grep -E "10.0." | awk '{print $2}' | cut -d "/" --field 1
+  ip addr | grep -E "172." | awk '{print $2}' | cut -d "/" --field 1
+}

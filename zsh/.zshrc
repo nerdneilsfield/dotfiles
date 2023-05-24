@@ -19,6 +19,7 @@ source "$ZSH_CONF_DIR/java.zsh"
 source "$ZSH_CONF_DIR/node.zsh"
 source "$ZSH_CONF_DIR/ros.zsh"
 source "$ZSH_CONF_DIR/robotics.zsh"
+source "$ZSH_CONF_DIR/xilinx.zsh"
 source "$ZSH_CONF_DIR/zig.zsh"
 
 ## # import z.lua
@@ -59,7 +60,7 @@ fi
 export _ZL_MATCH_MODE=1
 export _ZL_CMD=z
 export _ZL_ADD_ONCE=1
-eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)" #  once enhanced)"
+eval "$(lua $ZSH_CONF_DIR/z.lua --init zsh fzf)" #  once enhanced)"
 ##eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh  once enhanced)"
 
 

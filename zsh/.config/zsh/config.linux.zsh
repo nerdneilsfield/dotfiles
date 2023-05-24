@@ -30,8 +30,8 @@ fi
 # zstyle :prompt:pure:path color 214
 # zstyle :prompt:pure:prompt:error color 160
 
-export CC=/usr/bin/clang-16
-export CXX=/usr/bin/clang++-16
+# export CC=/usr/bin/clang-16
+# export CXX=/usr/bin/clang++-16
 
 
 
