@@ -30,12 +30,17 @@ install_rust_analyzer(){
 install_rust_tools() {
   # some cargo extension
   cargo install cargo-quickinstall
-  cargo install --locked cargo-outdated
+  cargo quickinstall cargo-binstall
+  cargo binstall --no-confirm cargo-edit cargo-watch cargo-tarpaulin watchexec-cli cargo-outdated cargo-update
   # cross compile
-  cargo install cargo-zigbuild
+  cargo binstall --no-confirm cargo-zigbuild
   install_rust_analyzer
 }
 
 install_toml_lsp() {
   npm install -g @taplo/cli
+}
+
+set_cargo_mirrors() {
+  echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config
 }

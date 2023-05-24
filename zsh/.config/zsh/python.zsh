@@ -1,6 +1,8 @@
 alias python='python3'
-alias pip='python3 -m pip'
-alias pipu="python3 -m pip -U pip"
+alias pipi='python3 -m pip install -U --user -i https://pypi.tuna.tsinghua.edu.cn/simple'
+alias pipu="python3 -m pip install -U -i https://pypi.tuna.tsinghua.edu.cn/simple pip"
+alias pipl="python3 -m pip list"
+alias pipf="python3 -m pip freeze"
 alias addpwd2pythonpah="export PYTHONPATH=${PWD}:$PYTHONPATH"
 
 install_pyenv() {
@@ -33,6 +35,7 @@ install_python_tools() {
   local _python_tools=(
     "blue"
     "autopep8"
+    "black"
     "isort"
     "pyright"
     "pydocstyle"
@@ -45,7 +48,7 @@ install_python_tools() {
 
   for _tool in $_python_tools; do
       echo "install $_tool"
-      pip3 install --user -U $_tool
+      pipi  $_tool
     done
 }
 

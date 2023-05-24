@@ -46,7 +46,7 @@ install_go_tools () {
   mkdir -p $HOME/Source/app
 	cd $HOME/Source/app
 	# setproxy
-	export GOPROXY=https://goproxy.io 
+	export GOPROXY=https://goproxy.cn
 	# gopls
 	local _gogettools=(
 		"golang.org/x/tools/gopls@latest"

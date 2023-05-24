@@ -1,3 +1,3 @@
 say_hi(){
-        echo "Im from ubuntu"
+        echo "Im from ubuntu or deb"
 }

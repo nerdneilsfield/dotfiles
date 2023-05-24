@@ -21,8 +21,8 @@ alias yamlcheck="python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))'"
 alias prettyjson='python -m json.tool'
 
 #editor
-alias e="emacs -nw "
-alias ec="emacsclient"
+# alias e="emacs -nw "
+# alias ec="emacsclient"
 
 alias startapollo="bash docker/scripts/dev_start.sh && bash docker/scripts/dev_into.sh"
 
@@ -35,7 +35,20 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
-alias ll='ls -al'
+
+if hash exa 2>/dev/null; then
+    alias ls='exa'
+    alias l='exa -l --all --group-directories-first --git'
+    alias ll='exa -l --all --all --group-directories-first --git'
+    alias lt='exa -T --git-ignore --level=2 --group-directories-first'
+    alias llt='exa -lT --git-ignore --level=2 --group-directories-first'
+    alias lT='exa -T --git-ignore --level=4 --group-directories-first'
+else
+    alias l='ls -lah'
+    alias ll='ls -alF'
+    alias la='ls -A'
+fi
+
 alias mkdirp='mkdir -p'
 alias to='j'
 alias jf='j -I'
@@ -60,7 +73,7 @@ alias lgit="lazygit"
 alias gitcrd="git clone --recursive --depth 1 "
 
 #jabba
-alias jb='jabba'
+# alias jb='jabba'
 
 # script
 # alias z='zerotier-cli'
@@ -74,17 +87,17 @@ alias tn='tmux new -s'
 alias tka='tmux kill-session -a'
 alias tk='tmux kill-session -t'
 
-function startVim() {
-	if ! [ -x "$(command -v npm)" ]; then
-	  echo 'Error: nvm is not invoked.' >&2
-	  nvm >> /dev/null
-	fi
-	nvim $@
-}
+# function startVim() {
+# 	if ! [ -x "$(command -v npm)" ]; then
+# 	  echo 'Error: nvm is not invoked.' >&2
+# 	  nvm >> /dev/null
+# 	fi
+# 	nvim $@
+# }
 
 # vim
-alias vi='nvim'
-alias v='nvim'
+# alias vi='nvim'
+# alias v='nvim'
 
 # others
 alias now='date +%s'
