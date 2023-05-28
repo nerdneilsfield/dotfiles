@@ -21,7 +21,7 @@ source_vitis() {
 
 source_xilinx(){
   source_xrt
-  source_xilinx $1
+  source_vitis $1
 }
 
 check_vitis() {
