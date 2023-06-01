@@ -246,6 +246,8 @@ install_modertools_rust() {
     "monolith" # save html file to one file
     "tealdeer" # a fast tldr
     "sd" # sed alternative
+    "bat"
+    "procs"
   )
 
   local CODENAME=$(lsb_release -c | awk '{print $2}')
@@ -305,6 +307,10 @@ install_modertools_local() {
   install_modertools_rust
   install_modertools_python
   install_modertools_go
+}
+
+install_modertools_local_by_download(){
+  
 }
 
 #=======================

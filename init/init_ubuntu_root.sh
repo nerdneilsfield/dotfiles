@@ -89,7 +89,7 @@ function DisableIPv6 {
 
 function InstallGo(){
 	add-apt-repository ppa:longsleep/golang-backports
-	apt install golang
+	apt install -y golang
 }
 
 function InstallDocker(){
@@ -460,7 +460,7 @@ function InstallGccToolChain() {
 function InstallPythonToolChain(){
 	add-apt-repository ppa:deadsnakes/ppa
 	apt update
-	apt install python3.11-dev python3.11 python3.10 python3.10-dev
+	apt install -y python3.11-dev python3.11 python3.10 python3.10-dev python3.11-venv python3.10-venv
 }
 
 function InstallFcitx() {
@@ -505,7 +505,7 @@ EOF
 	apt-get -y  install libunwind-16-dev
 	#clang-tidy
 	apt install -y clang-tidy
-	apt insall -y libc++-16-dev
+	apt install -y libc++-16-dev
 	# ln -sf /usr/bin/clangd-16 /usr/bin/clangd
 	# ln -sf /usr/bin/clang-format-16 /usr/bin/clang-format
 	# ln -sf /usr/bin/clang-tidy-16 /usr/bin/clang-tidy-16
