@@ -15,17 +15,17 @@ export CPP_INCLUDE_PATH=$HOME/.local/include:/usr/local/include:/usr/include
 # export CPPFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CPPFLAGS"
 
 if hash clang-16 2>/dev/null; then
-  export CC=`where clang-16`
-  export CXX=`where clang++-16`
+  export CC="/usr/bin/clang-16"
+  export CXX="/usr/bin/clang++-16"
 elif hash gcc-12 2>/dev/null; then
-  export CC=`where gcc-12`
-  export CXX=`where g++-12`
+  export CC="/usr/bin/gcc-12"
+  export CXX="/usr/bin/g++-12"
 elif hash clang 2>/dev/null; then
-  export CC=`where clang`
-  export CXX=`where clang++`
+  export CC="/usr/bin/clang"
+  export CXX="/usr/bin/clang++"
 else
-  export CC=`where gcc`
-  export CXX=`where g++`
+  export CC="/usr/bin/gcc"
+  export CXX="/usr/bin/g++"
 fi
 
 
