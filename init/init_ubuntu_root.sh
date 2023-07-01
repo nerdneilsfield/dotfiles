@@ -2,6 +2,7 @@
 
 GLOBAL_USER=""
 GLOBAL_USER_EXISTS=""
+ARCHTECH=`dpkg --print-architecture`
 
 function GetLatestRelease() {
     curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
