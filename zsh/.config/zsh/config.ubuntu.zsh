@@ -17,6 +17,12 @@ install_llvm(){
         sudo /tmp/llvm.sh $1
 }
 
+install_llvm_tuna(){
+        wget -O /tmp/llvm.sh https://mirrors.tuna.tsinghua.edu.cn/llvm-apt/llvm.sh
+        chmod +x /tmp/llvm.sh
+        sudo /tmp/llvm.sh  all -m https://mirrors.tuna.tsinghua.edu.cn/llvm-apt
+}
+
 
 add_gcc_ppa() {
    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
