@@ -14,18 +14,24 @@ export CPP_INCLUDE_PATH=$HOME/.local/include:/usr/local/include:/usr/include
 # export CFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CFLAGS"
 # export CPPFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CPPFLAGS"
 
-if hash clang-16 2>/dev/null; then
-  export CC="/usr/bin/clang-16"
-  export CXX="/usr/bin/clang++-16"
+if hash clang-17 2>/dev/null; then
+  export CC=`where clang-17 | head -n 1`
+  export CXX=`where clang++-17 | head -n 1`
+elif hash clang-16 2>/dev/null; then
+  export CC=`where clang-16 | head -n 1`
+  export CXX=`where clang++-16 | head -n 1`
 elif hash gcc-12 2>/dev/null; then
-  export CC="/usr/bin/gcc-12"
-  export CXX="/usr/bin/g++-12"
+  export CC=`where gcc-12 | head -n 1`
+  export CXX=`where g++-12 | head -n 1`
+elif hash gcc-11 2>/dev/null; then
+  export CC=`where gcc-11 | head -n 1`
+  export CXX=`where g++-11 | head -n 1`
 elif hash clang 2>/dev/null; then
-  export CC="/usr/bin/clang"
-  export CXX="/usr/bin/clang++"
+  export CC=`where clang | head -n 1`
+  export CXX=`where clang | head -n 1`
 else
-  export CC="/usr/bin/gcc"
-  export CXX="/usr/bin/g++"
+  export CC=`where gcc | head -n 1`
+  export CXX=`where g++ | head -n 1`
 fi
 
 
@@ -149,7 +155,6 @@ function install_cpp_tools_fccf() {
 
 install_cpp_tools_in_python() {
   local _pip_tools=(
-    "cmake-format"
     "cmakelang"
     "gersemi"
     "cmake-language-server"
@@ -160,6 +165,18 @@ install_cpp_tools_in_python() {
   for _cpp_pip_tool in $_pip_tools; do
     echo update go install tools: $_cpp_pip_tool
     python3 -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -U --user $_cpp_pip_tool
+  done
+}
+
+install_cpp_tools_in_rust() {
+  local _cargo_tools=(
+    "sccache"
+  )
+  echo $PWD
+  echo update cpp tools in rust
+  for _cpp_cargo_tool in $_cargo_tools; do
+    echo update go install tools: $_cpp_cargo_tool
+    cargo binstall sccache
   done
 }
 
@@ -252,6 +269,7 @@ function install_cpp_tools() {
   mkdir -p $HOME/Source/app
 
   install_cpp_tools_in_python
+  install_cpp_tools_in_rust
 
   install_cpp_tools_cppcheck
   install_cpp_tools_bear
@@ -262,22 +280,62 @@ function set_cxx(){
     "gcc")
      echo "Change to gcc"
      if hash gcc-12 2>/dev/null; then
-       export CC=`where gcc-12`
-       export CXX=`where g++-12`
+       export CC=`where gcc-12 | head -n 1`
+       export CXX=`where g++-12 | head -n 1`
+     elif hash gcc-11 2>/dev/null; then
+       export CC=`where gcc-11 | head -n 1`
+       export CXX=`where g++-11 | head -n 1`
      else
-       export CC=`where gcc`
-       export CXX=`where g++`
+       export CC=`where gcc | head -n 1`
+       export CXX=`where g++ | head -n 1`
      fi 
     ;;
     "clang")
      echo "Change to clang"
-     if hash clang-16 2>/dev/null; then
-       export CC=`where clang-16`
-       export CXX=`where clang++-16`
+     if hash clang-17 2>/dev/null; then
+       export CC=`where clang-17 | head -n 1`
+       export CXX=`where clang++-17 | head -n 1`
+     elif hash clang-16 2>/dev/null; then
+       export CC=`where clang-16 | head -n 1`
+       export CXX=`where clang++-16 | head -n 1`
      else
-       export CC=`where clang`
-       export CXX=`where clang++`
+       export CC=`where clang | head -n 1`
+       export CXX=`where clang++ | head -n 1`
      fi 
+    ;;
+    "distcc-clang")
+      echo "change to distcc clang"
+    if hash distcc 2>/dev/null; then
+     if hash clang-17 2>/dev/null; then
+       export CC="distcc clang-17"
+       export CXX="distcc clang++-17"
+     elif hash clang-16 2>/dev/null; then
+       export CC="disctcc clang-16"
+       export CXX="distcc clang++-16"
+     else
+       export CC="distcc clang"
+       export CXX="distcc clang++"
+     fi 
+    else
+      echo "distcc not found"
+    fi
+    ;;
+    "distcc-clang")
+    echo "change to distcc gcc"
+    if hash distcc 2>/dev/null; then
+     if hash gcc-12 2>/dev/null; then
+       export CC="distcc gcc-12"
+       export CXX="distcc g++-12"
+     elif hash gcc-11 2>/dev/null; then
+       export CC="disctcc gcc-11"
+       export CXX="distcc g++-11"
+     else
+       export CC="distcc gcc"
+       export CXX="distcc g++"
+     fi 
+    else
+      echo "distcc not found"
+    fi
     ;;
     *)
       echo "useage: set_cxx [gcc|clang]"
