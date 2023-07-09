@@ -64,6 +64,13 @@ add_cmake_ppa() {
    sudo apt install -y kitware-archive-keyring
 }
 
+add_intel_ppa(){
+        wget -O /tmp/intel-keyring.pub https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        sudo apt-get add /tmp/intel-keyring.pub
+        rm -rf /tmp/intel-keyring.pub
+        sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+}
+
 update_missing_keys(){
    tmp="$(mktemp)"
    sudo apt-get update 2>&1 | sed -En 's/.*NO_PUBKEY ([[:xdigit:]]+).*/\1/p' | sort -u > "${tmp}"

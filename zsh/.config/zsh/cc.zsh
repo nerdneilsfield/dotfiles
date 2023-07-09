@@ -153,6 +153,14 @@ function install_cpp_tools_fccf() {
   cmake --install build
 }
 
+function install_cpp_tools_vtune() {
+  if [  -n "$(ls /etc | grep apt)" ]; then
+    sudo apt install intel-oneapi-vtune
+  elif [  -n "$(ls /etc | grep apt)" ]; then
+    yay -S intel-oneapi-basekit
+  fi
+}
+
 install_cpp_tools_in_python() {
   local _pip_tools=(
     "cmakelang"

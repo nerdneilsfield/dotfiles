@@ -33,7 +33,7 @@ install_rust_tools() {
   cargo quickinstall cargo-binstall
   cargo binstall --no-confirm cargo-edit cargo-watch cargo-tarpaulin watchexec-cli cargo-outdated cargo-update
   # cross compile
-  cargo binstall --no-confirm cargo-zigbuild
+  cargo binstall --no-confirm cargo-zigbuild cargo-generate
   install_rust_analyzer
 }
 
