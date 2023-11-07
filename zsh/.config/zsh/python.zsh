@@ -44,12 +44,24 @@ install_python_tools() {
     "pylint"
     "sourcery"
     "vulture"
+    "ruff"
   )
 
   for _tool in $_python_tools; do
       echo "install $_tool"
       pipi  $_tool
     done
+}
+
+install_python_rust_tools(){
+  local _python_tools=(
+  "rye"
+  )
+
+  for _tool in $_python_tools; do
+    echo "install $_tool"
+    cargo install --git https://github.com/mitsuhiko/rye  $_tool
+  done
 }
 
 add_python_ppa(){
