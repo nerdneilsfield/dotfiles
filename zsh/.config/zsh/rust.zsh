@@ -14,8 +14,8 @@ install_rustup(){
     # setproxy
 	set -e
 	set -o xtrace
-    echo "Installing rustup...."
-    curl https://sh.rustup.rs -sSf | sh -s -- -y
+  echo "Installing rustup...."
+  curl https://sh.rustup.rs -sSf | sh -s -- -y
 }
 
 install_rust_analyzer(){
@@ -43,4 +43,10 @@ install_toml_lsp() {
 
 set_cargo_mirrors() {
   echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config
+}
+
+set_rustup_mirrors() {
+  export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
+  export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+  echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"https://mirrors.ustc.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config
 }

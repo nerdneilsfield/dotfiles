@@ -76,3 +76,12 @@ install_python_ppa(){
 install_pip(){
   curl -sSL https://bootstrap.pypa.io/get-pip.py | $1
 }
+
+
+set_python_mirror_cn(){
+  mkdir -p ~/.pip
+  cat > ~/.pip/pip.conf <<EOF
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+EOF
+}

@@ -74,9 +74,13 @@ deb http://mirrors.ustc.edu.cn/ubuntu ${CODENAME}-security universe
 deb http://mirrors.ustc.edu.cn/ubuntu ${CODENAME}-security multiverse
 EOF
 	apt-get update
+
+}
+
+function SelectBestMirror(){
 	apt-get -y install python3-pip
 	pip install -U pip wheel
-	pip install -U apt-select
+	pip install -U apt-select -c CN
 	apt-select -C $1 -c -t 3
 	mv /etc/apt/sources.list /etc/apt/sources.list_ustc
 	mv sources.list /etc/apt/sources.list
@@ -90,7 +94,7 @@ function UpgradeSystem() {
 
 function DisableIPv6 {
 	echo "net.ipv6.conf.all.disable_ipv6 = 1" >>/etc/sysctl.conf
-	echo "net.ipv6.conf.default.disable_ipv6 = 1" >>/et/sysctl.conf
+	echo "net.ipv6.conf.default.disable_ipv6 = 1" >>/etc/sysctl.conf
 	sysctl -p
 }
 
@@ -108,10 +112,11 @@ function InstallDocker() {
 		curl \
 		gnupg \
 		lsb-release
+	mkdir -p /etc/apt/keyrings
 	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 	chmod a+r /etc/apt/keyrings/docker.gpg
 	echo \
-	"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian \
+	"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu \
 	"$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
 	tee /etc/apt/sources.list.d/docker.list > /dev/null
 	apt-get update
