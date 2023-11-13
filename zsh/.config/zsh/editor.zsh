@@ -90,6 +90,22 @@ alias nv="nvim-astro"
 # }
 
 # bindkey -s ^a "nvims\n"
+#
+
+install_vim(){
+	mkdir -p ~/Source/app/vim 
+	git clone https://github.com/vim/vim.git ~/Source/app/vim/vim
+	cd ~/Source/app/vim/vim
+	./configure
+	make -j $(nproc)
+	sudo make install
+}
+
+install_vim_copilot(){
+	mkdir ~/.vim/pack/github/start
+	git clone https://github.com/github/copilot.vim.git \
+  	~/.vim/pack/github/start/copilot.vim
+}
 
 uninstall_nvim() {
 	sudo find /usr/local -name nvim -exec rm -rf {} \;
