@@ -8,6 +8,7 @@ add_zulu_ppa(){
    sudo apt install -y gnupg ca-certificates curl software-properties-common
    curl -s https://repos.azul.com/azul-repo.key | sudo gpg --dearmor -o /usr/share/keyrings/azul.gpg 
    echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" | sudo tee /etc/apt/sources.list.d/zulu.list
+   sudo apt update
 }
 
 install_zulu_jdk() {
@@ -18,7 +19,7 @@ install_zulu_jdk() {
         _jdk_version=$1
     fi
 
-    sudo apt install "zulu${_jdk_version}-jdk"
+    sudo apt install -y "zulu${_jdk_version}-jdk"
 }
 
 set_maven_mirror_cn(){
