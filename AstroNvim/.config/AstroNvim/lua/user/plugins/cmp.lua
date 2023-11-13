@@ -38,18 +38,22 @@ return {
 
     "kdheepak/cmp-latex-symbols",
     {
+          "zbirenbaum/copilot.lua",
+          config = function()
+            require("copilot").setup({
+              suggestion = { enabled = false },
+              panel = { enabled = false },
+            })
+          end,
+    },
+    {
         "zbirenbaum/copilot-cmp",
-        dependencies = {
-            {
-                "zbirenbaum/copilot.lua",
-                "github/copilot.vim",
-                cmd = "Copilot",
-                event = "InsertEnter",
-                config = function()
-                    require("copilot").setup({})
-                end,
-            }, 
-        }
+          -- "github/copilot.vim",
+          cmd = "Copilot",
+          event = "InsertEnter",
+          config = function()
+              require("copilot_cmp").setup({})
+          end,
     },
     {
     "tzachar/cmp-tabnine",
