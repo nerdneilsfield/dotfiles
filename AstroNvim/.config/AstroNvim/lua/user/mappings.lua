@@ -53,9 +53,26 @@ return {
     ["<leader>zn"] = { "<cmd> TZNarrow <CR>", desc = "zen narrow" },
     ["<leader>zv"] = { "<cmd> '<,'>TZNarrow <CR>", desc = "zen narrow" },
     ["<leader>za"] = { "<cmd> TZAtaraxis <CR>", desc = "zen ataraxis" },
+    -- ["<leader>c"] = {
+    --   require("osc52").copy_operator,
+    --   expr = true,
+    --   desc = "Copy",
+    -- },
+    -- ["<leader>cc"] = {
+    --   "<leader>c_",
+    --   desc = "Copy Line",
+    --   remap = true,
+    -- },
   },
   t = {
     -- setting a mapping to false will disable it
     -- ["<esc>"] = false,
+  },
+  v = {
+    -- ["<leader>c"] = {
+    --   require("osc52").copy_visual,
+    --   expr = true,
+    --   desc = "Copy",
+    -- },
   },
 }

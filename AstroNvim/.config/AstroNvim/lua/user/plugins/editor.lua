@@ -1,48 +1,46 @@
 return {
---   {
---     "folke/zen-mode.nvim",
---     cmd = "ZenMode",
---     opts = {
---       window = {
---         backdrop = 1,
---         width = function() return math.min(120, vim.o.columns * 0.75) end,
---         height = 0.9,
---         options = {
---           number = false,
---           relativenumber = false,
---           foldcolumn = "0",
---           list = false,
---           showbreak = "NONE",
---           signcolumn = "no",
---         },
---       },
---       plugins = {
---         options = {
---           cmdheight = 1,
---           laststatus = 0,
---         },
---       },
---       on_open = function() -- disable diagnostics and indent blankline
---         vim.g.diagnostics_mode_old = vim.g.diagnostics_mode
---         vim.g.diagnostics_mode = 0
---         vim.diagnostic.config(require("astronvim.utils.lsp").diagnostics[0])
---         vim.g.indent_blankline_enabled_old = vim.g.indent_blankline_enabled
---         vim.g.indent_blankline_enabled = false
---       end,
---       on_close = function() -- restore diagnostics and indent blankline
---         vim.g.diagnostics_mode = vim.g.diagnostics_mode_old
---         vim.diagnostic.config(require("astronvim.utils.lsp").diagnostics[vim.g.diagnostics_mode])
---         vim.g.indent_blankline_enabled = vim.g.indent_blankline_enabled_old
---       end,
---     },
---   },
-    {
-        "Pocco81/true-zen.nvim",
-        cmd = { "TZAtaraxis", "TZMinimalist" },
-        config = function()
-            require("true-zen").setup()
-        end,
-    },
+  --   {
+  --     "folke/zen-mode.nvim",
+  --     cmd = "ZenMode",
+  --     opts = {
+  --       window = {
+  --         backdrop = 1,
+  --         width = function() return math.min(120, vim.o.columns * 0.75) end,
+  --         height = 0.9,
+  --         options = {
+  --           number = false,
+  --           relativenumber = false,
+  --           foldcolumn = "0",
+  --           list = false,
+  --           showbreak = "NONE",
+  --           signcolumn = "no",
+  --         },
+  --       },
+  --       plugins = {
+  --         options = {
+  --           cmdheight = 1,
+  --           laststatus = 0,
+  --         },
+  --       },
+  --       on_open = function() -- disable diagnostics and indent blankline
+  --         vim.g.diagnostics_mode_old = vim.g.diagnostics_mode
+  --         vim.g.diagnostics_mode = 0
+  --         vim.diagnostic.config(require("astronvim.utils.lsp").diagnostics[0])
+  --         vim.g.indent_blankline_enabled_old = vim.g.indent_blankline_enabled
+  --         vim.g.indent_blankline_enabled = false
+  --       end,
+  --       on_close = function() -- restore diagnostics and indent blankline
+  --         vim.g.diagnostics_mode = vim.g.diagnostics_mode_old
+  --         vim.diagnostic.config(require("astronvim.utils.lsp").diagnostics[vim.g.diagnostics_mode])
+  --         vim.g.indent_blankline_enabled = vim.g.indent_blankline_enabled_old
+  --       end,
+  --     },
+  --   },
+  {
+    "Pocco81/true-zen.nvim",
+    cmd = { "TZAtaraxis", "TZMinimalist" },
+    config = function() require("true-zen").setup() end,
+  },
   {
     "echasnovski/mini.move",
     keys = {
@@ -102,18 +100,18 @@ return {
       },
     },
   },
-  {"mbbill/undotree"},
+  { "mbbill/undotree" },
   {
     "phaazon/hop.nvim",
     branch = "v2",
     event = "BufRead",
     opts = function()
-        -- you can configure Hop the way you like here; see :h hop-config
-        require("hop").setup({
-            keys = "etovxqpdygfblzhckisuran"
-        })
-    end
-}, 
+      -- you can configure Hop the way you like here; see :h hop-config
+      require("hop").setup {
+        keys = "etovxqpdygfblzhckisuran",
+      }
+    end,
+  },
   {
     "nvim-pack/nvim-spectre",
     cmd = "Spectre",
@@ -133,38 +131,49 @@ return {
     end,
   },
   { "junegunn/vim-easy-align", event = "User AstroFile" },
-  { "machakann/vim-sandwich", event = "User AstroFile" },
---   { "wakatime/vim-wakatime", event = "User AstroFile" },
-      {
-        "wsdjeg/vim-fetch",
-        lazy = false,
-    },
+  { "machakann/vim-sandwich",  event = "User AstroFile" },
+  --   { "wakatime/vim-wakatime", event = "User AstroFile" },
+  {
+    "wsdjeg/vim-fetch",
+    lazy = false,
+  },
 
-    {
-        "nyoom-engineering/oxocarbon.nvim",
-        -- lazy = false,
-    },
-    
-    {
-        "kvrohit/mellow.nvim",
-        -- lazy = false,
-    },
+  {
+    "nyoom-engineering/oxocarbon.nvim",
+    -- lazy = false,
+  },
 
-    {
-        "gen740/SmoothCursor.nvim",
-        cond = vim.g.neovide == nil,
-        lazy = false,
-        opts = {
-        autostart = true,
-        fancy = { enable = true },
-        },
-    },
+  {
+    "kvrohit/mellow.nvim",
+    -- lazy = false,
+  },
 
-    {
-        "zbirenbaum/neodim",
-        event = "User AstroFile",
-        opts = {
-        alpha = 0.75,
-        },
+  {
+    "gen740/SmoothCursor.nvim",
+    cond = vim.g.neovide == nil,
+    lazy = false,
+    opts = {
+      autostart = true,
+      fancy = { enable = true },
     },
+  },
+
+  {
+    "zbirenbaum/neodim",
+    event = "User AstroFile",
+    opts = {
+      alpha = 0.75,
+    },
+  },
+  {
+    "ojroques/nvim-osc52",
+    config = function()
+      require("osc52").setup {
+        max_length = 0,
+        silent = false,
+        trim = false,
+        tmux_passthrough = false,
+      }
+    end,
+  },
 }
