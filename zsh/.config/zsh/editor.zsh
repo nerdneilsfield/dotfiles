@@ -15,6 +15,8 @@ install_nvim() {
 	rm -rf build
 	make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=$HOME/.local -j $(nproc)
 	make install
+	rm -rf $HOME/.local/share/nvim/runtime/*
+	cp -r runtime/* $HOME/.local/share/nvim/runtime/
 	cd -
 	nvim --version
 }
