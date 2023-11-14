@@ -5,18 +5,63 @@ install_nvim() {
 	# install dependencies
 	pki gettext libtool-bin
 
-	export NVIM_REPO=https//github.com/neovim/neovim
+	#export NVIM_REPO=https//github.com/neovim/neovim
 	local NVIM_REPO=$HOME/Source/app/neovim
 	if [ ! -d "$NVIM_REPO" ]; then
-		git clone --depth 1 https://github.com/neovim/neovim.git $NVIM_REPO
+		git clone --depth 1 --recursive https://github.com/neovim/neovim.git $NVIM_REPO
 	fi
 	cd $NVIM_REPO
 	git pull origin master
 	rm -rf build
-	make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=/usr/local -j $(nproc)
-	sudo make install
+	make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=$HOME/.local -j $(nproc)
+	make install
 	cd -
 	nvim --version
+}
+
+install_kakoune(){
+	pki libncurse-dev libstdc++-dev
+	KAKOUNE_REPO=https://github.com/mawww/kakoune.git
+	local KAKOUNE_DIR=$HOME/Source/app/kakoune
+	if [ ! -d "$KAKOUNE_DIR" ]; then
+		git clone --depth 1 --recursive $KAKOUNE_REPO $KAKOUNE_DIR
+	fi
+	cd $KAKOUNE_DIR
+	make clean
+	make -j $(nproc)
+	PREFIX=$HOME/.local make install 
+	cd -
+	kak -version
+}
+
+install_kakoune(){
+	pki libncurse-dev libstdc++-dev
+	KAKOUNE_REPO=https://github.com/mawww/kakoune.git
+	local KAKOUNE_DIR=$HOME/Source/app/kakoune
+	if [ ! -d "$KAKOUNE_DIR" ]; then
+		git clone --depth 1 --recursive $KAKOUNE_REPO $KAKOUNE_DIR
+	fi
+	cd $KAKOUNE_DIR
+	make clean
+	make -j $(nproc)
+	PREFIX=$HOME/.local make install 
+	cd -
+	kak -version
+}
+
+install_kakoune_lsp(){
+	pki libncurse-dev libstdc++-dev
+	KAKOUNE_REPO=https://github.com/mawww/kakoune.git
+	local KAKOUNE_DIR=$HOME/Source/app/kakoune
+	if [ ! -d "$KAKOUNE_DIR" ]; then
+		git clone --depth 1 --recursive $KAKOUNE_REPO $KAKOUNE_DIR
+	fi
+	cd $KAKOUNE_DIR
+	make clean
+	make -j $(nproc)
+	PREFIX=$HOME/.local make install 
+	cd -
+	kak -version
 }
 
 backup_nvim() {
