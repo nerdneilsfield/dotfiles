@@ -32,6 +32,7 @@ return {
       "vim",
       "vue",
       "bash",
+      "dockerfile",
     },
   },
 }
