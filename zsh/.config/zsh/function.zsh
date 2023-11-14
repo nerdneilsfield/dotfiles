@@ -118,8 +118,33 @@ show_rgb() {
 }
 
 function GetLatestRelease() {
-	curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-		grep '"tag_name":' |                                             # Get tag line
-		sed -E 's/.*"v*([^"]+)".*/\1/'
+	# if GH_TOKEN is not empty, then
+	# curl will use the token to get more requests
+	# see https://developer.github.com/v3/#rate-limiting
+	if [[ -n "$GHHH_TOKEN" ]]; then
+        echo "have token set"
+		curl --silent "https://api.github.com/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
+			grep '"tag_name":' |                                                                                                # Get tag line
+			sed -E 's/.*"v*([^"]+)".*/\1/'
+	else
+		curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+			grep '"tag_name":' |                                                   # Get tag line
+			sed -E 's/.*"v*([^"]+)".*/\1/'
+	fi
 }
 
+function GetLatestReleaseProxy() {
+	# if GH_TOKEN is not empty, then
+	# curl will use the token to get more requests
+	# see https://developer.github.com/v3/#rate-limiting
+	if [[ -n "$GHHH_TOKEN" ]]; then
+        echo "have token set"
+		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
+			grep '"tag_name":' |                                                                                                # Get tag line
+			sed -E 's/.*"v*([^"]+)".*/\1/'
+	else
+		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" | # Get latest release from GitHub api
+			grep '"tag_name":' |                                                   # Get tag line
+			sed -E 's/.*"v*([^"]+)".*/\1/'
+	fi
+}

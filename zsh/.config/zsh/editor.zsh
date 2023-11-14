@@ -1,9 +1,6 @@
-install_nvim() {
-	set -e
-	# set -o xtrace
-
+install_nvim_source() {
 	# install dependencies
-	pki gettext libtool-bin
+	# pki gettext libtool-bin
 
 	#export NVIM_REPO=https//github.com/neovim/neovim
 	local NVIM_REPO=$HOME/Source/app/neovim
@@ -22,23 +19,46 @@ install_nvim() {
 	nvim --version
 }
 
-install_kakoune(){
-	pki libncurse-dev libstdc++-dev
-	KAKOUNE_REPO=https://github.com/mawww/kakoune.git
-	local KAKOUNE_DIR=$HOME/Source/app/kakoune
-	if [ ! -d "$KAKOUNE_DIR" ]; then
-		git clone --depth 1 --recursive $KAKOUNE_REPO $KAKOUNE_DIR
-	fi
-	cd $KAKOUNE_DIR
-	make clean
-	make -j $(nproc)
-	PREFIX=$HOME/.local make install 
-	cd -
-	kak -version
+install_nvim_release(){
+	# install dependencies
+	# pki gettext libtool-bin
+	echo "-------------------install_nvim_release-------------------"
+	export NVIM_REPO="neovim/neovim"
+	local NVIM_DIR=$HOME/Source/app/neovim_release
+	mkdir -p $NVIM_DIR
+	# local NVIM_RELEASE=$(GetLatestRelease $NVIM_REPO)
+	# echo "NVIM_RELEASE: $NVIM_RELEASE"
+	local NVIM_RELEASE_PATH="${NVIM_DIR}/nvim-linux64.tar.gz"
+	echo "NVIM_RELEASE_PATH: $NVIM_RELEASE_PATH"
+	wget -O $NVIM_RELEASE_PATH https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
+	tar -xzf $NVIM_RELEASE_PATH -C $NVIM_DIR
+	# rm -rf $HOME/.local/share/nvim/runtime/*
+	cp -r $NVIM_DIR/nvim-linux64 $HOME/.local/share/
+	ln -sf $HOME/.local/share/nvim-linux64/bin/nvim $HOME/.local/bin/nvim
+	nvim --version
+}
+
+install_nvim_release_proxy(){
+	# install dependencies
+	# pki gettext libtool-bin
+	echo "-------------------install_nvim_release-------------------"
+	export NVIM_REPO="neovim/neovim"
+	local NVIM_DIR=$HOME/Source/app/neovim_release
+	mkdir -p $NVIM_DIR
+	# local NVIM_RELEASE=$(GetLatestRelease $NVIM_REPO)
+	# echo "NVIM_RELEASE: $NVIM_RELEASE"
+	local NVIM_RELEASE_PATH="${NVIM_DIR}/nvim-linux64.tar.gz"
+	echo "NVIM_RELEASE_PATH: $NVIM_RELEASE_PATH"
+	wget -O $NVIM_RELEASE_PATH https://ghproxy.dengqi.org/https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
+	tar -xzf $NVIM_RELEASE_PATH -C $NVIM_DIR
+	# rm -rf $HOME/.local/share/nvim/runtime/*
+	cp -r $NVIM_DIR/nvim-linux64 $HOME/.local/share/
+	ln -sf $HOME/.local/share/nvim-linux64/bin/nvim $HOME/.local/bin/nvim
+	nvim --version
 }
 
 install_kakoune(){
-	pki libncurse-dev libstdc++-dev
+	# pki libncurse-dev libstdc++-dev
 	KAKOUNE_REPO=https://github.com/mawww/kakoune.git
 	local KAKOUNE_DIR=$HOME/Source/app/kakoune
 	if [ ! -d "$KAKOUNE_DIR" ]; then
@@ -155,6 +175,11 @@ install_vim_copilot(){
   	~/.vim/pack/github/start/copilot.vim
 }
 
-uninstall_nvim() {
+uninstall_nvim_sudo() {
 	sudo find /usr/local -name nvim -exec rm -rf {} \;
 }
+
+uninstall_nvim() {
+	sudo find $HOME/.local -name nvim -exec rm -rf {} \;
+}
+
