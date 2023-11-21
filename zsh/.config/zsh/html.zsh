@@ -26,6 +26,10 @@ install_volar_lsp() {
   npm i -g @volar/server
 }
 
+install_pnpm(){
+        npm i -g pnpm
+}
+
 install_html_tools() {
         install_css_lsp
         install_html_lsp
@@ -34,4 +38,13 @@ install_html_tools() {
         install_prettier
         install_eslint_lsp
         install_volar_lsp
-} 
+        install_pnpm
+}
+
+# pnpm
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
