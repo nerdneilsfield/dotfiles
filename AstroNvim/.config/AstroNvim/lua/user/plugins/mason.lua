@@ -31,8 +31,8 @@ return {
         -- "asm_lsp",
         "opencl_ls",
         "bufls",
-		-- "julials"
-		    "julials"
+        -- "julials"
+        "julials",
       })
     end,
   },
