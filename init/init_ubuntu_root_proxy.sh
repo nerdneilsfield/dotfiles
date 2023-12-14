@@ -49,13 +49,13 @@ function CheckUserExists() {
 
 function AddUser() {
 	echo "Please enter a username for admin"
-	read InputUserName
+	read -r InputUserName
 	GLOBAL_USER=$InputUserName
 	exists=$GLOBAL_USER_EXISTS
 	echo "Add user $GLOBAL_USER"
-	useradd -m -g admin -s /usr/bin/zsh $GLOBAL_USER
+	useradd -m -g admin -s /usr/bin/bash "$GLOBAL_USER"
 	echo "Please enter the password for $GLOBAL_USER"
-	passwd $GLOBAL_USER
+	passwd "$GLOBAL_USER"
 }
 
 function ChangeMirror() {
@@ -80,8 +80,8 @@ EOF
 function SelectBestMirror(){
 	apt-get -y install python3-pip
 	pip install -U pip wheel
-	pip install -U apt-select -c CN
-	apt-select -C $1 -c -t 3
+	pip install -U apt-select
+	apt-select -C "$1" -c -t 3
 	mv /etc/apt/sources.list /etc/apt/sources.list_ustc
 	mv sources.list /etc/apt/sources.list
 	apt update
@@ -90,6 +90,7 @@ function SelectBestMirror(){
 function UpgradeSystem() {
 	apt-get update
 	apt-get -y upgrade
+	apt-dist upgrade -y
 }
 
 function DisableIPv6 {
@@ -130,14 +131,14 @@ function InstallBasic() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
 	apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux python3-pip
-	apt-get install -y cifs-utils exfat-utils
+	apt-get install -y cifs-utils
 	apt-get install -y xclip pv lrzsz
 	apt-get install -y luajit
 	ln -sf /usr/bin/luajit /usr/bin/lua
 	apt-get install -y linux-modules-extra-$(uname -r)
 }
 
-function InstallRos() {
+function InstallRos1() {
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	tee /etc/apt/sources.list.d/ros-latest.list &>/dev/null <<EOF
 deb https://mirrors.tuna.tsinghua.edu.cn/ros/ubuntu/ ${CODENAME} main
@@ -156,6 +157,32 @@ EOF
 	*)
 		echo "ros1 only support Ubuntu 18.04 and 20.04"
 		;;
+	esac
+}
+
+function InstallRos2(){
+	echo "-------------------------------------------------"
+	echo "-----------Install ROS2 -------------------------"
+	echo "-------------------------------------------------"
+  apt install -y curl gnupg2 locales software-properties-common
+  add-apt-repository universe
+	curl -sSL https://ghproxy.dengqi.org/https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+	locale-gen en_US en_US.UTF-8
+	update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+	export LANG=en_US.UTF-8
+
+	CODENAME=$(lsb_release -c | awk '{print $2}')
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/ros2/ubuntu ${CODENAME} main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+	apt update
+
+	case "$CODENAME" in
+	"jammy")
+		apt install -y ros-foxy-desktop python3-argcomplete "python3-colcon-*"
+		;;
+	*)
+		echo "unsupport codename ${CODENAME}"
 	esac
 }
 
@@ -437,7 +464,6 @@ function InstallGostTunnel() {
 
 function InstallV2ray() {
 	echo "wait for ...."
-
 }
 
 function InstallNinjaBuild() {
@@ -473,7 +499,7 @@ function InstallGccToolChain() {
 function InstallPythonToolChain() {
 	add-apt-repository ppa:deadsnakes/ppa
 	apt update
-	apt install -y python3.11-dev python3.11 python3.10 python3.10-dev python3.11-venv python3.10-venv
+	apt install -y python3.12-dev python3.12 python3.11-dev python3.11 python3.10 python3.10-dev python3.11-venv python3.10-venv
 }
 
 function InstallFcitx() {
@@ -498,26 +524,26 @@ EOF
 	# Fingerprint: 6084 F3CF 814B 57C1 CF12 EFD5 15CF 4D18 AF4F 7421
 	apt-get update
 	# LLVM
-	apt-get -y install libllvm-16-ocaml-dev libllvm16 llvm-16 llvm-16-dev llvm-16-doc llvm-16-examples llvm-16-runtime
+	apt-get -y install libllvm-17-ocaml-dev libllvm16 llvm-16 llvm-16-dev llvm-16-doc llvm-16-examples llvm-16-runtime
 	# Clang and co
-	apt-get -y install clang-16 clang-tools-16 clang-16-doc libclang-common-16-dev libclang-16-dev libclang1-16 clang-format-16 python-clang-16 clangd-16
+	apt-get -y install clang-17 clang-tools-16 clang-16-doc libclang-common-16-dev libclang-16-dev libclang1-16 clang-format-16 python-clang-16 clangd-16
 	# libfuzzer
-	apt-get -y install libfuzzer-16-dev
+	apt-get -y install libfuzzer-17-dev
 	# lldb
-	apt-get -y install lldb-16
+	apt-get -y install lldb-17
 	# lld (linker)
-	apt-get -y install lld-16
+	apt-get -y install lld-17
 	# libc++
-	apt-get -y install libc++-16-dev libc++abi-16-dev libclang-16-dev
+	apt-get -y install libc++-17-dev libc++abi-16-dev libclang-16-dev
 	# OpenMP
-	apt-get -y install libomp-16-dev
+	apt-get -y install libomp-17-dev
 	# libclc
-	apt-get -y install libclc-16-dev
+	apt-get -y install libclc-17-dev
 	# libunwind
-	apt-get -y install libunwind-16-dev
+	apt-get -y install libunwind-17-dev
 	#clang-tidy
 	apt install -y clang-tidy
-	apt install -y libc++-16-dev
+	apt install -y libc++-17-dev
 	# ln -sf /usr/bin/clangd-16 /usr/bin/clangd
 	# ln -sf /usr/bin/clang-format-16 /usr/bin/clang-format
 	# ln -sf /usr/bin/clang-tidy-16 /usr/bin/clang-tidy-16
@@ -533,7 +559,7 @@ EOF
 	apt-get install -y cmake
 }
 
-function InstallBuildEssentail() {
+function InstallBuildEssential() {
 	apt-get install -y build-essential ccache autoconf texinfo pkg-config
 	InstallGccToolChain
 	InstallLlvm
@@ -573,7 +599,7 @@ function InstallModernTools() {
 }
 
 function InstallNetworkTools() {
-	apt install -y tinc nmap net-tools
+	apt install -y tinc nmap net-tools wireguard wireguard-dkms wireguard-tools
 }
 
 function InstallEmacs() {
@@ -588,7 +614,7 @@ function InstallProxyTools() {
 	InstallV2ray
 }
 
-function InstallZig() {
+function InstallZigUp() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
 	echo "----------Install Zig ---------------------"
@@ -596,11 +622,9 @@ function InstallZig() {
 	echo "-------------------------------------------------"
 
 	mkdir -p /tmp/install_app && cd /tmp/install_app
-	wget -O zig-linux.tar.xz "https://ziglang.org/builds/zig-linux-x86_64-0.10.0-dev.3685+dae7aeb33.tar.xz"
-	tar xvf zig-linux.tar.xz
-	cp zig-linux-x86_64-0.10.0-dev.3685+dae7aeb33 /usr/local/share/zig-linux-x86_64
-	ln -sf /usr/local/share/zig-linux-x86_64/zig /usr/local/bin/zig
-	chmod a+x /usr/local/bin/zig
+	wget -O zigup.zip https://ghproxy.dengqi.org/https://github.com/marler8997/zigup/releases/download/v2023_07_27/zigup.ubuntu-latest-x86_64.zip
+	unzip zigup.zip
+	mv zigup /usr/local/bin/zigup
 }
 
 function InstallMicrosoftApp() {
@@ -636,13 +660,14 @@ InstallGraphicsDrivers() {
 }
 
 function main() {
-	ChangeMirror "CN"
+	ChangeMirror
 	UpdateSystem
+	SelectBestMirror "CN"
 	InstallBasic
 	InstallNetworkTools
 	InstallVersionControl
-	InstallBuildEssentail
-	InstallNeovim
+	InstallBuildEssential
+	InstallNeovimGithub
 	InstallModernTools
 	AddUser
 }
