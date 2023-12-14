@@ -43,4 +43,6 @@ InstallNeovimGithub
 InstallRos2
 # Add user
 AddUser [your username]
+# Install Neofetch
+InstallNeofetch
 ```
