@@ -124,6 +124,12 @@ function InstallDocker() {
 	apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 }
 
+function InstallNeofetch(){
+	wget -O /usr/local/bin/neofetch https://ghproxy.dengqi.org/https://github.com/dylanaraps/neofetch/raw/master/neofetch
+	chmod +x /usr/local/bin/neofetch
+	neofetch
+}
+
 function InstallBasic() {
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
@@ -596,6 +602,7 @@ function InstallModernTools() {
 	InstallDifftastic
 	InstallSd
 	InstallPueue
+	InstallDuf
 }
 
 function InstallNetworkTools() {
@@ -623,8 +630,14 @@ function InstallZigUp() {
 
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	wget -O zigup.zip https://ghproxy.dengqi.org/https://github.com/marler8997/zigup/releases/download/v2023_07_27/zigup.ubuntu-latest-x86_64.zip
-	unzip zigup.zip
+	unzip zigup.zip & chmod +x /usr/local/bin/zigup
 	mv zigup /usr/local/bin/zigup
+}
+
+function InstallDuf(){
+	mkdir -p /tmp/install_app && cd /tmp/install_app/
+	wget -O duf.deb https://ghproxy.dengqi.org/https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_amd64.deb
+	dpkg -i duf.deb
 }
 
 function InstallMicrosoftApp() {
