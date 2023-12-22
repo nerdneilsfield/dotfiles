@@ -335,7 +335,7 @@ install_gdu(){
   cd /tmp/install
   wget -O gdu.tar.gz $_gdu_url
   tar -xzf gdu.tar.gz
-  mv gdu_linux_$arch $HOME/.local/bin/gdu
+  mv "gdu_linux_${_arch}" $HOME/.local/bin/gdu
   sudo rm -rf /usr/local/bin/gdu
   sudo cp $HOME/.local/bin/gdu /usr/local/bin/gdu
 }
