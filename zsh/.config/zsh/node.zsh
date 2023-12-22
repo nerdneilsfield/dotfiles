@@ -43,6 +43,27 @@ install_node() {
     fnm completions --shell zsh  > ~/.zsh_func/fnm_completions.zsh
 }
 
+add_nosource_ppa(){
+  # https://github.com/nodesource/distributions
+  local MAJOR_VERSION=21
+
+  # if $1 is not empty, use it as MAJOR_VERSION
+  if [ ! -z "$1" ]; then
+    MAJOR_VERSION=$1
+  fi
+
+  mkdir -p /tmp/install_ppa
+  cd /tmp/install_ppa
+  curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh 
+  sudo bash nsolid_setup_deb.sh $MAJOR_VERSION
+
+  echo "More info https://github.com/nodesource/distributions"
+}
+
+install_nosoource_ppa(){
+  sudo apt install -y nodejs
+}
+
 
 if [ -f $HOME/.cargo/bin/fnm ]; then
     #  source $HOME/.config/zsh_generated/fnm.sh

@@ -211,6 +211,188 @@ install_neofetch() {
   chmod +x ~/.local/bin/neofetch
 }
 
+
+install_gh(){
+  echo "======================================"
+  echo "=========Install gh========"
+  echo "======================================"
+  local _gh_version=$(GetLatestReleaseProxy "cli/cli")
+  local _arch=$(uname -m)
+  if [[ $_arch == "x86_64" ]]; then
+    _arch="amd64"
+  fi
+  local _gh_url="https://ghproxy.dengqi.org/https://github.com/cli/cli/releases/download/v${_gh_version}/gh_${_gh_version}_linux_${_arch}.tar.gz"
+
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O gh.tar.gz $_gh_url
+  tar -xzf gh.tar.gz
+  cd "gh_${_gh_version}_linux_${_arch}"
+  mv bin/gh $HOME/.local/bin/
+  mkdir -p $HOME/.local/share/man/man1
+  cp share/man/man1/* $HOME/.local/share/man/man1/
+  sudo rm -rf /usr/local/bin/gh
+  sudo cp $HOME/.local/bin/gh /usr/local/bin/gh
+}
+
+install_fzf(){
+  echo "======================================"
+  echo "=========Install fzf========"
+  echo "======================================"
+  local _fzf_version=$(GetLatestReleaseProxy "junegunn/fzf")
+  local _arch=$(uname -m)
+  if [[ $_arch == "x86_64" ]]; then
+    _arch="amd64"
+  fi
+  local _fzf_url="https://ghproxy.dengqi.org/https://github.com/junegunn/fzf/releases/download/${_fzf_version}/fzf-${_fzf_version}-linux_${_arch}.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O fzf.tar.gz $_fzf_url
+  tar -xzf fzf.tar.gz
+  mv fzf $HOME/.local/bin/
+  sudo rm -rf /usr/local/bin/fzf
+  sudo cp $HOME/.local/bin/fzf /usr/local/bin/fzf
+}
+
+install_eza(){
+  echo "======================================"
+  echo "=========Install eza========"
+  echo "======================================"
+  local _eza_version=$(GetLatestReleaseProxy "eza-community/eza")
+  local _arch=$(uname -m)
+  local _eza_url="https://ghproxy.dengqi.org/https://github.com/eza-community/eza/releases/download/v${_eza_version}/eza_${_arch}-unknown-linux-gnu.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O eza.tar.gz $_eza_url
+  tar -xzf eza.tar.gz
+  mv eza $HOME/.local/bin/
+  sudo rm -rf /usr/local/bin/eza
+  sudo cp $HOME/.local/bin/eza /usr/local/bin/eza
+}
+
+install_lazygit(){
+  echo "======================================"
+  echo "=========Install lazygit========"
+  echo "======================================"
+  local _lazygit_version=$(GetLatestReleaseProxy "jesseduffield/lazygit")
+  local _arch=$(uname -m)
+  local _lazygit_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazygit/releases/download/v${_lazygit_version}/lazygit_${_lazygit_version}_Linux_${_arch}.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O lazygit.tar.gz $_lazygit_url
+  tar -xzf lazygit.tar.gz
+  mv lazygit $HOME/.local/bin/
+  sudo rm -rf /usr/local/bin/lazygit
+  sudo cp $HOME/.local/bin/lazygit /usr/local/bin/lazygit
+}
+
+install_lazydocker(){
+  echo "======================================"
+  echo "=========Install lazydocker========"
+  echo "======================================"
+  local _lazydocker_version=$(GetLatestReleaseProxy "jesseduffield/lazydocker")
+  local _arch=$(uname -m)
+  local _lazydocker_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazydocker/releases/download/v${_lazydocker_version}/lazydocker_${_lazydocker_version}_Linux_${_arch}.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O lazydocker.tar.gz $_lazydocker_url
+  tar -xzf lazydocker.tar.gz
+  mv lazydocker $HOME/.local/bin/
+  sudo rm -rf /usr/local/bin/lazydocker
+  sudo cp $HOME/.local/bin/lazydocker /usr/local/bin/lazydocker
+}
+
+install_duf(){
+  echo "======================================"
+  echo "=========Install duf========"
+  echo "======================================"
+  local _duf_version=$(GetLatestReleaseProxy "muesli/duf")
+  local _arch=$(uname -m)
+  # if [[ $_arch == "x86_64" ]]; then
+  #   _arch="amd64"
+  # fi
+  local _duf_url="https://ghproxy.dengqi.org/https://github.com/muesli/duf/releases/download/v${_duf_version}/duf_${_duf_version}_linux_${_arch}.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O duf.tar.gz $_duf_url
+  tar -xzf duf.tar.gz
+  mv duf $HOME/.local/bin/
+  sudo rm -rf /usr/local/bin/duf
+  sudo cp $HOME/.local/bin/duf /usr/local/bin/duf
+}
+
+install_gdu(){
+  echo "======================================"
+  echo "=========Install gdu========"
+  echo "======================================"
+  local _gdu_version=$(GetLatestReleaseProxy "dundee/gdu")
+  local _arch=$(uname -m)
+  if [[ $_arch == "x86_64" ]]; then
+    _arch="amd64"
+  fi
+  local _gdu_url="https://ghproxy.dengqi.org/https://github.com/dundee/gdu/releases/download/v${_gdu_version}/gdu_linux_${_arch}.tgz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O gdu.tar.gz $_gdu_url
+  tar -xzf gdu.tar.gz
+  mv gdu_linux_$arch $HOME/.local/bin/gdu
+  sudo rm -rf /usr/local/bin/gdu
+  sudo cp $HOME/.local/bin/gdu /usr/local/bin/gdu
+}
+
+install_ripgrep(){
+  echo "======================================"
+  echo "=========Install ripgrep========"
+  echo "======================================"
+  local _rg_version=$(GetLatestReleaseProxy "BurntSushi/ripgrep")
+  local _arch=$(uname -m)
+  # if [[ $_arch == "x86_64" ]]; then
+  #   _arch="amd64"
+  # fi
+  local _rg_url="https://ghproxy.dengqi.org/https://github.com/BurntSushi/ripgrep/releases/download/${_rg_version}/ripgrep-${_rg_version}-${_arch}-unknown-linux-musl.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O rg.tar.gz $_rg_url
+  tar -xzf rg.tar.gz
+  cd ripgrep-${_rg_version}-${_arch}-unknown-linux-musl
+  mv rg $HOME/.local/bin/
+  sudo rm -rf /usr/local/bin/rg
+  sudo cp $HOME/.local/bin/rg /usr/local/bin/rg
+}
+
+install_fd(){
+  echo "======================================"
+  echo "=========Install fd========"
+  echo "======================================"
+  local _fd_version=$(GetLatestReleaseProxy "sharkdp/fd")
+  local _arch=$(uname -m)
+  # if [[ $_arch == "x86_64" ]]; then
+  #   _arch="amd64"
+  # fi
+  local _fd_url="https://ghproxy.dengqi.org/https://github.com/sharkdp/fd/releases/download/v${_fd_version}/fd-v${_fd_version}-${_arch}-unknown-linux-gnu.tar.gz"
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O fd.tar.gz $_fd_url
+  tar -xzf fd.tar.gz
+  cd fd-v${_fd_version}-${_arch}-unknown-linux-gnu
+  mv fd $HOME/.local/bin/
+  cp fd.1 $HOME/.local/share/man/man1/
+  sudo rm -rf /usr/local/bin/fd
+  sudo cp $HOME/.local/bin/fd /usr/local/bin/fd
+}
+
+install_modertools_release(){
+  install_gh
+  install_fzf
+  install_eza
+  install_lazygit
+  install_lazydocker
+  install_duf
+  install_gdu
+  install_ripgrep
+  install_fd
+}
+
 install_modertools_rust() {
   # cargo install cargo-quickinstall
   local _tools=(
@@ -236,7 +418,7 @@ install_modertools_rust() {
     "rm-improved" # safe rm
     "just" # build system
     "grex" # regex generator
-    "helix" # a better editor
+    # "helix" # a better editor
     "bandwhich" # network bandwith monitor
     # "dog" # a dns client
     "bottom"
@@ -289,10 +471,10 @@ install_modertools_go() {
   local _golang_tools=(
     # "github.com/zulk/nali"
     "moul.io/assh/v2"
-    "github.com/muesli/duf"
+    # "github.com/muesli/duf"
     "github.com/rclone/rclone"
-    "github.com/jesseduffield/lazydocker"
-	  "github.com/dundee/gdu/v5/cmd/gdu"
+    # "github.com/jesseduffield/lazydocker"
+	  # "github.com/dundee/gdu/v5/cmd/gdu"
     # "github.com/junegunn/fzf"
   )
 
@@ -318,11 +500,18 @@ install_modertools_local_by_download(){
 export GIT_EXTERNAL_DIFF=difft
 
 
-show_ip_addr() {
-  ip addr | grep -E "192.168" | awk '{print $2}' | cut -d "/" --field 1
-  ip addr | grep -E "10.11" | awk '{print $2}' | cut -d "/" --field 1
-  ip addr | grep -E "10.15" | awk '{print $2}' | cut -d "/" --field 1
-  ip addr | grep -E "10.19" | awk '{print $2}' | cut -d "/" --field 1
-  ip addr | grep -E "10.0." | awk '{print $2}' | cut -d "/" --field 1
-  ip addr | grep -E "172." | awk '{print $2}' | cut -d "/" --field 1
+# use ip address
+show_ipv4_addr() {
+  # ip addr | grep -E "192.168" | awk '{print $2}' | cut -d "/" --field 1
+  ip addr | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
+}
+
+
+show_ipv6_addr() {
+  ip addr | grep -E -o "([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)|([0-9a-fA-F]{1,4}:){6}(:[0-9a-fA-F]{1,4}|:)|([0-9a-fA-F]{1,4}:){5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+}
+
+show_ip_addr(){
+  show_ipv4_addr
+  show_ipv6_addr
 }
