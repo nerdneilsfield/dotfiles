@@ -393,6 +393,24 @@ install_modertools_release(){
   install_fd
 }
 
+install_code_server_ubuntu(){
+  echo "======================================"
+  echo "=========Install code-server========"
+  echo "======================================"
+  local _code_server_version=$(GetLatestReleaseProxy "coder/code-server")
+  local _arch=$(uname -m)
+  if [[ $_arch == "x86_64" ]]; then
+    _arch="amd64"
+  fi
+  local _code_server_url="https://ghproxy.dengqi.org/https://github.com/coder/code-server/releases/download/v${_code_server_version}/code-server_${_code_server_version}_${_arch}.deb"
+
+  mkdir -p /tmp/install
+  cd /tmp/install
+  wget -O code-server.deb $_code_server_url
+  sudo apt install ./code-server.deb
+  cd -
+}
+
 install_modertools_rust() {
   # cargo install cargo-quickinstall
   local _tools=(
