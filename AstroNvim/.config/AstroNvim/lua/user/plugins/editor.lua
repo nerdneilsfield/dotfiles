@@ -37,6 +37,9 @@ return {
   --     },
   --   },
   {
+    "wakatime/vim-wakatime",
+  },
+  {
     "Pocco81/true-zen.nvim",
     cmd = { "TZAtaraxis", "TZMinimalist" },
     config = function() require("true-zen").setup() end,
@@ -131,7 +134,7 @@ return {
     end,
   },
   { "junegunn/vim-easy-align", event = "User AstroFile" },
-  { "machakann/vim-sandwich",  event = "User AstroFile" },
+  { "machakann/vim-sandwich", event = "User AstroFile" },
   --   { "wakatime/vim-wakatime", event = "User AstroFile" },
   {
     "wsdjeg/vim-fetch",
