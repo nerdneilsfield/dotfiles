@@ -9,6 +9,7 @@ install_nvim_source() {
 	fi
 	cd $NVIM_REPO
 	git pull origin master
+	make distclean
 	make clean
 	rm -rf build
 	make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=$HOME/.local -j $(nproc)
