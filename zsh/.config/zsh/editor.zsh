@@ -1,3 +1,21 @@
+export VIMRUNTIME="${HOME}/.local/share/nvim/runtime"
+
+check_nvim_version(){
+	local source_build_version=$("$HOME/Source/app/neovim/build/bin/nvim" -version)
+	local system_default_version=$(nvim -version)
+	if [[ "$source_build_version" == "$system_default_version" ]]; then
+		echo ">>>>Version is same!<<<<<"
+		echo ">>>>>here is the version:"
+		echo "$source_build_version"
+	else
+		echo ">>>>Version is not same<<<<"
+		echo "-------source build version-------"
+		echo "$source_build_version"
+		echo "-------system_default_version-----"
+		echo "$system_default_version"
+	fi
+}
+
 install_nvim_source() {
 	# install dependencies
 	# pki gettext libtool-bin
@@ -13,11 +31,12 @@ install_nvim_source() {
 	make clean
 	rm -rf build
 	make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=$HOME/.local -j $(nproc)
-	make install
+	make install 
+	mkdir -p $HOME/.local/share/nvim/runtime
 	rm -rf $HOME/.local/share/nvim/runtime/*
 	cp -r runtime/* $HOME/.local/share/nvim/runtime/
 	cd -
-	nvim --version
+	check_nvim_version
 }
 
 install_nvim_release(){
@@ -108,7 +127,7 @@ install_nvchad() {
 }
 
 install_astro() {
-	git clone  --recursive --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/AstroNvim
+	# git clone  --recursive --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/AstroNvim
 }
 
 install_kickstart() {
@@ -145,21 +164,6 @@ alias nvim-kick="NVIM_APPNAME=kickstart nvim"
 alias nvim-chad="NVIM_APPNAME=NvChad nvim"
 alias nvim-astro="NVIM_APPNAME=AstroNvim nvim"
 alias nv="nvim-astro"
-
-# function nvims() {
-# 	items=("default" "kickstart" "LazyVim" "NvChad" "AstroNvim")
-# 	config=$(printf "%s\n" "${items[@]}" | fzf --prompt="Neovim Config" --height=~50% --layout=reverse --border --exit-0)
-# 	if [[ -z $config ]]; then
-# 		echo "Nothing selected"
-# 		return 0
-# 	elif [[ $config == "default" ]]; then
-# 		config=""
-# 	fi
-# 	NVIM_APPNAME=$config nvim $@
-# }
-
-# bindkey -s ^a "nvims\n"
-#
 
 install_vim(){
 	mkdir -p ~/Source/app/vim 

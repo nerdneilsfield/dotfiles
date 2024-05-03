@@ -448,6 +448,8 @@ install_modertools_rust() {
     "sd" # sed alternative
     "bat"
     "procs"
+
+    "aichat"
   )
 
   local CODENAME=$(lsb_release -c | awk '{print $2}')
@@ -507,10 +509,27 @@ install_modertools_local() {
   install_modertools_rust
   install_modertools_python
   install_modertools_go
+  install_modertools_jq
 }
 
 install_modertools_local_by_download(){
   
+}
+
+install_modertools_jq() {
+  local jq_dir="${HOME}/Source/app/jq"
+  mkdir -p  $jq_dir 
+	if [ ! -d "$jq_dir" ]; then
+		git clone --depth 1 --recursive https://github.com/neovim/neovim.git $jq_dir
+	fi
+  cd $jq_dir
+  git pull origin
+  make clean
+  make distclean
+  autoreconf -i
+  ./configure --prefix="${HOME}/.local"
+  make -j $(nproc)
+  make install
 }
 
 #=======================
