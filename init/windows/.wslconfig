@@ -1,0 +1,4 @@
+[wsl2]
+     memory=32GB # Limits VM memory in WSL 2 to 4 GB
+     processors=14 # Makes the WSL 2 VM use two virtual processors
+     networkingMode=mirrored
