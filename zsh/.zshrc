@@ -6,6 +6,7 @@ set -o vi
 set +e
 
 source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
+source "$ZSH_CONF_DIR/utils.zsh"
 
 source "$ZSH_CONF_DIR/alias.zsh"
 source "$ZSH_CONF_DIR/function.zsh"
@@ -23,6 +24,7 @@ source "$ZSH_CONF_DIR/java.zsh"
 source "$ZSH_CONF_DIR/node.zsh"
 source "$ZSH_CONF_DIR/ros.zsh"
 source "$ZSH_CONF_DIR/robotics.zsh"
+source "$ZSH_CONF_DIR/wasm.zsh"
 source "$ZSH_CONF_DIR/xilinx.zsh"
 source "$ZSH_CONF_DIR/zig.zsh"
 
@@ -75,3 +77,6 @@ source "$ZSH_CONF_DIR/editor.zsh"
 autoload -U promptinit; promptinit
 # prompt -p spaceship
 
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

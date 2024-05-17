@@ -2,6 +2,7 @@ alias to='jump'
 alias s='sudo systemctl'
 
 export LC_ALL="en_US.UTF-8"
+export LINUX_DISTR=""
 
 if [  -n "$(ls /etc | grep apt)" ]; then
     echo "Packagemanger apt detect"
@@ -10,12 +11,14 @@ if [  -n "$(ls /etc | grep apt)" ]; then
     alias pku='sudo apt update'
     alias pkd='sudo apt upgrade'
     source $ZSH_CONF_DIR/config.ubuntu.zsh
+    export LINUX_DISTR="ubuntu"
 elif [ -n "$(ls /etc | grep pacman)" ]; then
     echo "Packagemanger pacman detect"
     alias pki='sudo pacman -S'
     alias pkr='sudo pacman -R'
     alias pku='sudo pacman -Su'
     alias pkd='sudo pacman -Syyu'
+    export LINUX_DISTR="arch"
 	  #export LANG=C.UTF-8; export LC_CTYPE=C.UTF-8;
 elif [ -n "$(ls /etc | grep yum) "];then
     echo "Packagemanger yum detect"
@@ -24,6 +27,7 @@ elif [ -n "$(ls /etc | grep yum) "];then
     alias pku='sudo yum update'
     alias pkd='sudo yum upgrade'
     source $ZSH_CONF_DIR/config.centos.zsh
+    export LINUX_DISTR="centos"
 fi
 
 # # color

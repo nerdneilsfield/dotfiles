@@ -27,7 +27,11 @@ install_volar_lsp() {
 }
 
 install_pnpm(){
-        npm i -g pnpm
+        pnpm i -g pnpm
+}
+
+install_js_beautify() {
+        pnpm i -g js-beautify
 }
 
 install_html_tools() {

@@ -195,14 +195,14 @@ chtsh() {
 install_tpm(){
   mkdir -p $HOME/.tmux/plugins
   if [[ -d $HOME/.tmux/plugins/tpm ]]; then
-    echo "=========tpm already installed, updating======"
+    green_echo "=========tpm already installed, updating======"
     cd $HOME/.tmux/plugins/tpm
     git pull
-    echo "========tpm updated========"
+    green_echo "========tpm updated========"
   else
-    echo "=========installing tpm======"
+    green_echo "=========installing tpm======"
     git clone --recursive --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-    echo "=========tpm installed======"
+    green_echo "=========tpm installed======"
   fi
 }
 
@@ -213,9 +213,9 @@ install_neofetch() {
 
 
 install_gh(){
-  echo "======================================"
-  echo "=========Install gh========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install gh========"
+  green_echo "======================================"
   local _gh_version=$(GetLatestReleaseProxy "cli/cli")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
@@ -236,9 +236,9 @@ install_gh(){
 }
 
 install_fzf(){
-  echo "======================================"
-  echo "=========Install fzf========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install fzf========"
+  green_echo "======================================"
   local _fzf_version=$(GetLatestReleaseProxy "junegunn/fzf")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
@@ -255,9 +255,9 @@ install_fzf(){
 }
 
 install_eza(){
-  echo "======================================"
-  echo "=========Install eza========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install eza========"
+  green_echo "======================================"
   local _eza_version=$(GetLatestReleaseProxy "eza-community/eza")
   local _arch=$(uname -m)
   local _eza_url="https://ghproxy.dengqi.org/https://github.com/eza-community/eza/releases/download/v${_eza_version}/eza_${_arch}-unknown-linux-gnu.tar.gz"
@@ -271,9 +271,9 @@ install_eza(){
 }
 
 install_lazygit(){
-  echo "======================================"
-  echo "=========Install lazygit========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install lazygit========"
+  green_echo "======================================"
   local _lazygit_version=$(GetLatestReleaseProxy "jesseduffield/lazygit")
   local _arch=$(uname -m)
   local _lazygit_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazygit/releases/download/v${_lazygit_version}/lazygit_${_lazygit_version}_Linux_${_arch}.tar.gz"
@@ -287,9 +287,9 @@ install_lazygit(){
 }
 
 install_lazydocker(){
-  echo "======================================"
-  echo "=========Install lazydocker========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install lazydocker========"
+  green_echo "======================================"
   local _lazydocker_version=$(GetLatestReleaseProxy "jesseduffield/lazydocker")
   local _arch=$(uname -m)
   local _lazydocker_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazydocker/releases/download/v${_lazydocker_version}/lazydocker_${_lazydocker_version}_Linux_${_arch}.tar.gz"
@@ -303,9 +303,9 @@ install_lazydocker(){
 }
 
 install_duf(){
-  echo "======================================"
-  echo "=========Install duf========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install duf========"
+  green_echo "======================================"
   local _duf_version=$(GetLatestReleaseProxy "muesli/duf")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
@@ -322,9 +322,9 @@ install_duf(){
 }
 
 install_gdu(){
-  echo "======================================"
-  echo "=========Install gdu========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install gdu========"
+  green_echo "======================================"
   local _gdu_version=$(GetLatestReleaseProxy "dundee/gdu")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
@@ -341,9 +341,9 @@ install_gdu(){
 }
 
 install_ripgrep(){
-  echo "======================================"
-  echo "=========Install ripgrep========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install ripgrep========"
+  green_echo "======================================"
   local _rg_version=$(GetLatestReleaseProxy "BurntSushi/ripgrep")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
@@ -361,9 +361,9 @@ install_ripgrep(){
 }
 
 install_fd(){
-  echo "======================================"
-  echo "=========Install fd========"
-  echo "======================================"
+  green_green_echo "======================================"
+  green_green_echo "=========Install fd========"
+  green_green_echo "======================================"
   local _fd_version=$(GetLatestReleaseProxy "sharkdp/fd")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
@@ -394,9 +394,9 @@ install_modertools_release(){
 }
 
 install_code_server_ubuntu(){
-  echo "======================================"
-  echo "=========Install code-server========"
-  echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install code-server========"
+  green_echo "======================================"
   local _code_server_version=$(GetLatestReleaseProxy "coder/code-server")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
@@ -452,19 +452,11 @@ install_modertools_rust() {
     "aichat"
   )
 
-  local CODENAME=$(lsb_release -c | awk '{print $2}')
-  # if codename is bionic or xenial
-  local _install_command="binstall"
-  if [[ $CODENAME == "bionic" || $CODENAME == "xenial" ]]; then
-    _install_command="install"
-  fi
-
   for _rust_tool in $_tools; do
-    echo "-----------------------------"
-    echo "------install ${_rust_tool}------"
-    echo "$_install_command $_rust_tool"
-    cargo $_install_command -y $_rust_tool
-    echo "-----------------------------"
+    green_echo "-----------------------------"
+    green_echo "------install ${_rust_tool}------"
+    cargo_install $_install_command -y $_rust_tool
+    green_echo "-----------------------------"
   done
 }
 
@@ -479,7 +471,7 @@ install_modertools_python() {
     # "jrnl"
   )
   for _python_tool in $_python_tools; do
-    echo install $_python_tool
+    green_echo "install $_python_tool"
     python3 -m pip install --user $_python_tool
   done
 }
@@ -499,7 +491,7 @@ install_modertools_go() {
   )
 
   for _golang_tool in $_golang_tools; do
-    echo "=====install $_golang_tool====="
+    green_echo "=====install $_golang_tool====="
     go install "${_golang_tool}@latest"
   done
 }
@@ -530,6 +522,7 @@ install_modertools_jq() {
   ./configure --prefix="${HOME}/.local"
   make -j $(nproc)
   make install
+  green_echo "----jq installed----"
 }
 
 #=======================

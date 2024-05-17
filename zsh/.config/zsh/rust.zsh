@@ -8,7 +8,17 @@ alias cb='cargo build'
 alias cr='cargo run'
 alias cf='cargo fmt'
 alias ct='cargo test'
-alias cins="cargo install"
+alias cins="cargo-install"
+
+cargo_install(){
+  local CODENAME=$(lsb_release -c | awk '{print $2}')
+  # if codename is bionic or xenial
+  local _install_command="binstall"
+  if [[ $CODENAME == "bionic" || $CODENAME == "xenial" ]]; then
+    _install_command="install"
+  fi
+  cargo $_install_command $1
+}
 
 install_rustup(){
     # setproxy

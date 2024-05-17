@@ -4,14 +4,14 @@ check_nvim_version(){
 	local source_build_version=$("$HOME/Source/app/neovim/build/bin/nvim" -version)
 	local system_default_version=$(nvim -version)
 	if [[ "$source_build_version" == "$system_default_version" ]]; then
-		echo ">>>>Version is same!<<<<<"
-		echo ">>>>>here is the version:"
+		green_echo ">>>>Version is same!<<<<<"
+		green_echo ">>>>>here is the version:"
 		echo "$source_build_version"
 	else
-		echo ">>>>Version is not same<<<<"
-		echo "-------source build version-------"
+		red_echo ">>>>Version is not same<<<<"
+		cyan_echo "-------source build version-------"
 		echo "$source_build_version"
-		echo "-------system_default_version-----"
+		cyan_echo "-------system_default_version-----"
 		echo "$system_default_version"
 	fi
 }
