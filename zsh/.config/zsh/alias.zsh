@@ -36,7 +36,14 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-if hash exa 2>/dev/null; then
+if hash eza 2>/dev/null; then
+    alias ls='eza'
+    alias l='eza -l --all --group-directories-first --git'
+    alias ll='eza -l --all --all --group-directories-first --git'
+    alias lt='eza -T --git-ignore --level=2 --group-directories-first'
+    alias llt='eza -lT --git-ignore --level=2 --group-directories-first'
+    alias lT='eza -T --git-ignore --level=4 --group-directories-first'
+elif hash exa 2>/dev/null; then
     alias ls='exa'
     alias l='exa -l --all --group-directories-first --git'
     alias ll='exa -l --all --all --group-directories-first --git'
@@ -101,6 +108,7 @@ alias tk='tmux kill-session -t'
 
 # others
 alias now='date +%s'
+alias dateunix='date +%s'
 alias sz="source $HOME/.zshrc"
 alias j='z'
 # alias rg='rg --column --line-number --hidden --sort path --no-heading --color=always --smart-case -- '

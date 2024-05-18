@@ -4,7 +4,8 @@ export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
 export RUST_SRC_DIR=~/.cargo/bin
 
 # rust
-alias cb='cargo build'
+alias cbd='cargo build'
+alais cbr='cargo build --release'
 alias cr='cargo run'
 alias cf='cargo fmt'
 alias ct='cargo test'
@@ -41,9 +42,23 @@ install_rust_tools() {
   # some cargo extension
   cargo install cargo-quickinstall
   cargo quickinstall cargo-binstall
-  cargo binstall --no-confirm cargo-edit cargo-watch cargo-tarpaulin watchexec-cli cargo-outdated cargo-update
-  # cross compile
-  cargo binstall --no-confirm cargo-zigbuild cargo-generate
+  local tools=(
+        "cargo-edit"
+        "cargo-outdated"
+        "cargo-release"
+        "cargo-tarpaulin"
+        "cargo-tree"
+        "cargo-update"
+        "cargo-watch"
+        "watchexec-cli"
+        "cargo-audit"
+        "cargo-generate"
+        "cargo-zigbuild"
+    )
+  for tool in ${tools[@]}; do
+    green_echo "---install $tool---"
+    cargo_install $tool
+  done
   install_rust_analyzer
 }
 
@@ -52,13 +67,13 @@ install_toml_lsp() {
 }
 
 set_cargo_mirrors() {
-  echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config
+  echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config.toml
 }
 
 set_rustup_mirrors() {
   export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
   export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-  echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"https://mirrors.ustc.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config
+  echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"https://mirrors.ustc.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config.toml
 }
 
 

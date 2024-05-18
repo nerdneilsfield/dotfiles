@@ -45,6 +45,8 @@ install_python_tools() {
     "sourcery"
     "vulture"
     "ruff"
+    "pipx"
+    "ptpython"
   )
 
   for _tool in $_python_tools; do
@@ -69,8 +71,8 @@ add_python_ppa(){
 }
 
 install_python_ppa(){
-   sudo apt install python3.11-full python3.11-dev 
-   curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo python3.11
+   sudo apt install python3.13-full python3.13-dev 
+   curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo python3.13
 }
 
 install_pip(){
