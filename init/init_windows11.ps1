@@ -3,6 +3,10 @@ function InstallScoop {
         param (
         )
         Set-ExecutionPolicy RemoteSigned -Scope CurrentUser # Optional: Needed to run a remote script the first time
+        $env:SCOOP='D:\scoop'
+        [environment]::setEnvironmentVariable('SCOOP',$env:SCOOP,'User')
+        $env:SCOOP_GLOBAL='D:\apps'
+        [environment]::setEnvironmentVariable('SCOOP_GLOBAL',$env:SCOOP_GLOBAL,'Machine')
         Invoke-RestMethod get.scoop.sh | Invoke-Expression
         
         scoop install git 7zip
@@ -20,13 +24,13 @@ function InstallBasicApps() {
 }
 
 function InstallSholarApp() {
-        scoop install zotero obisidian typora okular sumatrapdf sioyek marp logseq
+        scoop install zotero obsidian typora okular sumatrapdf sioyek marp logseq
 }
 
 function InstallDevelopment() {
         scoop install vscode sublime-text gcc llvm global ctags neovim vim neovim-qt rga
         scoop install neovide putty winscp winmerge puttie python go rustup sublime-merge fnm sourcetree
-        scoop install cmake ninja xmake luajit NotepadNext openssl zig cloudcompare
+        scoop install cmake ninja xmake lua NotepadNext openssl zig cloudcompare
 }
 
 function InstallUlitiyApp() {
@@ -39,7 +43,7 @@ function InstallMedia() {
 }
 
 function InstallVcredist() {
-        scoop install vcredist2010 vcredist2012 vcredist2013 vcredist2015 vcredist2017 vcredist2019
+        scoop install vcredist2010 vcredist2012 vcredist2013 vcredist2015 vcredist2017 vcredist2019 vcredist2022
 }
 
 function InstallSocial() {
