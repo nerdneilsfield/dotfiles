@@ -28,6 +28,7 @@ fi
 
 export GITHUB_LOCATION="$HOME/Source/app"
 export LOCAL_BIN="$HOME/.local/bin/"
+export ASDF_DIR="$HOME/.local/share/asdf"
 
 # ===================================================================
 # install tools exist
@@ -399,6 +400,23 @@ install_mise(){
   ln -sf $HOME/.local/share/mise/bin/mise $HOME/.local/bin/mise
 }
 
+install_asdf(){
+  green_echo "======================================"
+  green_echo "=========Install asdf========"
+  green_echo "======================================"
+  if [[ -d $ASDF_DIR ]]; then
+    green_echo "=========asdf already installed, updating======"
+    cd $ASDF_DIR
+    git pull
+    green_echo "========asdf updated========"
+  else
+    green_echo "=========installing asdf======"
+    git clone https://github.com/asdf-vm/asdf.git $ASDF_DIR
+    green_echo "=========asdf installed======"
+  fi
+}
+
+
 install_modertools_release(){
   install_gh
   install_fzf
@@ -563,3 +581,14 @@ show_ip_addr(){
   show_ipv4_addr
   show_ipv6_addr
 }
+
+
+if [[ -f $HOME/.local/bin/mise ]]; then
+  eval "$(mise activate zsh)"
+fi
+
+if [[ -d $ASDF_DIR ]]; then
+  . $ASDF_DIR/asdf.sh
+  fpath=(${ASDF_DIR}/completions $fpath)
+  autoload -Uz compinit && compinit
+fi
