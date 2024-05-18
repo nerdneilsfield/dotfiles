@@ -381,6 +381,24 @@ install_fd(){
   sudo cp $HOME/.local/bin/fd /usr/local/bin/fd
 }
 
+install_mise(){
+  green_echo "======================================"
+  green_echo "=========Install mise========"
+  green_echo "======================================"
+  local _mise_version=$(GetLatestReleaseProxy "jdx/mise")
+  local _arch=$(uname -m)
+  if [[ $_arch == "x86_64" ]]; then
+    _arch="x64"
+  elif [[ $_arch == "aarch64" ]]; then
+    _arch="arm64"
+  fi
+  # https://github.com/jdx/mise/releases/download/v2024.5.16/mise-v2024.5.16-linux-x64-musl.tar.xz
+  local _mise_url="https://ghproxy.dengqi.org/https://github.com/jdx/mise/releases/download/v${_mise_version}/mise-v${_mise_version}-linux-${_arch}-musl.tar.xz"
+  wget -O /tmp/mise.tar.xz $_mise_url
+  tar -xvf /tmp/mise.tar.xz -C $HOME/.local/share
+  ln -sf $HOME/.local/share/mise/bin/mise $HOME/.local/bin/mise
+}
+
 install_modertools_release(){
   install_gh
   install_fzf
