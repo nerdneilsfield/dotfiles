@@ -1,5 +1,5 @@
 function Install-Python {
-    scoop install python27 mambaforge python312 python311 python310 python-pre
+    scoop install python27 mambaforge python312 python311 python310 python-pre rye
     $scoop = ""
     # if env:SCOOP is not null
     if ($env:SCOOP) {

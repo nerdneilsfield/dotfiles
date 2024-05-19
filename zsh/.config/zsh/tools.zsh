@@ -484,8 +484,17 @@ install_modertools_rust() {
     "sd" # sed alternative
     "bat"
     "procs"
-
+    "yazi"
+    "inlyne"
+    "killport"
+    "himalaya"
+    "dprint"
+    "fselect"
+    "trippy"
+    "hck"
     "aichat"
+    "typos-cli"
+    "ast-grep"
   )
 
   for _rust_tool in $_tools; do

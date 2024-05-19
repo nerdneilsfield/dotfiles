@@ -1,3 +1,95 @@
+function Install-Basic-Tools {
+    $tools=@(
+        "fzf",
+        "ripgrep",
+        "fd",
+        "bat",
+        "eza",
+        "lazygit",
+        "just",
+        "fastfetch",
+        "gh",
+        "duf",
+        "gdu",
+        "ripgrep",
+        "tokei",
+        "onefetch",
+        "git-cliff",
+        "procs",
+        "grex",
+        "tealdeer",
+        "yazi",
+        "navi",
+        "difftastic",
+        "gping",
+        # "rm-improved",
+        # "bandwhich",
+        "hexyl",
+        # "inlyne",
+        "dust",
+        "himalaya",
+        "xh",
+        # "killport",
+        "czkawka",
+        "dprint",
+        "fselect",
+        "dog",
+        # "choose",
+        "xsv",
+        "bottom",
+        "trippy",
+        "sops",
+        "typos",
+        "dnslookup",
+        "ast-grep",
+        "jq",
+        "rclone",
+        "restic",
+        "nali",
+        "qsv",
+        "dufs"
+    )
+    foreach ($tool in $tools) {
+        Green-Echo "=======install $tool========="
+        scoop install $tool
+    }
+}
+
+function Install-Basic-Tools-In-Rust {
+    $tools=@(
+        "rm-improved",
+        "bandwhich",
+        "inlyne",
+        "killport",
+        "choose",
+        "hck"
+    )
+    foreach ($tool in $tools) {
+        Green-Echo "=======install $tool========="
+        cargo binstall $tool
+    }
+}
+
+function Install-Gui-Tools {
+    $tools=@(
+        "putty",
+        "winscp",
+        "mobaxterm",
+        "filezilla",
+        "windirstat",
+        "everything",
+        "listary",
+        "bandizip",
+        "Flow-Launcher"
+    )
+
+    foreach ($tool in $tools) {
+        Green-Echo "=======install $tool========="
+        scoop install $tool
+    }
+}
+
+
 function Extract-7Zip {
     param (
         [string]$in,  # 压缩文件路径

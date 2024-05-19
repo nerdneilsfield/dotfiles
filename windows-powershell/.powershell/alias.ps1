@@ -30,6 +30,11 @@ if (Get-Command eza -ErrorAction SilentlyContinue) {
     function elT { exa -T --git-ignore --level=4 --group-directories-first @args }
 }
 
+# ssh
+function wssh {
+    wsl -d Ubuntu-20.04 ssh $args
+}
+
 # file
 function rmrf {
     param (
@@ -108,16 +113,13 @@ function gitcrd {
     }
 }
 
-function Reload-Profile {
+function Invoke-ProfileReload {
     . $PROFILE
 }
 
 Set-Alias -Name lgit -Value lazygit
 
 function dateunix {
-    # 获取当前时间
-    $currentDate = Get-Date
-
     # 将当前时间转换为 Unix 时间戳
     $unixTimestamp = [System.DateTimeOffset]::Now.ToUnixTimeSeconds()
 
@@ -203,4 +205,16 @@ function testconn {
 
 function ghcrd {
     gh repo clone @args -- --depth 1 --recursive
+}
+
+function New-SymbolicLink {
+    sudo New-Item -ItemType SymbolicLink -Path $args[1] -Value $args[0]
+}
+
+function New-Junction {
+    sudo New-Item -ItemType Junction -Path $args[1] -Value $args[0]
+}
+
+function New-HardLink {
+    sudo New-Item -ItemType HardLink -Path $args[1] -Value $args[0]
 }
