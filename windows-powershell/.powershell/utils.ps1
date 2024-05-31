@@ -261,3 +261,12 @@ function New-Deeplx-Translate {
     $response = Invoke-RestMethod -Uri $url -Method Post -Body $data
     $response.translations.text
 }
+
+# List fonts install
+function Get-InstalledFonts {
+    [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+    $fonts = New-Object System.Drawing.Text.InstalledFontCollection
+    $fontNames = $fonts.Families | ForEach-Object { $_.Name }
+    Write-Output "Installed Fonts using System.Drawing:"
+    $fontNames
+}
