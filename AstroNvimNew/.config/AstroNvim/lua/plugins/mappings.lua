@@ -49,13 +49,14 @@ return {
           ["<leader>wu"] = { "<cmd> UndotreeToggle<CR>", desc = "toggle undotree" },
 
           ["<leader>a"] = { name = "App" },
-          ["<leader>ao"] = { name = "Obsidian" },
-          ["<leader>aon"] = { "<cmd>ObsidianNew", desc = "new obsidian notes" },
-          ["<leader>aot"] = { "<cmd>ObsidianToday<CR>", desc = "open obsidian today" },
-          ["<leader>aos"] = { "<cmd>ObsidianSearch<CR>", desc = "open obsidian search" },
+
+          ["<leader>fs"] = { ":w!<cr>", desc = "Save file" },
 
           -- quick save
           ["<C-s>"] = { ":w!<cr>", desc = "Save File" }, -- change description but the same command
+        },
+        v = {
+          ["<leader>a"] = { name = "App" },
         },
         t = {
           -- setting a mapping to false will disable it

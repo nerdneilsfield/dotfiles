@@ -32,7 +32,7 @@ return {
   -- remote-development
   { import = "astrocommunity.remote-development.netman-nvim" },
   -- note-taking
-  { import = "astrocommunity.note-taking.obsidian-nvim" },
+  -- { import = "astrocommunity.note-taking.obsidian-nvim" },
   -- snippet
   -- { import = "astrocommunity.snippet.nvim-snippets" },
   -- completion
