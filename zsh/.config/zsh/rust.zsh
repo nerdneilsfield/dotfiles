@@ -5,7 +5,7 @@ export RUST_SRC_DIR=~/.cargo/bin
 
 # rust
 alias cbd='cargo build'
-alais cbr='cargo build --release'
+alias cbr='cargo build --release'
 alias cr='cargo run'
 alias cf='cargo fmt'
 alias ct='cargo test'
