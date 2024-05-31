@@ -52,6 +52,8 @@ return {
 
           ["<leader>fs"] = { ":w!<cr>", desc = "Save file" },
 
+          ["<leader>ta"] = { function() require("astrocore").toggle_term_cmd "aichat" end, desc = "Toggle AiChat" },
+
           -- quick save
           ["<C-s>"] = { ":w!<cr>", desc = "Save File" }, -- change description but the same command
         },
