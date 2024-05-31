@@ -1,4 +1,4 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
+-- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
 
 -- You can also add or configure plugins by creating files in this `plugins/` folder
 -- Here are some examples:
@@ -6,9 +6,12 @@ if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
 ---@type LazySpec
 return {
 
+  {
+    "vijaymarupudi/nvim-fzf",
+  },
   -- == Examples of Adding Plugins ==
 
-  "andweeb/presence.nvim",
+  -- "andweeb/presence.nvim",
   {
     "ray-x/lsp_signature.nvim",
     event = "BufRead",
@@ -23,24 +26,21 @@ return {
     opts = function(_, opts)
       -- customize the dashboard header
       opts.section.header.val = {
-        " █████  ███████ ████████ ██████   ██████",
-        "██   ██ ██         ██    ██   ██ ██    ██",
-        "███████ ███████    ██    ██████  ██    ██",
-        "██   ██      ██    ██    ██   ██ ██    ██",
-        "██   ██ ███████    ██    ██   ██  ██████",
-        " ",
-        "    ███    ██ ██    ██ ██ ███    ███",
-        "    ████   ██ ██    ██ ██ ████  ████",
-        "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
-        "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
-        "    ██   ████   ████   ██ ██      ██",
+        "$$\\      $$\\           $$\\   $$\\",
+        "$$$\\    $$$ |          $$ |  $$ |          ",
+        "$$$$\\  $$$$ | $$$$$$\\  $$ |  $$ | $$$$$$\\  ",
+        "$$\\$$\\$$ $$ |$$  __$$\\ $$$$$$$$ | \\____$$\\ ",
+        "$$ \\$$$  $$ |$$ /  $$ |$$  __$$ | $$$$$$$ |",
+        "$$ |\\$  /$$ |$$ |  $$ |$$ |  $$ |$$  __$$ |",
+        "$$ | \\_/ $$ |\\$$$$$$  |$$ |  $$ |\\$$$$$$$ |",
+        "\\__|     \\__| \\______/ \\__|  \\__| \\_______|",
       }
       return opts
     end,
   },
 
   -- You can disable default plugins as follows:
-  { "max397574/better-escape.nvim", enabled = false },
+  -- { "max397574/better-escape.nvim", enabled = false },
 
   -- You can also easily customize additional setup of plugins that is outside of the plugin's setup call
   {

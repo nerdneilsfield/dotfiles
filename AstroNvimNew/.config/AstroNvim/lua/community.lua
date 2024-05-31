@@ -7,13 +7,28 @@
 ---@type LazySpec
 return {
   "AstroNvim/astrocommunity",
+  --bars-and-lines
+  { import = "astrocommunity.bars-and-lines.dropbar-nvim" },
   -- colorscheme
   { import = "astrocommunity.colorscheme.catppuccin" },
   { import = "astrocommunity.colorscheme.tokyonight-nvim" },
+  -- code-runner
+  { import = "astrocommunity.code-runner.toggletasks-nvim" },
   -- lsp
   { import = "astrocommunity.lsp.actions-preview-nvim" },
   { import = "astrocommunity.lsp.lspsaga-nvim" },
   { import = "astrocommunity.lsp.lsplinks-nvim" },
+  -- editor
+  { import = "astrocommunity.editing-support.multiple-cursors-nvim" },
+  { import = "astrocommunity.editing-support.comment-box-nvim" },
+  { import = "astrocommunity.editing-support.true-zen-nvim" },
+  { import = "astrocommunity.editing-support.undotree" },
+  { import = "astrocommunity.editing-support.telescope-undo-nvim" },
+  -- terminal-intergration
+  { import = "astrocommunity.terminal-integration.toggleterm-manager-nvim" },
+  -- indent
+  { import = "astrocommunity.indent.indent-blankline-nvim" },
+  { import = "astrocommunity.indent.indent-rainbowline" },
   -- remote-development
   { import = "astrocommunity.remote-development.netman-nvim" },
   -- note-taking
