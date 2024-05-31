@@ -9,11 +9,17 @@ return {
   "AstroNvim/astrocommunity",
   -- colorscheme
   { import = "astrocommunity.colorscheme.catppuccin" },
-  { import = "astrocommunity.colorscheme.gruvbox" },
-  { import = "astrocommunity.colorscheme.nightfly" },
-  { import = "astrocommunity.colorscheme.onedark" },
-  { import = "astrocommunity.colorscheme.tokyonight" },
-  { import = "astrocommunity.colorscheme.zephyr" },
+  { import = "astrocommunity.colorscheme.tokyonight-nvim" },
+  -- lsp
+  { import = "astrocommunity.lsp.actions-preview-nvim" },
+  { import = "astrocommunity.lsp.lspsaga-nvim" },
+  { import = "astrocommunity.lsp.lsplinks-nvim" },
+  -- remote-development
+  { import = "astrocommunity.remote-development.netman-nvim" },
+  -- note-taking
+  { import = "astrocommunity.note-taking.obsidian-nvim" },
+  -- snippet
+  -- { import = "astrocommunity.snippet.nvim-snippets" },
   -- completion
   { import = "astrocommunity.completion.copilot-lua-cmp" },
   { import = "astrocommunity.completion.tabnine-nvim" },
