@@ -32,7 +32,7 @@ if (Get-Command eza -ErrorAction SilentlyContinue) {
 
 # ssh
 function wssh {
-    wsl -d Ubuntu-20.04 ssh $args
+    wsl -d Ubuntu-20.04 ssh -XY $args
 }
 
 # file
@@ -205,16 +205,4 @@ function testconn {
 
 function ghcrd {
     gh repo clone @args -- --depth 1 --recursive
-}
-
-function New-SymbolicLink {
-    sudo New-Item -ItemType SymbolicLink -Path $args[1] -Value $args[0]
-}
-
-function New-Junction {
-    sudo New-Item -ItemType Junction -Path $args[1] -Value $args[0]
-}
-
-function New-HardLink {
-    sudo New-Item -ItemType HardLink -Path $args[1] -Value $args[0]
 }

@@ -3,4 +3,8 @@ function Install-AI-Soft {
         "aichat",
         "ollama"
     )
+    foreach ($soft in $ai_soft) {
+        scoop install $soft
+    }
 }
+

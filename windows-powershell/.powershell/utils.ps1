@@ -133,16 +133,23 @@ function Set-Dotfiles-Dir {
     Set-Env "DOTFILES" $Path
 }
 
-function Stow-Path {
+function Set-Private-Dotfiles-Dir {
     param (
-        [string]$In,
-        [string]$Out="$HOME"
+        [string]$Path
     )
-    if (-Not (Test-Path $In)) {
-        Write-Error "Path not found: $In"
-        return
-    }
+    Set-Env "PRIVATE_DOTFILES" $Path
 }
+
+# function Stow-Path {
+#     param (
+#         [string]$In,
+#         [string]$Out="$HOME"
+#     )
+#     if (-Not (Test-Path $In)) {
+#         Write-Error "Path not found: $In"
+#         return
+#     }
+# }
 
 function Set-Commands-Run-Start {
     param (
@@ -160,7 +167,7 @@ function Remove-Commands-Run-Start {
     sudo Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run" -Name $TaskName
 }
 
-function Make-Basic-Dir {
+function New-BasicDir {
     $local = $env:USERPROFILE + "\.local"
     $bin = $local + "\bin"
     $config = $local + "\config"
@@ -172,4 +179,85 @@ function Make-Basic-Dir {
     New-Item -ItemType Directory -Force $config
     New-Item -ItemType Directory -Force $cache
     New-Item -ItemType Directory -Force $temp
+}
+
+<#
+.SYNOPSIS
+Creates a symbolic link.
+
+.DESCRIPTION
+The New-SymbolicLink function creates a symbolic link using the `New-Item` cmdlet with the `-ItemType SymbolicLink` parameter.
+
+.PARAMETER Target
+Specifies the target of the symbolic link.
+
+.PARAMETER Path
+Specifies the path where the symbolic link will be created.
+
+.EXAMPLE
+New-SymbolicLink -Target "C:\path\to\file.txt" -Path "C:\path\to\symlink.txt"
+Creates a symbolic link named "symlink.txt" that points to the file "file.txt" located at "C:\path\to\".
+
+#>
+function New-SymbolicLink {
+    sudo New-Item -ItemType SymbolicLink -Path $args[1] -Value $args[0]
+}
+
+function New-Junction {
+    sudo New-Item -ItemType Junction -Path $args[1] -Value $args[0]
+}
+
+function New-HardLink {
+    sudo New-Item -ItemType HardLink -Path $args[1] -Value $args[0]
+}
+
+function New-Recursive-HardLink {
+    $source = $args[0]
+    $destination = $args[1]
+    Get-ChildItem -Recurse -Path $source | ForEach-Object {
+        $target = $_.FullName.Replace($source, $destination)
+        New-HardLink $_.FullName $target
+    }
+}
+
+
+function New-UUId {
+    $guid = [guid]::NewGuid()
+    $guid.ToString()
+}
+
+# random generate 32-bit string
+function New-Token {
+    $token = [System.Web.Security.Membership]::GeneratePassword(32, 0)
+    $token
+}
+
+function New-RandomToken {
+    param (
+        [int]$length = 32  # 默认长度为32
+    )
+
+    # 定义字符集，包括大小写字母和数字
+    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray()
+
+    # 使用 Get-Random 生成随机字符
+    $random = New-Object System.Random
+    $token = -join ((1..$length) | ForEach-Object { $chars[$random.Next(0, $chars.Length)] })
+    return $token
+}
+
+function New-Deeplx-Translate {
+    param (
+        [string]$Text,
+        [string]$TargetLang="EN"
+    )
+    $url = "https://api-free.deepl.com/v2/translate"
+    $authKey = "auth_key"
+    $data = @{
+        "auth_key" = $authKey
+        "text" = $Text
+        "target_lang" = $TargetLang
+    }
+    $response = Invoke-RestMethod -Uri $url -Method Post -Body $data
+    $response.translations.text
 }

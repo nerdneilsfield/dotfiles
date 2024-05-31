@@ -1,5 +1,11 @@
 $PowerShellConfDir="$HOME\.powershell"
 
+if (Test-Path $PRIVATE_DOTFILES) {
+    if (Test-Path $PRIVATE_DOTFILES\powershell\main.ps1) {
+        . $PRIVATE_DOTFILES\powershell\main.ps1
+    }
+}
+
 . $PowerShellConfDir\utils.ps1
 . $PowerShellConfDir\alias.ps1
 . $PowerShellConfDir\scoop.ps1
