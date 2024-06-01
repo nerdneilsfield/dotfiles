@@ -2,6 +2,8 @@
 
 Nix 是一个功能强大的包管理器，适用于 Linux 和其他 Unix 系统。以下是一些常用的 Nix 命令及其简要说明:
 
+## Nix 的使用说明
+
 1. **安装和升级 Nix**：
 
    - 安装 Nix（单用户模式）：
@@ -82,3 +84,12 @@ Nix 是一个功能强大的包管理器，适用于 Linux 和其他 Unix 系统
      ```bash
      nix build
      ```
+
+## 提供的 Nix 辅助函数:
+
+- `install-nix`: 安装 `nix`
+- `install-nix-china`: 在中国安装 `nix`
+- `uninstall-nix`: 卸载 `nix`
+- `update-nix`: 更新 `nix`
+- `update-nix-china`: 在中国更新 `nix`
+- `set-nix-channel-tuna`: 使用 `nix-channel` 的清华大学镜像
