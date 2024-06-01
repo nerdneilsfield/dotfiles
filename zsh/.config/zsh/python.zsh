@@ -105,16 +105,19 @@ add_python_ppa(){
 
 install_latest_python_ppa() {
   # 使用 apt search 查找所有可用的 Python 版本
-  available_versions=$(apt search python3 | grep -oP 'python3\.\d{2}{?=\D}' | sort -V | uniq)
+  available_versions=$(apt search python3 | grep -oP 'python3\.\d{2}-full' | sort -V | uniq)
 
   # 查找版本号最大的 Python 版本
   latest_version=$(echo "$available_versions" | tail -n 1)
+  green_echo "version: $latest_version"
 
   # 如果找不到任何 Python 版本，输出错误信息并退出
   if [[ -z "$latest_version" ]]; then
     yellow_echo "未找到可用的 Python 版本。"
     return 1
   fi
+
+  latest_version=$(echo "$latest_version" | grep -oP 'python3\.\d+' | head -n 1)
 
   green_echo "找到的最新 Python 版本: $latest_version"
 
