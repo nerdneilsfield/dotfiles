@@ -18,7 +18,7 @@ cargo_install(){
   if [[ $CODENAME == "bionic" || $CODENAME == "xenial" ]]; then
     _install_command="install"
   fi
-  cargo $_install_command $1
+  cargo $_install_command -y $1
 }
 
 install_rustup(){

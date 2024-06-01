@@ -497,10 +497,10 @@ install_modertools_rust() {
     "ast-grep"
   )
 
-  for _rust_tool in $_tools; do
+  for local _rust_tool in $_tools; do
     green_echo "-----------------------------"
     green_echo "------install ${_rust_tool}------"
-    cargo_install $_install_command -y $_rust_tool
+    cargo_install $_rust_tool
     green_echo "-----------------------------"
   done
 }
