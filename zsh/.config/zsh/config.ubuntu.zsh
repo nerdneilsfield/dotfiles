@@ -37,14 +37,80 @@ add_graph_drivers() {
   sudo add-apt-repository ppa:graphics-drivers/ppa
 }
 
-change_ppa_source() {
-  for file in `ls /etc/apt/sources.list.d/`; do 
-     if grep -q "ppa.launchpad.net" /etc/apt/sources.list.d/$file; then
-           echo find ppa in $file
-           awk '/^deb / {print "#"$1; sub("http://ppa.launchpad.net/", "https://launchpad.proxy.ustclug.org/", $0); print} !/^deb / {print}' /etc/apt/sources.list.d/$file | sudo tee /etc/apt/sources.list.d/$file;
-     fi
+replace_ppa_source() {
+  for file in /etc/apt/sources.list.d/*; do
+    if grep -q "^[^#]*ppa.launchpad.net" "$file"; then
+      echo "找到 ppa 在 $file"
+      # 生成一个随机的临时文件名
+      temp_file=$(mktemp /tmp/temp_sources.list.XXXXXX)
+      sudo awk '
+        /^deb / && !/^#.*ppa.launchpad.net/ && /ppa.launchpad.net/ {
+          print "#" $0; 
+          sub("http://ppa.launchpad.net/", "https://launchpad.proxy.ustclug.org/", $0); 
+          print; 
+          next
+        }
+        {print}
+      ' "$file" > "$temp_file" && sudo mv "$temp_file" "$file"
+    fi
   done
 }
+
+clean_duplicate_ppa() {
+  # 创建一个临时文件来存储所有 PPA 定义
+  temp_file=$(mktemp /tmp/temp_ppa_list.XXXXXX)
+  echo "创建临时文件: $temp_file"
+
+  # 遍历 /etc/apt/sources.list.d/ 目录中的所有文件
+  for file in /etc/apt/sources.list.d/*; do
+    # 读取文件内容并将 PPA 定义添加到临时文件中
+    awk '/^deb / {print FILENAME ":" $0}' "$file" >> "$temp_file"
+  done
+
+  echo "所有 PPA 定义:"
+  cat "$temp_file"
+
+  # 查找重复的 PPA 定义
+  duplicates=$(cut -d: -f2- "$temp_file" | sort | uniq -d)
+
+  echo "找到的重复 PPA 定义:"
+  echo "$duplicates"
+
+  # 如果没有找到重复的 PPA 定义，退出函数
+  if [[ -z "$duplicates" ]]; then
+    echo "没有找到重复的 PPA 定义。"
+    rm "$temp_file"
+    return
+  fi
+
+  # 遍历重复的 PPA 定义并删除重复的条目
+  echo "$duplicates" | while read -r duplicate; do
+    # 查找包含重复 PPA 定义的文件
+    files=$(grep -F ":$duplicate" "$temp_file" | cut -d: -f1 | sort | uniq)
+
+    echo "包含重复 PPA 定义的文件:"
+    echo "$files"
+
+    # 保留第一个文件中的定义，删除其他文件中的重复定义
+    first_file=true
+    echo "$files" | while read -r file; do
+      if $first_file; then
+        first_file=false
+      else
+        echo "删除文件 $file 中的重复 PPA 定义: $duplicate"
+        escaped_duplicate=$(printf '%s\n' "$duplicate" | sed 's/[]\/$*.^|[]/\\&/g')
+        sudo sed -i "\|$escaped_duplicate|d" "$file"
+      fi
+    done
+  done
+
+  # 删除临时文件
+  rm "$temp_file"
+  echo "删除临时文件: $temp_file"
+}
+
+# 使用方法
+# clean_duplicate_ppa
 
 add_cmake_ppa() {
    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null

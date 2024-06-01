@@ -1,5 +1,38 @@
+# 获取所有安装的 Python 3 版本
+
+
+# 初始化一个数组来存储找到的 Python 版本
+python_versions=()
+# 遍历 $PATH 中的所有目录
+for dir in ${(s/:/)PATH}; do
+  # 检查目录是否存在
+  if [[ -d $dir ]]; then
+    # 查找以 python3. 开头且只包含数字的可执行文件 <-> 代表匹配一个数字
+    for file in $dir/python3.<->(N); do
+      # 检查文件是否存在且可执行
+      if [[ -x $file ]]; then
+        python_versions+=($file:t)
+      fi
+    done
+  fi
+done 
+
+# 如果没有找到任何 Python 3 版本，退出脚本
+if [[ ${#python_versions[@]} -eq 0 ]]; then
+  yellow_echo "没有找到任何 Python 3 版本。"
+  exit 1
+fi
+
+# 找到最新的 Python 3 版本
+local _python_latest_version=$(printf "%s\n" "${python_versions[@]}" | sort -V | tail -n 1)
+
+green_echo "设置 Python3 版本为: $_python_latest_version"
+
+# 创建别名
+alias python3=$_python_latest_version
 alias python='python3'
-alias pipi='python3 -m pip install -U --user -i https://pypi.tuna.tsinghua.edu.cn/simple'
+alias pipgi='python3 -m pip install -U --user -i https://pypi.tuna.tsinghua.edu.cn/simple'
+alias pipi='python3 -m pip install -U -i https://pypi.tuna.tsinghua.edu.cn/simple'
 alias pipu="python3 -m pip install -U -i https://pypi.tuna.tsinghua.edu.cn/simple pip"
 alias pipl="python3 -m pip list"
 alias pipf="python3 -m pip freeze"
@@ -70,9 +103,27 @@ add_python_ppa(){
   sudo add-apt-repository ppa:deadsnakes/ppa
 }
 
-install_python_ppa(){
-   sudo apt install python3.13-full python3.13-dev 
-   curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo python3.13
+install_latest_python() {
+  # 使用 apt search 查找所有可用的 Python 版本
+  available_versions=$(apt search python3 | grep -oP 'python3\.\d+' | sort -V | uniq)
+
+  # 查找版本号最大的 Python 版本
+  latest_version=$(echo "$available_versions" | tail -n 1)
+
+  # 如果找不到任何 Python 版本，输出错误信息并退出
+  if [[ -z "$latest_version" ]]; then
+    yellow_echo "未找到可用的 Python 版本。"
+    return 1
+  fi
+
+  green_echo "找到的最新 Python 版本: $latest_version"
+
+  # 安装最新版本的 Python 及其相关包
+  sudo apt update
+  sudo apt install -y "${latest_version}-full" "${latest_version}-dev" "${latest_version}-venv"
+  curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo "${latest_version}"
+
+  green_echo "已成功安装 $latest_version 及其相关包。"
 }
 
 install_pip(){
