@@ -35,6 +35,10 @@ return {
   -- { import = "astrocommunity.note-taking.obsidian-nvim" },
   -- snippet
   -- { import = "astrocommunity.snippet.nvim-snippets" },
+  -- media
+  { import = "astrocommunity.media.image-nvim" },
+  -- workflow
+  { import = "astrocommunity.workflow.hardtime-nvim" },
   -- completion
   { import = "astrocommunity.completion.copilot-lua-cmp" },
   { import = "astrocommunity.completion.tabnine-nvim" },
@@ -44,6 +48,7 @@ return {
   { import = "astrocommunity.markdown-and-latex.glow-nvim" },
   -- pack
   { import = "astrocommunity.pack.lua" },
+  { import = "astrocommunity.pack.docker" },
   { import = "astrocommunity.pack.cpp" },
   { import = "astrocommunity.pack.rust" },
   { import = "astrocommunity.pack.go" },
