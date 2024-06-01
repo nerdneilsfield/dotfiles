@@ -36,6 +36,18 @@ install_zigup() {
         $HOME/.local/bin/zigup --help
 }
 
+install_zigup_proxy() {
+        ZIG_VER=$(GetLatestRelease "marler8997/zigup")
+        mkdir -p $HOME/Source/app/zigup
+        wget -O "$HOME/Source/app/zigup/zigup_${ZIG_VER}.tar.gz" "https://ghproxy.dengqi.org/https://github.com/marler8997/zigup/releases/download/v${ZIG_VER}/zigup-x86_64-linux.tar.gz"
+        cd $HOME/Source/app/zigup
+        tar -xvf zigup_${ZIG_VER}.tar.gz
+        rm -rf $HOME/.local/bin/zigup
+        mv zigup $HOME/.local/bin/zigup
+        chmod +x $HOME/.local/bin/zigup
+        $HOME/.local/bin/zigup --help
+}
+
 install_zig() {
         # check if zigup exists
         if [[ ! -f "$HOME/.local/bin/zigup" ]]; then
