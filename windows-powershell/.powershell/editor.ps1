@@ -1,5 +1,5 @@
 function Install-Command-Editor {
-    scoop install vim neovim helix nano
+    scoop install vim neovim-nightly helix nano -s
 }
 
 function Install-Gui-Editor {

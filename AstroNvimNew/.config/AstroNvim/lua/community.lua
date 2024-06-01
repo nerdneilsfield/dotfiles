@@ -56,5 +56,6 @@ return {
   { import = "astrocommunity.pack.python" },
   { import = "astrocommunity.pack.markdown" },
   { import = "astrocommunity.pack.typst" },
+  -- { import = "astrocommunity.pack.powershell" },
   -- import/override with your plugins folder
 }

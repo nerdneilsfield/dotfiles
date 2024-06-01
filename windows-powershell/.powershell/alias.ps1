@@ -1,5 +1,6 @@
 # windows
 Set-Alias -Name exp -Value explorer
+# Set-Alias -Name nv -Value nvim
 
 # web server
 function Start-PyHttpServer {
