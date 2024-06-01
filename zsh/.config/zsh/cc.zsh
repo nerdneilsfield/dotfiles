@@ -14,25 +14,64 @@ export CPP_INCLUDE_PATH=$HOME/.local/include:/usr/local/include:/usr/include
 # export CFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CFLAGS"
 # export CPPFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CPPFLAGS"
 
-if hash clang-17 2>/dev/null; then
-  export CC=`where clang-17 | head -n 1`
-  export CXX=`where clang++-17 | head -n 1`
-elif hash clang-16 2>/dev/null; then
-  export CC=`where clang-16 | head -n 1`
-  export CXX=`where clang++-16 | head -n 1`
-elif hash gcc-12 2>/dev/null; then
-  export CC=`where gcc-12 | head -n 1`
-  export CXX=`where g++-12 | head -n 1`
-elif hash gcc-11 2>/dev/null; then
-  export CC=`where gcc-11 | head -n 1`
-  export CXX=`where g++-11 | head -n 1`
-elif hash clang 2>/dev/null; then
-  export CC=`where clang | head -n 1`
-  export CXX=`where clang | head -n 1`
-else
-  export CC=`where gcc | head -n 1`
-  export CXX=`where g++ | head -n 1`
-fi
+find_latest_cc_compilers() {
+  # 初始化数组来存储找到的 GCC 和 Clang 版本
+  gcc_versions=()
+  clang_versions=()
+
+  # 遍历 $PATH 中的所有目录
+  for dir in ${(s/:/)PATH}; do
+    # 检查目录是否存在
+    if [[ -d $dir ]]; then
+      # 查找以 gcc- 开头且只包含数字的可执行文件
+      for file in $dir/gcc-<->(N); do
+        # 检查文件是否存在且可执行
+        if [[ -x $file ]]; then
+          gcc_versions+=($file:t)
+        fi
+      done
+      # 查找以 clang- 开头且只包含数字的可执行文件
+      for file in $dir/clang-<->(N); do
+        # 检查文件是否存在且可执行
+        if [[ -x $file ]]; then
+          clang_versions+=($file:t)
+        fi
+      done
+    fi
+  done
+
+  # 如果没有找到任何 GCC 版本，使用系统默认的 gcc
+  if [[ ${#gcc_versions[@]} -eq 0 ]]; then
+    export GCC=$(which gcc)
+    export GXX=$(which g++)
+  else
+    # 找到最新的 GCC 版本
+    latest_gcc=$(printf "%s\n" "${gcc_versions[@]}" | sort -V | tail -n 1)
+    export GCC=$(which $latest_gcc)
+    export GXX=$(which ${latest_gcc/gcc/g++})
+  fi
+
+  # 如果没有找到任何 Clang 版本，使用系统默认的 clang
+  if [[ ${#clang_versions[@]} -eq 0 ]]; then
+    export CLANG=$(which clang)
+    export CLANGXX=$(which clang++)
+  else
+    # 找到最新的 Clang 版本
+    latest_clang=$(printf "%s\n" "${clang_versions[@]}" | sort -V | tail -n 1)
+    export CLANG=$(which $latest_clang)
+    export CLANGXX=$(which ${latest_clang/clang/clang++})
+  fi
+
+  # 输出设置的编译器版本
+  green_echo "设置 GCC 版本为: $GCC"
+  green_echo "设置 GXX 版本为: $GXX"
+  green_echo "设置 CLANG 版本为: $CLANG"
+  green_echo "设置 CLANGXX 版本为: $CLANGXX"
+}
+
+# 使用方法
+# 运行 find_latest_compilers 函数
+find_latest_cc_compilers
 
 
 alias _cmk='cmake -G "Ninja"'
@@ -286,68 +325,156 @@ function install_cpp_tools() {
 function set_cxx(){
   case "$1" in
     "gcc")
-     echo "Change to gcc"
-     if hash gcc-12 2>/dev/null; then
-       export CC=`where gcc-12 | head -n 1`
-       export CXX=`where g++-12 | head -n 1`
-     elif hash gcc-11 2>/dev/null; then
-       export CC=`where gcc-11 | head -n 1`
-       export CXX=`where g++-11 | head -n 1`
-     else
-       export CC=`where gcc | head -n 1`
-       export CXX=`where g++ | head -n 1`
-     fi 
+      green_echo "Change to gcc"
+      export CC=$GCC
+      export CXX=$GXX
     ;;
     "clang")
-     echo "Change to clang"
-     if hash clang-17 2>/dev/null; then
-       export CC=`where clang-17 | head -n 1`
-       export CXX=`where clang++-17 | head -n 1`
-     elif hash clang-16 2>/dev/null; then
-       export CC=`where clang-16 | head -n 1`
-       export CXX=`where clang++-16 | head -n 1`
-     else
-       export CC=`where clang | head -n 1`
-       export CXX=`where clang++ | head -n 1`
-     fi 
+     green_echo "Change to clang"
+      export CC=$CLANG
+      export CXX=$CLANGXX
     ;;
     "distcc-clang")
-      echo "change to distcc clang"
+      green_echo "change to distcc clang"
     if hash distcc 2>/dev/null; then
-     if hash clang-17 2>/dev/null; then
-       export CC="distcc clang-17"
-       export CXX="distcc clang++-17"
-     elif hash clang-16 2>/dev/null; then
-       export CC="disctcc clang-16"
-       export CXX="distcc clang++-16"
-     else
-       export CC="distcc clang"
-       export CXX="distcc clang++"
-     fi 
+      export CC="distcc ${GLANG}"
+      export CXX="distcc ${GLANGXX}"
     else
-      echo "distcc not found"
+      green_echo "distcc not found"
     fi
     ;;
-    "distcc-clang")
-    echo "change to distcc gcc"
+    "distcc-gcc")
+    green_echo "change to distcc gcc"
     if hash distcc 2>/dev/null; then
-     if hash gcc-12 2>/dev/null; then
-       export CC="distcc gcc-12"
-       export CXX="distcc g++-12"
-     elif hash gcc-11 2>/dev/null; then
-       export CC="disctcc gcc-11"
-       export CXX="distcc g++-11"
-     else
-       export CC="distcc gcc"
-       export CXX="distcc g++"
-     fi 
+      export CC="distcc ${GCC}"
+      export CXX="distcc ${GXX}"
     else
-      echo "distcc not found"
+      green_echo "distcc not found"
     fi
+    ;;
+    "zig")
+      green_echo "change to zig"
+      export CC="zig cc"
+      export CXX="zig c++"
     ;;
     *)
-      echo "useage: set_cxx [gcc|clang]"
+      green_echo "useage: set_cxx [gcc|clang]"
     ;;
   esac
+}
+
+install_latest_gcc_ppa() {
+  # 使用 apt search 查找所有可用的 GCC 版本
+  local _available_gcc_versions=$(apt search gcc | grep -oP 'gcc-\d{2}(?=\s|/)' | sort -V | uniq)
+
+  # 查找版本号最大的 GCC 版本
+  local _latest_gcc_version=$(green_echo "$_available_gcc_versions" | tail -n 1)
+
+  # 如果找不到任何 GCC 版本，输出错误信息并退出
+  if [[ -z "$_latest_gcc_version" ]]; then
+    yellow_echo "未找到可用的 GCC 版本。"
+    return 1
+  fi
+
+  green_echo "找到的最新 GCC 版本: $_latest_gcc_version"
+
+  # 提取版本号
+  local _version_number=$(echo "$_latest_gcc_version" | grep -oP '\d+' | head -n 1)
+  green_echo "提取的版本号: $_version_number"
+
+  # 安装最新版本的 GCC 及其相关包
+  sudo apt update
+  sudo apt install -y "gcc-$_version_number" "g++-$_version_number" "gcc-$_version_number-multilib" "libgcc-$_version_number-dev" "libstdc++-$_version_number-dev" "libgomp1"
+
+  green_echo "已成功安装 $_latest_gcc_version 及其相关包。"
+}
+
+install_latest_clang_ppa() {
+    # 查找最新版本的 Clang
+    local _available_versions
+    _available_versions=$(apt search clang | grep -oP 'clang-\d{1,2}(?=\s|/)' | sort -V | uniq)
+    local _latest_version
+    _latest_version=$(echo "$_available_versions" | sort -V | tail -n 1)
+
+    # 如果找不到任何 Clang 版本，输出错误信息并退出
+    if [[ -z "$_latest_version" ]]; then
+        yellow_echo "未找到可用的 Clang 版本。"
+        return 1
+    fi
+
+    green_echo "找到的最新 Clang 版本: $_latest_version"
+
+    # 提取版本号
+    local _version_number
+    _version_number=$(echo "$_latest_version" | grep -oP '\d+' | head -n 1)
+
+    # 更新包列表
+    sudo apt update
+
+    # 安装 LLVM 相关包
+    green_echo "# LLVM"
+    sudo apt-get install -y "libllvm-${_version_number}-ocaml-dev" "libllvm${_version_number}" "llvm-${_version_number}" "llvm-${_version_number}-dev" "llvm-${_version_number}-doc" "llvm-${_version_number}-examples" "llvm-${_version_number}-runtime"
+
+    # 安装 Clang 及相关包
+    green_echo "# Clang and co"
+    sudo apt-get install -y "clang-${_version_number}" "clang-tools-${_version_number}" "clang-${_version_number}-doc" "libclang-common-${_version_number}-dev" "libclang-${_version_number}-dev" "libclang1-${_version_number}" "clang-format-${_version_number}" "python3-clang-${_version_number}" "clangd-${_version_number}" "clang-tidy-${_version_number}"
+
+    # 安装 compiler-rt
+    green_echo "# compiler-rt"
+    sudo apt-get install -y "libclang-rt-${_version_number}-dev"
+
+    # 安装 polly
+    green_echo "# polly"
+    sudo apt-get install -y "libpolly-${_version_number}-dev"
+
+    # 安装 libfuzzer
+    green_echo "# libfuzzer"
+    sudo apt-get install -y "libfuzzer-${_version_number}-dev"
+
+    # 安装 lldb
+    green_echo "# lldb"
+    sudo apt-get install -y "lldb-${_version_number}"
+
+    # 安装 lld (linker)
+    green_echo "# lld (linker)"
+    sudo apt-get install -y "lld-${_version_number}"
+
+    # 安装 libc++
+    green_echo "# libc++"
+    sudo apt-get install -y "libc++-${_version_number}-dev" "libc++abi-${_version_number}-dev"
+
+    # 安装 OpenMP
+    green_echo "# OpenMP"
+    sudo apt-get install -y "libomp-${_version_number}-dev"
+
+    # 安装 libclc
+    green_echo "# libclc"
+    sudo apt-get install -y "libclc-${_version_number}-dev"
+
+    # 安装 libunwind
+    green_echo "# libunwind"
+    sudo apt-get install -y "libunwind-${_version_number}-dev"
+
+    # 安装 mlir
+    green_echo "# mlir"
+    sudo apt-get install -y "libmlir-${_version_number}-dev" "mlir-${_version_number}-tools"
+
+    # 安装 bolt
+    green_echo "# bolt"
+    sudo apt-get install -y "libbolt-${_version_number}-dev" "bolt-${_version_number}"
+
+    # 安装 flang
+    green_echo "# flang"
+    sudo apt-get install -y "flang-${_version_number}"
+
+    # 安装 wasm support
+    green_echo "# wasm support"
+    sudo apt-get install -y "libclang-rt-${_version_number}-dev-wasm32" "libclang-rt-${_version_number}-dev-wasm64" "libc++-${_version_number}-dev-wasm32" "libc++abi-${_version_number}-dev-wasm32" "libclang-rt-${_version_number}-dev-wasm32" "libclang-rt-${_version_number}-dev-wasm64"
+
+    # 安装 LLVM libc
+    green_echo "# LLVM libc"
+    sudo apt-get install -y "libllvmlibc-${_version_number}-dev"
+
+   green_echo "已成功安装 Clang 及其相关包。"
 }
 

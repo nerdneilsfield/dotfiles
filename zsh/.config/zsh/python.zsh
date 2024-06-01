@@ -103,7 +103,7 @@ add_python_ppa(){
   sudo add-apt-repository ppa:deadsnakes/ppa
 }
 
-install_latest_python() {
+install_latest_python_ppa() {
   # 使用 apt search 查找所有可用的 Python 版本
   available_versions=$(apt search python3 | grep -oP 'python3\.\d+' | sort -V | uniq)
 
