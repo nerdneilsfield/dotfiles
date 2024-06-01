@@ -130,8 +130,8 @@ alias trans_ja="trans -to \"ja\" -text"
 function git_proxy() {
     # 替换 URL
     local args=("$@")
-    for i in "${!args[@]}"; do
-        args[$i]="${args[$i]//https:\/\/github.com/https:\/\/ghproxy.dengqi.org\/https:\/\/github.com}"
+    for i in {1..${#args[@]}}; do
+        args[$i]=$(echo "${args[$i]}" | sed 's|https://github.com|https://ghproxy.dengqi.org/https://github.com|g')
     done
     # 执行 git 命令
     command git "${args[@]}"
@@ -139,14 +139,14 @@ function git_proxy() {
 
 # 别名替换 git 命令
 alias git-gh='git_proxy'
-
 function wget-gh() {
     # 替换 URL
     local args=("$@")
-    for i in "${!args[@]}"; do
-        args[$i]="${args[$i]//https:\/\/github.com/https:\/\/ghproxy.dengqi.org\/https:\/\/github.com}"
+    for i in {1..${#args[@]}}; do
+        args[$i]=$(echo "${args[$i]}" | sed 's|https://github.com|https://ghproxy.dengqi.org/https://github.com|g')
     done
+    # 打印替换后的参数
+    echo "wget ${args[@]}"
     # 执行 wget 命令
     command wget "${args[@]}"
 }
-

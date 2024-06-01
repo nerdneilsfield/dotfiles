@@ -9,7 +9,7 @@ alias cbr='cargo build --release'
 alias cr='cargo run'
 alias cf='cargo fmt'
 alias ct='cargo test'
-alias cins="cargo-install"
+alias cins="cargo_install"
 
 cargo_install(){
   local CODENAME=$(lsb_release -c | awk '{print $2}')
