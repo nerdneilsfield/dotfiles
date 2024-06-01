@@ -1,4 +1,4 @@
-export VIMRUNTIME="${HOME}/.local/share/nvim/runtime"
+export NVIMRUNTIME="${HOME}/.local/share/nvim/runtime"
 
 check_nvim_version(){
 	local source_build_version=$("$HOME/Source/app/neovim/build/bin/nvim" -version)
