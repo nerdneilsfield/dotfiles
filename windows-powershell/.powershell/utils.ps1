@@ -109,6 +109,11 @@ function Remove-From-Path {
     }
 }
 
+function List-Path {
+    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $currentPath -split ";"
+}
+
 function Set-Env {
     param (
         [string]$Name,
