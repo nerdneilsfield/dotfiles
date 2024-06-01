@@ -39,8 +39,9 @@ return {
         opts = {
           mappings = {
             n = {
-              ["<leader>cc"] = { "+yy", desc = "copy line" },
-              ["<leader>cy"] = { "+y", desc = "copy" },
+              ["<leader>ccc"] = { "+yy", desc = "copy line" },
+              ["<leader>ccy"] = { "+y", desc = "copy" },
+              ["<leader>cca"] = { 'ggVG"+y', desc = "copy all" },
             },
           },
           options = {
