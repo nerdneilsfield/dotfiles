@@ -1,3 +1,18 @@
+-- 判断一个文件夹是否存在
+local function is_dir_exists(path)
+  local ok, err, code = os.rename(path, path)
+  if not ok then
+    if code == 13 then
+      -- Permission denied, but it exists
+      return true
+    end
+    return false
+  end
+  return true
+end
+
+if not is_dir_exists(vim.env.HOME .. "/obsidian-vault") then return {} end
+
 -- 定义一个函数来读取用户输入并执行命令
 local function execute_obsidian_tags()
   -- 使用 input() 函数读取用户输入

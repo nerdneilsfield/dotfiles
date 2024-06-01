@@ -11,3 +11,4 @@ nvim/.config/nvim/autoload
 .vscode
 zsh/a.out
 AstroNvimNew/.config/AstroNvim/lazy-lock.json
+AstroNvimNew/.config/AstroNvim/.luarc.json

@@ -1,3 +1,6 @@
+local function copy(lines, _) require("osc52").copy(table.concat(lines, "\n")) end
+
+local function paste() return { vim.fn.split(vim.fn.getreg "", "\n"), vim.fn.getregtype "" } end
 return {
   {
     "kvrohit/mellow.nvim",
@@ -30,6 +33,37 @@ return {
   },
   {
     "ojroques/nvim-osc52",
+    dependencies = {
+      {
+        "AstroNvim/astrocore",
+        opts = {
+          mappings = {
+            n = {
+              ["<leader>cc"] = { "+yy", desc = "copy line" },
+              ["<leader>cy"] = { "+y", desc = "copy" },
+            },
+          },
+          options = {
+            g = {
+              clipboard = {
+                -- name = "OSC 52",
+                -- copy = {
+                --   ["+"] = require("vim.clipboard.osc52").copy,
+                --   ["*"] = require("vim.clipboard.osc52").copy,
+                -- },
+                -- paste = {
+                --   ["+"] = require("vim.clipboard.osc52").paste,
+                --   ["*"] = require("vim.clipboard.osc52").paste,
+                -- },
+                name = "osc52",
+                copy = { ["+"] = copy, ["*"] = copy },
+                paste = { ["+"] = paste, ["*"] = paste },
+              },
+            },
+          },
+        },
+      },
+    },
     config = function()
       require("osc52").setup {
         max_length = 0,
