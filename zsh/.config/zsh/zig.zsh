@@ -27,9 +27,9 @@ install_zigmod() {
 install_zigup() {
         ZIG_VER=$(GetLatestRelease "marler8997/zigup")
         mkdir -p $HOME/Source/app/zigup
-        wget -O "$HOME/Source/app/zigup/zigup_${ZIG_VER}.zip" "https://github.com/marler8997/zigup/releases/download/v${ZIG_VER}/zigup.ubuntu-latest-x86_64.zip"
+        wget -O "$HOME/Source/app/zigup/zigup_${ZIG_VER}.tar.gz" "https://github.com/marler8997/zigup/releases/download/v${ZIG_VER}/zigup-x86_64-linux.tar.gz"
         cd $HOME/Source/app/zigup
-        unzip "zigup_${ZIG_VER}.zip"
+        tar -xvf zigup_${ZIG_VER}.tar.gz
         rm -rf $HOME/.local/bin/zigup
         mv zigup $HOME/.local/bin/zigup
         chmod +x $HOME/.local/bin/zigup
