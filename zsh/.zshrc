@@ -8,25 +8,7 @@ set +e
 source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
 source "$ZSH_CONF_DIR/utils.zsh"
 
-source "$ZSH_CONF_DIR/alias.zsh"
-source "$ZSH_CONF_DIR/function.zsh"
-source "$ZSH_CONF_DIR/starship.zsh"
-source "$ZSH_CONF_DIR/config.zsh"
-
-source "$ZSH_CONF_DIR/cc.zsh"
-source "$ZSH_CONF_DIR/golang.zsh"
-source "$ZSH_CONF_DIR/rust.zsh"
-source "$ZSH_CONF_DIR/shell.zsh"
-source "$ZSH_CONF_DIR/html.zsh"
-source "$ZSH_CONF_DIR/hdl.zsh"
-source "$ZSH_CONF_DIR/python.zsh"
-source "$ZSH_CONF_DIR/java.zsh"
-source "$ZSH_CONF_DIR/node.zsh"
-source "$ZSH_CONF_DIR/ros.zsh"
-source "$ZSH_CONF_DIR/robotics.zsh"
-source "$ZSH_CONF_DIR/wasm.zsh"
-source "$ZSH_CONF_DIR/xilinx.zsh"
-source "$ZSH_CONF_DIR/zig.zsh"
+source "$ZSH_CONF_DIR/index.zsh"
 
 ## # import z.lua
 ## eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)"    # ZSH 初始化

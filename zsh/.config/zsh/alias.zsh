@@ -64,7 +64,10 @@ alias jb='j -b'
 # docker
 alias d='docker'
 alias dc='docker compose'
-alias dcup='docker compose up'
+alias dcup='docker compose up -d --remove-orphans'
+alias dcdown='docker compose down'
+alias dcr='docker compose restart'
+alias dce='docker compose exec'
 alias da='docker exec -it'
 
 # git
@@ -123,4 +126,27 @@ alias unsetpx="unsetproxy"
 alias trans_zh="trans -to \"zh-CN\" -text"
 alias trans_en="trans -to \"en\" -text"
 alias trans_ja="trans -to \"ja\" -text"
+
+function git_proxy() {
+    # 替换 URL
+    local args=("$@")
+    for i in "${!args[@]}"; do
+        args[$i]="${args[$i]//https:\/\/github.com/https:\/\/ghproxy.dengqi.org\/https:\/\/github.com}"
+    done
+    # 执行 git 命令
+    command git "${args[@]}"
+}
+
+# 别名替换 git 命令
+alias git-gh='git_proxy'
+
+function wget-gh() {
+    # 替换 URL
+    local args=("$@")
+    for i in "${!args[@]}"; do
+        args[$i]="${args[$i]//https:\/\/github.com/https:\/\/ghproxy.dengqi.org\/https:\/\/github.com}"
+    done
+    # 执行 wget 命令
+    command wget "${args[@]}"
+}
 
