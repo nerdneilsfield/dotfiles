@@ -53,6 +53,20 @@ replace_ppa_source() {
         {print}
       ' "$file" > "$temp_file" && sudo mv "$temp_file" "$file"
     fi
+    if grep -q "^[^#]*ppa.launchpadcontent.net" "$file"; then
+      echo "找到 ppa 在 $file"
+      # 生成一个随机的临时文件名
+      temp_file=$(mktemp /tmp/temp_sources.list.XXXXXX)
+      sudo awk '
+        /^deb / && !/^#.*ppa.launchpadcontent.net/ && /ppa.launchpadcontent.net/ {
+          print "#" $0; 
+          sub("https://ppa.launchpadcontent.net/", "https://launchpad.proxy.ustclug.org/", $0); 
+          print; 
+          next
+        }
+        {print}
+      ' "$file" > "$temp_file" && sudo mv "$temp_file" "$file"
+    fi
   done
 }
 
