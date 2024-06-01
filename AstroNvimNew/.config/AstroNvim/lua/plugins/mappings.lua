@@ -54,6 +54,13 @@ return {
 
           ["<leader>ta"] = { function() require("astrocore").toggle_term_cmd "aichat" end, desc = "Toggle AiChat" },
 
+          ["<leader>dd"] = { desc = "Delete" },
+          ["<leader>ddd"] = { "dd", desc = "Delete Line" },
+          ["<leader>ddp"] = { "dap", desc = "Delete Paragraph" },
+          ["<leader>ddP"] = { "d}", desc = "Delete Paragraph" },
+          ["<leader>dda"] = { "ggdG", desc = "Delete All" },
+          ["<leader>ddb"] = { 'di"', desc = "Delete Bucket" },
+
           -- quick save
           ["<C-s>"] = { ":w!<cr>", desc = "Save File" }, -- change description but the same command
         },
