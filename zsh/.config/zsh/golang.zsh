@@ -9,6 +9,7 @@ elif [[ -d "/usr/lib/go/" ]]; then
 fi
 
 export GOPATH=$HOME/Source/Go
+export GO111MODULE=on
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 
 # macOS config
