@@ -18,6 +18,7 @@ elif [ -n "$(ls /etc | grep pacman)" ]; then
     alias pkr='sudo pacman -R'
     alias pku='sudo pacman -Su'
     alias pkd='sudo pacman -Syyu'
+    source $ZSH_CONF_DIR/config.arch.zsh
     export LINUX_DISTR="arch"
 	  #export LANG=C.UTF-8; export LC_CTYPE=C.UTF-8;
 elif [ -n "$(ls /etc | grep yum) "];then
