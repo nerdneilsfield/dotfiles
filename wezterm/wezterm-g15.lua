@@ -1,5 +1,9 @@
 local wezterm = require("wezterm")
 
+function trim(s)
+	return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 local config = {
 	audible_bell = "Disabled",
 	check_for_updates = false,
@@ -124,5 +128,32 @@ else
 	table.insert(config.launch_menu, { label = "bash", args = { "bash", "-l" } })
 	table.insert(config.launch_menu, { label = "fish", args = { "fish", "-l" } })
 end
+
+for _, domain in ipairs(wezterm.default_ssh_domains()) do
+	local address = nil
+	local remote_address = domain.remote_address or ""
+	local username = domain.username or ""
+	-- wezterm.log_info("remote_address: " .. remote_address)
+	-- wezterm.log_info("username length: " .. #username)
+	if #trim(username) ~= 0 then
+		address = username .. "@" .. remote_address
+	else
+		address = remote_address
+	end
+	-- wezterm.log_info("address: " .. address)
+	local proxy_command = "ssh -XY " .. address
+	-- wezterm.log_info("proxy_command: " .. proxy_command)
+
+	table.insert(config.launch_menu, {
+		label = "SSHXY " .. address,
+		args = {
+			"C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+			"-XY",
+			address,
+		},
+	})
+end
+
+config.enable_kitty_graphics = true
 
 return config
