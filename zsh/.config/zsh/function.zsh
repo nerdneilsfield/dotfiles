@@ -113,6 +113,20 @@ copypath() {
 	fi
 }
 
+copyfile() {
+	if [ $# -gt 0 ]; then
+		if [ "$(uname 2>/dev/null)" = "Linux" ]; then
+			cat $1 | xclip -selection clipboard
+		fi
+
+		if [ "$(uname 2>/dev/null)" = "Darwin" ]; then
+			cat $1 | pbcopy
+		fi
+	else
+		yellow_echo "Please provide a file path"
+	fi
+}
+
 show_rgb() {
 	printf "\e[38;2;%s;%s;%sm ■■■■■■■■■■■■ \e[0m\n" "${1}" "${2}" "${3}"
 }
@@ -122,13 +136,13 @@ function GetLatestRelease() {
 	# curl will use the token to get more requests
 	# see https://developer.github.com/v3/#rate-limiting
 	if [[ -n "$GHHH_TOKEN" ]]; then
-        # echo "have token set"
+		# echo "have token set"
 		curl --silent "https://api.github.com/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
-			grep '"tag_name":' |                                                                                                # Get tag line
+			grep '"tag_name":' |                                                                                            # Get tag line
 			sed -E 's/.*"v*([^"]+)".*/\1/'
 	else
 		curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-			grep '"tag_name":' |                                                   # Get tag line
+			grep '"tag_name":' |                                             # Get tag line
 			sed -E 's/.*"v*([^"]+)".*/\1/'
 	fi
 }
@@ -138,9 +152,9 @@ function GetLatestReleaseProxy() {
 	# curl will use the token to get more requests
 	# see https://developer.github.com/v3/#rate-limiting
 	if [[ -n "$GHHH_TOKEN" ]]; then
-        # echo "have token set"
+		# echo "have token set"
 		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
-			grep '"tag_name":' |                                                                                                # Get tag line
+			grep '"tag_name":' |                                                                                                  # Get tag line
 			sed -E 's/.*"v*([^"]+)".*/\1/'
 	else
 		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" | # Get latest release from GitHub api
