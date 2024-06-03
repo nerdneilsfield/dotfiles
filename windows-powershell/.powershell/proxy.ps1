@@ -6,4 +6,9 @@ Install-Proxy-Soft {
         "wireguard-ng",
         "tailscale"
     )
+    foreach ($tool in $proxy_tools)
+    {
+        Green-Echo "=======install $tool========="
+        scoop install $tool
+    }
 }
