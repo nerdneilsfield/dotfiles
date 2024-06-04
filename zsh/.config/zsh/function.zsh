@@ -127,6 +127,17 @@ copyfile() {
 	fi
 }
 
+# add clipboard data to .ssh/authorized_keys
+addsshkey() {
+	if [ "$(uname 2>/dev/null)" = "Linux" ]; then
+		xclip -o >>~/.ssh/authorized_keys
+	fi
+
+	if [ "$(uname 2>/dev/null)" = "Darwin" ]; then
+		pbpaste >>~/.ssh/authorized_keys
+	fi
+}
+
 show_rgb() {
 	printf "\e[38;2;%s;%s;%sm ■■■■■■■■■■■■ \e[0m\n" "${1}" "${2}" "${3}"
 }
