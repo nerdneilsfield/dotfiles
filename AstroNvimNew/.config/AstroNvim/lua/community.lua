@@ -36,9 +36,11 @@ return {
   -- snippet
   -- { import = "astrocommunity.snippet.nvim-snippets" },
   -- media
-  { import = "astrocommunity.media.image-nvim" },
+  -- { import = "astrocommunity.media.image-nvim" },
   -- workflow
-  { import = "astrocommunity.workflow.hardtime-nvim" },
+  -- { import = "astrocommunity.workflow.hardtime-nvim" },
+  -- recipte
+  { import = "astrocommunity.recipes.neovide" },
   -- completion
   { import = "astrocommunity.completion.copilot-lua-cmp" },
   { import = "astrocommunity.completion.tabnine-nvim" },
