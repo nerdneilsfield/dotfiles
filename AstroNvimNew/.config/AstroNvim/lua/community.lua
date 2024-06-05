@@ -41,6 +41,8 @@ return {
   -- { import = "astrocommunity.workflow.hardtime-nvim" },
   -- recipte
   { import = "astrocommunity.recipes.neovide" },
+  { import = "astrocommunity.recipes.vscode" },
+  { import = "astrocommunity.recipes.telescope-nvchad-theme" },
   -- completion
   { import = "astrocommunity.completion.copilot-lua-cmp" },
   { import = "astrocommunity.completion.tabnine-nvim" },
