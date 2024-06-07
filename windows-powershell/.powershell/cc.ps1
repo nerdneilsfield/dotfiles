@@ -53,6 +53,11 @@ function Set-CC
       Set-Env "CC" "clang"
       Set-Env "CXX" "clang++"
     }
+    "zig"
+    {
+      Set-Env "CC" "zig c"
+      Set-Env "CXX" "zig c++"
+    }
     default
     { Write-Error "Unknown tool: $args[0]" 
     }
