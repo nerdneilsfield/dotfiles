@@ -183,6 +183,9 @@ function setpx
     if ($args.Length -eq 0)
     {
         $local_proxy = "http://127.0.0.1:7890"
+    } else
+    {
+        $local_proxy = $args[0]
     }
     $env:https_proxy = $local_proxy
     $env:http_proxy = $local_proxy
