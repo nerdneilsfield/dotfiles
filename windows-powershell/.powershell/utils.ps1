@@ -352,3 +352,10 @@ function Get-Github-NewRelease
     # deal the respose
     $response.tag_name
 }
+
+function Get-Current-IP
+{
+    $url = "https://api.ipify.org"
+    $response = Invoke-RestMethod -Uri $url
+    $response
+}
