@@ -21,6 +21,7 @@ setproxy() {
 	export http_proxy="${_proxy}"
 	export ftp_proxy="${_proxy}"
 	export all_proxy="${_proxy}"
+	export no_proxy="localhost,192.0.0.0/8,10.0.0.0/8"
 }
 
 unsetproxy() {
@@ -44,8 +45,11 @@ testconn() {
 }
 
 setpx_and_test() {
-	setpxup $1
-	setpx
+	if [ -z "$1" ]; then
+		echo "Please provide a proxy"
+		return
+	fi
+	setproxy $1
 	testconn
 }
 

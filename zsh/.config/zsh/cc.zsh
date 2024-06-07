@@ -193,9 +193,23 @@ function install_cpp_tools_mold() {
 
 function install_cpp_tools_fccf() {
   mkdir -p $HOME/Source/app
-  git clone --depth 1 --recursive https://github.com/p-ranav/fccf $HOME/Source/app/fccf
+  green_echo "=====install/update fccf========="
+  # if [  -n "$(ls /etc | grep apt)" ]; then
+  #   sudo apt install  
+  # elif [  -n "$(ls /etc | grep apt)" ]; then
+  #   yellow_echo "Un-support distribution of linux...."
+  # fi
+  if [ -d "$HOME/Source/app/fccf" ]; then
+    cd $HOME/Source/app/fccf
+    git pull
+  else
+    git clone --depth 1 --recursive https://github.com/p-ranav/fccf $HOME/Source/app/fccf
+  fi
   cd $HOME/Source/app/fccf
-  cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$HOME/.local
+  rm -rf build
+  set_cxx clang
+  set_ld mold
+  cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_CXX_LINK_EXECUTABLE="mold <LINK_FLAGS> <OBJECTS> -o <TARGET>"
   cmake --build build -j$(nproc)
   cmake --install build
 }
@@ -231,7 +245,7 @@ install_cpp_tools_in_rust() {
   echo update cpp tools in rust
   for _cpp_cargo_tool in $_cargo_tools; do
     echo update go install tools: $_cpp_cargo_tool
-    cargo binstall sccache
+    cins sccache
   done
 }
 
@@ -300,9 +314,10 @@ function install_cpp_tools_rr(){
   cd $_localtion_path
   rm -rf build/release
   set_cxx clang
-  cmake -S . -B build/release -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  set_ld mold
+  cmake -S . -B build/release -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DCMAKE_LINKER=mold
   cmake --build build/release -j$(nproc)
-  cmake --install build
+  cmake --install build/release
 }
 
 function install_cpp_tools_bear() {
@@ -322,6 +337,27 @@ function install_cpp_tools_bear() {
   cmake -S . -B build/release -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   cmake --build build/release -j$(nproc)
   cmake --install build/release
+}
+
+function install_cpp_tools_xmake() {
+  echo "=====install/update xmake========="
+  local _localtion_url="https://github.com/xmake-io/xmake"
+  local _localtion_path="$HOME/Source/app/xmake-io/xmake"
+
+  if [[ ! -d "${_localtion_path}" ]]; then
+    git clone --recursive --depth 1 $_localtion_url $_localtion_path
+  else
+    cd $_localtion_path
+    git pull
+  fi
+
+  cd $_localtion_path
+  set_cxx clang
+  set_ld mold
+  ./configure
+  make clean
+  make -j$(nproc)
+  ./scripts/get.sh __local__ __install_only__
 }
 
 function install_cpp_tools() {
@@ -488,6 +524,18 @@ install_latest_clang_ppa() {
     green_echo "# LLVM libc"
     sudo apt-get install -y "libllvmlibc-${_version_number}-dev"
 
+    local _commands=$(compgen -c | grep '^llvm-.*-19')
+
+    # 遍历匹配的命令并更新 alternatives
+   for command in $_commands; do
+        base_command=$(echo $command | sed "s/-$_version_number$//")
+        sudo update-alternatives --install /usr/bin/$base_command $base_command /usr/bin/$command 100
+   done
+
+    # 单独处理 llvm-config
+   sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-$_version_number 100
+
+
    green_echo "已成功安装 Clang 及其相关包。"
 }
 
@@ -507,3 +555,7 @@ function set_ld() {
     ;;
   esac
 }
+
+if [[ -n "$(command -v xmake)" ]]; then
+  source $HOME/.xmake/profile
+fi
