@@ -1,17 +1,17 @@
 $PowerShellConfDir="$HOME\.powershell"
 
-if ($null -eq [System.Environment]::GetEnvironmentVariable("PRIVATE_DOTFILES"))
+$PrivateDotfilesDir = [System.Environment]::GetEnvironmentVariable("PRIVATE_DOTFILES", [System.EnvironmentVariableTarget]::User)
+if ($null -eq $PrivateDotfilesDir)
 {
     Write-Host "PRIVATE_DOTFILES is not set, please set it first" -ForegroundColor Red
     Write-Host "Set-Env PRIVATE_DOTFILES <path>" -ForegroundColor Yellow
 }
 
-if (Test-Path $env:PRIVATE_DOTFILES -ErrorAction SilentlyContinue)
+Write-Host "Loaded private dotfiles: $PrivateDotfilesDir" -ForegroundColor Green
+if (Test-Path $PrivateDotfilesDir\powershell\main.ps1 -ErrorAction SilentlyContinue)
 {
-    if (Test-Path $env:PRIVATE_DOTFILES\powershell\main.ps1 -ErrorAction SilentlyContinue)
-    {
-        . $env:PRIVATE_DOTFILES\powershell\main.ps1
-    }
+    . $PrivateDotfilesDir\powershell\main.ps1
+    Write-Host "Loaded private powershell configuration" -ForegroundColor Green
 }
 
 . $PowerShellConfDir\utils.ps1

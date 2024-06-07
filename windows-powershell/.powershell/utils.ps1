@@ -98,14 +98,17 @@ function Add-To-Path
         Write-Error "Path not found: $Path"
         return
     }
-    # backup path
-    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    # # backup path
+    # $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $currentPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::User)
     Green-Echo "Backup...... Path"
-    [Environment]::SetEnvironmentVariable("BackupPath", $currentPath, "User")
+    # [Environment]::SetEnvironmentVariable("BackupPath", $currentPath, "User")
+    [System.Environment]::SetEnvironmentVariable("BackupPath", $currentPath, [System.EnvironmentVariableTarget]::User)
     if ($currentPath -split ";" -notcontains $Path)
     {
         $newPath = $currentPath + ";" + $Path
-        [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        # [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        [System.Environment]::SetEnvironmentVariable("Path", $newPath, [System.EnvironmentVariableTarget]::User)
         Green-Echo "Path added: $Path"
     } else
     {
@@ -123,13 +126,15 @@ function Remove-From-Path
         Write-Error "Path not found: $Path"
         return
     }
-    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $currentPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::User)
     Green-Echo "Backup...... Path"
-    [Environment]::SetEnvironmentVariable("BackupPath", $currentPath, "User")
+    # [Environment]::SetEnvironmentVariable("BackupPath", $currentPath, "User")
+    [System.Environment]::SetEnvironmentVariable("BackupPath", $currentPath, [System.EnvironmentVariableTarget]::User)
     if ($currentPath -split ";" -contains $Path)
     {
         $newPath = $currentPath -replace (";" + $Path), ""
-        [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        # [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        [System.Environment]::SetEnvironmentVariable("Path", $newPath, [System.EnvironmentVariableTarget]::User)
         Green-Echo "Path removed: $Path"
     } else
     {
@@ -139,7 +144,7 @@ function Remove-From-Path
 
 function List-Path
 {
-    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $currentPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::User)
     $currentPath -split ";"
 }
 
@@ -149,8 +154,10 @@ function Set-Env
         [string]$Name,
         [string]$Value
     )
-    [Environment]::SetEnvironmentVariable($Name, $Value, "User")
-    Green-Echo "Environment variable set: $Name=$Value"
+    # [Environment]::SetEnvironmentVariable($Name, $Value, "User")
+    # set env for current user
+    [System.Environment]::SetEnvironmentVariable($Name, $Value, [System.EnvironmentVariableTarget]::User)
+    Green-Echo "Environment variable set: $Name=$env:Name"
 }
 
 function Remove-Env
@@ -158,7 +165,7 @@ function Remove-Env
     param (
         [string]$Name
     )
-    [Environment]::SetEnvironmentVariable($Name, $null, "User")
+    [System.Environment]::SetEnvironmentVariable($Name, $null, [System.EnvironmentVariableTarget]::User)
     Green-Echo "Environment variable removed: $Name"
 }
 
