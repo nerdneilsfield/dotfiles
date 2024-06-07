@@ -174,13 +174,21 @@ function install_cpp_tools_ctags() {
 
 }
 
-function install_mold() {
+function install_cpp_tools_mold() {
   echo "=====install/update mold========="
+  set_cxx clang
   mkdir -p $HOME/Source/app
-  git clone --depth 1 https://github.com/rui314/mold.git $HOME/Source/app/mold
+  if [ -d "$HOME/Source/app/mold" ]; then
+    cd $HOME/Source/app/mold
+    git pull
+  else
+    git clone --depth 1 https://github.com/rui314/mold.git $HOME/Source/app/mold
+  fi
   cd $HOME/Source/app/mold
-  make -j$(nproc)
-  sudo make install
+  rm -rf build
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -G Ninja
+  cmake --build build -j$(nproc)
+  cmake --install build
 }
 
 function install_cpp_tools_fccf() {
@@ -290,6 +298,8 @@ function install_cpp_tools_rr(){
   fi
 
   cd $_localtion_path
+  rm -rf build/release
+  set_cxx clang
   cmake -S . -B build/release -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   cmake --build build/release -j$(nproc)
   cmake --install build
@@ -307,6 +317,8 @@ function install_cpp_tools_bear() {
   fi
 
   cd $_localtion_path
+  set_cxx clang
+  rm -rf build/release
   cmake -S . -B build/release -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   cmake --build build/release -j$(nproc)
   cmake --install build/release
@@ -317,6 +329,7 @@ function install_cpp_tools() {
 
   install_cpp_tools_in_python
   install_cpp_tools_in_rust
+  install_cpp_tools_mold
 
   install_cpp_tools_cppcheck
   install_cpp_tools_bear
@@ -478,3 +491,19 @@ install_latest_clang_ppa() {
    green_echo "已成功安装 Clang 及其相关包。"
 }
 
+function set_ld() {
+  case "$1" in
+    "gold")
+      export LD=ld.gold
+    ;;
+    "lld")
+      export LD=ld.lld
+    ;;
+    "mold")
+      export LD=mold
+    ;;
+    *)
+      export LD=ld
+    ;;
+  esac
+}
