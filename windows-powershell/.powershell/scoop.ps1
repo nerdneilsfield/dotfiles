@@ -1,29 +1,34 @@
-function Install-Scoop {
+function Install-Scoop
+{
     param (
         [string]$DIR="C:\Users\$env:USERNAME\scoop"
     )
     Set-Env SCOOP $DIR
-    Set-Env 
     Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-    iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+    Invoke-Expression (new-object net.webclient).downloadstring('https://get.scoop.sh')
     scoop config aria2-enabled false
+    scoop update
 }
 
-function Update-Scoop-Aria2-Config {
+function Update-Scoop-Aria2-Config
+{
     # 定义配置文件路径
     $configPath = "$env:USERPROFILE\.config\scoop\config.json"
 
     # 检查配置文件是否存在
-    if (Test-Path -Path $configPath) {
+    if (Test-Path -Path $configPath)
+    {
         # 读取现有的 JSON 配置文件
         $configContent = Get-Content -Path $configPath -Raw | ConvertFrom-Json
-    } else {
+    } else
+    {
         # 如果文件不存在，创建一个新的空对象
         $configContent = @{}
     }
 
     # 确保配置对象是一个哈希表
-    if (-not ($configContent -is [hashtable])) {
+    if (-not ($configContent -is [hashtable]))
+    {
         $configContent = @{}
     }
 
@@ -45,17 +50,22 @@ function Update-Scoop-Aria2-Config {
     Write-Output "Scoop 的 aria2 默认参数已设置。"
 }
 
-function Install-Scoop-Basic {
-    scoop install aria2 git openssh sudo winget git-lfs
+function Install-Scoop-Basic
+{
+    scoop install aria2 git openssh sudo winget git-lfs sudo
+    scoop update aria2 git openssh sudo winget git-lfs
+    # sudo scoop update sudo
     git lfs install
 }
 
-function Scoop-Deep-Clean {
+function Scoop-Deep-Clean
+{
     scoop cache rm *
     scoop cleanup *
 }
 
-function Scoop-Add-Buckets {
+function Scoop-Add-Buckets
+{
     $buckets = @(
         "extras",
         "nerd-fonts",
@@ -65,7 +75,9 @@ function Scoop-Add-Buckets {
         "nonportable"
     )
 
-    foreach ($bucket in $buckets) {
+    foreach ($bucket in $buckets)
+    {
         scoop bucket add $bucket
     }
 }
+

@@ -1,10 +1,13 @@
-function Install-Python {
+function Install-Python
+{
     scoop install python27 mambaforge python312 python311 python310 python-pre rye
     $scoop = ""
     # if env:SCOOP is not null
-    if ($env:SCOOP) {
+    if ($env:SCOOP)
+    {
         $scoop = $env:SCOOP
-    } else {
+    } else
+    {
         $scoop = $env:USERPROFILE + "\scoop"
     }
     $scoop_apps = $scoop + "\apps"
@@ -38,19 +41,23 @@ function Install-Python {
     scoop reset python-pre
 }
 
-function pipi {
+function pipi
+{
     python3 -m pip install -U -i https://pypi.tuna.tsinghua.edu.cn/simple $args
 }
 
-function pipl {
+function pipl
+{
     python3 -m pip list $args
 }
 
-function pipf {
+function pipf
+{
     python3 -m pip freeze $args
 }
 
-function Install-PythonTools {
+function Install-PythonTools
+{
     # 定义要安装的 Python 工具数组
     $python_tools = @(
         "blue"
@@ -71,7 +78,8 @@ function Install-PythonTools {
     )
 
     # 循环安装每个工具
-    foreach ($tool in $python_tools) {
+    foreach ($tool in $python_tools)
+    {
         Green-Echo "=======install $tool========="
         pipi $tool
     }

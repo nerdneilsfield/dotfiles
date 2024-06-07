@@ -1,120 +1,150 @@
-function Green-Echo {
+function Green-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Green
 }
 
-function Red-Echo {
+function Red-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Red
 }
 
-function Yellow-Echo {
+function Yellow-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Yellow
 }
 
-function Blue-Echo {
+function Blue-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Blue
 }
 
-function Cyan-Echo {
+function Cyan-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Cyan
 }
 
-function Magenta-Echo {
+function Magenta-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Magenta
 }
 
-function White-Echo {
+function White-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor White
 }
 
-function Black-Echo {
+function Black-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Black
 }
 
-function Gray-Echo {
+function Gray-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor Gray
 }
 
-function DarkGray-Echo {
+function DarkGray-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor DarkGray
 }
 
-function DarkRed-Echo {
+function DarkRed-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor DarkRed
 }
 
-function DarkGreen-Echo {
+function DarkGreen-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor DarkGreen
 }
 
-function DarkYellow-Echo {
+function DarkYellow-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor DarkYellow
 }
 
-function DarkBlue-Echo {
+function DarkBlue-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor DarkBlue
 }
 
-function DarkCyan-Echo {
+function DarkCyan-Echo
+{
     param([string]$message)
     Write-Host $message -ForegroundColor DarkCyan
 }
 
-function Add-To-Path {
+function Add-To-Path
+{
     param (
         [string]$Path
     )
-    if (-Not (Test-Path $Path)) {
+    if (-Not (Test-Path $Path))
+    {
         Write-Error "Path not found: $Path"
         return
     }
+    # backup path
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    if ($currentPath -split ";" -notcontains $Path) {
+    Green-Echo "Backup...... Path"
+    [Environment]::SetEnvironmentVariable("BackupPath", $currentPath, "User")
+    if ($currentPath -split ";" -notcontains $Path)
+    {
         $newPath = $currentPath + ";" + $Path
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
         Green-Echo "Path added: $Path"
-    } else {
+    } else
+    {
         Yellow-Echo "Path already exists: $Path"
     }
 }
 
-function Remove-From-Path {
+function Remove-From-Path
+{
     param (
         [string]$Path
     )
-    if (-Not (Test-Path $Path)) {
+    if (-Not (Test-Path $Path))
+    {
         Write-Error "Path not found: $Path"
         return
     }
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    if ($currentPath -split ";" -contains $Path) {
+    Green-Echo "Backup...... Path"
+    [Environment]::SetEnvironmentVariable("BackupPath", $currentPath, "User")
+    if ($currentPath -split ";" -contains $Path)
+    {
         $newPath = $currentPath -replace (";" + $Path), ""
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
         Green-Echo "Path removed: $Path"
-    } else {
+    } else
+    {
         Yellow-Echo "Path not found: $Path"
     }
 }
 
-function List-Path {
+function List-Path
+{
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     $currentPath -split ";"
 }
 
-function Set-Env {
+function Set-Env
+{
     param (
         [string]$Name,
         [string]$Value
@@ -123,7 +153,8 @@ function Set-Env {
     Green-Echo "Environment variable set: $Name=$Value"
 }
 
-function Remove-Env {
+function Remove-Env
+{
     param (
         [string]$Name
     )
@@ -131,14 +162,16 @@ function Remove-Env {
     Green-Echo "Environment variable removed: $Name"
 }
 
-function Set-Dotfiles-Dir {
+function Set-Dotfiles-Dir
+{
     param (
         [string]$Path
     )
     Set-Env "DOTFILES" $Path
 }
 
-function Set-Private-Dotfiles-Dir {
+function Set-Private-Dotfiles-Dir
+{
     param (
         [string]$Path
     )
@@ -156,7 +189,8 @@ function Set-Private-Dotfiles-Dir {
 #     }
 # }
 
-function Set-Commands-Run-Start {
+function Set-Commands-Run-Start
+{
     param (
         [string]$TaskName,
         [string]$Command
@@ -165,14 +199,16 @@ function Set-Commands-Run-Start {
     sudo Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run" -Name $TaskName -Value $command
 }
 
-function Remove-Commands-Run-Start {
+function Remove-Commands-Run-Start
+{
     param (
         [string]$TaskName
     )
     sudo Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run" -Name $TaskName
 }
 
-function New-BasicDir {
+function New-BasicDir
+{
     $local = $env:USERPROFILE + "\.local"
     $bin = $local + "\bin"
     $config = $local + "\config"
@@ -204,19 +240,23 @@ New-SymbolicLink -Target "C:\path\to\file.txt" -Path "C:\path\to\symlink.txt"
 Creates a symbolic link named "symlink.txt" that points to the file "file.txt" located at "C:\path\to\".
 
 #>
-function New-SymbolicLink {
+function New-SymbolicLink
+{
     sudo New-Item -ItemType SymbolicLink -Path $args[1] -Value $args[0]
 }
 
-function New-Junction {
+function New-Junction
+{
     sudo New-Item -ItemType Junction -Path $args[1] -Value $args[0]
 }
 
-function New-HardLink {
+function New-HardLink
+{
     sudo New-Item -ItemType HardLink -Path $args[1] -Value $args[0]
 }
 
-function New-Recursive-HardLink {
+function New-Recursive-HardLink
+{
     $source = $args[0]
     $destination = $args[1]
     Get-ChildItem -Recurse -Path $source | ForEach-Object {
@@ -226,18 +266,21 @@ function New-Recursive-HardLink {
 }
 
 
-function New-UUId {
+function New-UUId
+{
     $guid = [guid]::NewGuid()
     $guid.ToString()
 }
 
 # random generate 32-bit string
-function New-Token {
+function New-Token
+{
     $token = [System.Web.Security.Membership]::GeneratePassword(32, 0)
     $token
 }
 
-function New-RandomToken {
+function New-RandomToken
+{
     param (
         [int]$length = 32  # 默认长度为32
     )
@@ -251,7 +294,8 @@ function New-RandomToken {
     return $token
 }
 
-function New-Deeplx-Translate {
+function New-Deeplx-Translate
+{
     param (
         [string]$Text,
         [string]$TargetLang="EN"
@@ -268,10 +312,36 @@ function New-Deeplx-Translate {
 }
 
 # List fonts install
-function Get-InstalledFonts {
+function Get-InstalledFonts
+{
     [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
     $fonts = New-Object System.Drawing.Text.InstalledFontCollection
     $fontNames = $fonts.Families | ForEach-Object { $_.Name }
     Write-Output "Installed Fonts using System.Drawing:"
     $fontNames
+}
+
+# github new release
+function Get-Github-NewRelease
+{
+    param (
+        [string]$Owner,
+        [string]$Repo
+    )
+    if (-not $Owner -or -not $Repo)
+    {
+        Green-Echo "Owner or Repo is required"
+        return
+    }
+    $url = "https://api.github.com/repos/$Owner/$Repo/releases/latest"
+    if ([System.Environment]::GetEnvironmentVariable("GITHUB_TOKEN"))
+    {
+        $token = [System.Environment]::GetEnvironmentVariable
+        $response = Invoke-RestMethod -Uri $url -Headers @{ Authorization="Bearer $token" }
+    } else
+    {
+        $response = Invoke-RestMethod -Uri $url
+    }
+    # deal the respose
+    $response.tag_name
 }

@@ -23,6 +23,26 @@ function Install-Powershell-Soft
     }
 }
 
+function Reload-Powershell-Profile
+{
+    . $PROFILE
+}
+
+function Show-Welcome-Pages
+{
+    $current_time = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $current_dir = Get-Location -PSProvider FileSystem | Select-Object -ExpandProperty Path
+    $welcome_pages=@(
+        "====== Welcome to Powershell ======",
+        "====== Current Time: $current_time ======",
+        "====== Current Directory: $current_dir ======"
+    )
+    foreach ($page in $welcome_pages)
+    {
+        Write-Host $page -ForegroundColor Green
+    }
+}
+
 if (Get-Command starship -ErrorAction SilentlyContinue)
 {
     Invoke-Expression (&starship init powershell)
@@ -53,3 +73,4 @@ if (Get-Module -ListAvailable PSReadLine -ErrorAction SilentlyContinue)
     }
 }
 
+Show-Welcome-Pages
