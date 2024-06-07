@@ -36,5 +36,5 @@ function Fnm-Install-Lts {
 }
 
 if (Get-Command fnm -ErrorAction SilentlyContinue) {
-    fnm env --use-on-cd | Out-String | Invoke-Expression
+    fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
 }
