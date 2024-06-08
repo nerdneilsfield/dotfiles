@@ -72,7 +72,8 @@ function Scoop-Add-Buckets
         "versions",
         "games",
         "nightlies",
-        "nonportable"
+        "nonportable",
+        "sysinternals"
     )
 
     foreach ($bucket in $buckets)
