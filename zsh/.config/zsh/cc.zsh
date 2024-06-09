@@ -186,6 +186,7 @@ function install_cpp_tools_mold() {
   fi
   cd $HOME/Source/app/mold
   rm -rf build
+  set_cxx clang
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local -DCMAKE_BUILD_TYPE=Release -G Ninja
   cmake --build build -j$(nproc)
   cmake --install build
@@ -524,7 +525,30 @@ install_latest_clang_ppa() {
     green_echo "# LLVM libc"
     sudo apt-get install -y "libllvmlibc-${_version_number}-dev"
 
-    local _commands=$(compgen -c | grep '^llvm-.*-19')
+    update_llvm_alternatives
+   green_echo "已成功安装 Clang 及其相关包。"
+}
+
+function update_llvm_alternatives(){
+    # 查找最新版本的 Clang
+    local _available_versions
+    _available_versions=$(apt search clang | grep -oP 'clang-\d{1,2}(?=\s|/)' | sort -V | uniq)
+    local _latest_version
+    _latest_version=$(echo "$_available_versions" | sort -V | tail -n 1)
+
+    # 如果找不到任何 Clang 版本，输出错误信息并退出
+    if [[ -z "$_latest_version" ]]; then
+        yellow_echo "未找到可用的 Clang 版本。"
+        return 1
+    fi
+
+    green_echo "找到的最新 Clang 版本: $_latest_version"
+
+    # 提取版本号
+    local _version_number
+    _version_number=$(echo "$_latest_version" | grep -oP '\d+' | head -n 1)
+    # local _commands=$(compgen -c | grep "^llvm-.*-${_version_number}")
+    local _commands=$(command -v | grep "^llvm-.*-${_version_number}")
 
     # 遍历匹配的命令并更新 alternatives
    for command in $_commands; do
@@ -534,9 +558,6 @@ install_latest_clang_ppa() {
 
     # 单独处理 llvm-config
    sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-$_version_number 100
-
-
-   green_echo "已成功安装 Clang 及其相关包。"
 }
 
 function set_ld() {
