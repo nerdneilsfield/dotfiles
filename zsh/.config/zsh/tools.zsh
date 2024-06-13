@@ -214,6 +214,31 @@ install_neofetch() {
   chmod +x ~/.local/bin/neofetch
 }
 
+install_fastfetch() {
+  green_echo "======================================"
+  green_echo "=========Install fastfetch========"
+  green_echo "======================================"
+  local _fastfetch_dir="$HOME/Source/app/fastfetch"
+  local _fastfetch_url="https://github.com/fastfetch-cli/fastfetch.git"
+  mkdir -p $HOME/Source/app 
+  if [[ -d $_fastfetch_dir ]]; then
+    green_echo "=========fastfetch already installed, updating======"
+    cd $_fastfetch_dir
+    git pull
+    green_echo "========fastfetch updated========"
+  else
+    green_echo "=========installing fastfetch======"
+    git clone --recursive --depth 1 $_fastfetch_url $_fastfetch_dir
+    green_echo "=========fastfetch cloned======"
+  fi
+  cd $_fastfetch_dir
+  set_cxx clang
+  rm -rf build
+  cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/.local
+  cmake --build build -j $(nproc)
+  cmake --install build
+}
+
 
 install_gh(){
   green_echo "======================================"
