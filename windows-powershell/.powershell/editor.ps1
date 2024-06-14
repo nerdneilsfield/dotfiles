@@ -15,3 +15,9 @@ function Install-Typst
     scoop install typst
     scoop update typst
 }
+
+function Install-PDF-Tools
+{
+    scoop install sumatrapdf sioyek
+    scoop update sumatrapdf sioyek
+}
