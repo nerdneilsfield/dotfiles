@@ -20,4 +20,5 @@ function Install-PDF-Tools
 {
     scoop install sumatrapdf sioyek
     scoop update sumatrapdf sioyek
+    winget install pympress
 }
