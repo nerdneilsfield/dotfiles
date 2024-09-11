@@ -272,7 +272,9 @@ install_fzf(){
   if [[ $_arch == "x86_64" ]]; then
     _arch="amd64"
   fi
-  local _fzf_url="https://ghproxy.dengqi.org/https://github.com/junegunn/fzf/releases/download/${_fzf_version}/fzf-${_fzf_version}-linux_${_arch}.tar.gz"
+  # link is like: https://github.com/junegunn/fzf/releases/download/v0.55.0/fzf-0.55.0-linux_amd64.tar.gz
+  local _fzf_url="https://ghproxy.dengqi.org/https://github.com/junegunn/fzf/releases/download/v${_fzf_version}/fzf-${_fzf_version}-linux_${_arch}.tar.gz"
+  green_echo "downloading $_fzf_url ......"
   mkdir -p /tmp/install
   cd /tmp/install
   wget -O fzf.tar.gz $_fzf_url
@@ -389,9 +391,9 @@ install_ripgrep(){
 }
 
 install_fd(){
-  green_green_echo "======================================"
-  green_green_echo "=========Install fd========"
-  green_green_echo "======================================"
+  green_echo "======================================"
+  green_echo "=========Install fd========"
+  green_echo "======================================"
   local _fd_version=$(GetLatestReleaseProxy "sharkdp/fd")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
