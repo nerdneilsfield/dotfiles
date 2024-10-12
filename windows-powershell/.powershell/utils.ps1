@@ -250,7 +250,7 @@ Creates a symbolic link named "symlink.txt" that points to the file "file.txt" l
 function New-SymbolicLink
 {
     sudo New-Item -ItemType SymbolicLink -Path $args[1] -Value $args[0]
-}
+}`
 
 function New-Junction
 {

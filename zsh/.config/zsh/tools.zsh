@@ -445,6 +445,34 @@ install_asdf(){
   fi
 }
 
+install_xray(){
+  green_echo "======================================"
+  green_echo "=========Install xray========"
+  green_echo "======================================"
+  local _xray_version=$(GetLatestReleaseProxy "XTLS/Xray-core")
+  local _arch=$(get-cpu-arch)
+  local _xray_url="https://ghproxy.dengqi.org/https://github.com/XTLS/Xray-core/releases/download/v${_xray_version}/Xray-linux-${_arch}.zip"
+}
+
+install_sing_box(){
+  green_echo "======================================"
+  green_echo "=========Install sing-box========"
+  green_echo "======================================"
+  local _sing_box_version=$(GetLatestReleaseProxy "SagerNet/sing-box")
+  local _arch=$(get-cpu-arch)
+  local _sing_box_url="https://ghproxy.dengqi.org/https://github.com/SagerNet/sing-box/releases/download/v${_sing_box_version}/sing-box-${_arch}.tar.gz"
+}
+
+install_mihomo(){
+  green_echo "======================================"
+  green_echo "=========Install mihomo========"
+  green_echo "======================================"
+  local _mihomo_version=$(GetLatestReleaseProxy "MaaAssistantArknights/MaaAssistant")
+  local _arch=$(get-cpu-arch)
+  local _mihomo_url="https://ghproxy.dengqi.org/https://github.com/MaaAssistantArknights/MaaAssistant/releases/download/v${_mihomo_version}/MaaAssistant.tar.gz"
+  
+  
+}
 
 install_modertools_release(){
   install_gh

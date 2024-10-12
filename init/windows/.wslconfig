@@ -1,5 +1,5 @@
 [wsl2]
-     memory=32GB # Limits VM memory in WSL 2 to 4 GB
-     networkingMode=NAT
-     autoProxy=false
-     dnsProxy=false
+memory=32GB
+processors=16
+networkingMode=bridged
+vmSwitch=wsl-nic

@@ -128,3 +128,9 @@ function sed-replace() {
 # 示例用法
 # sed-replace --inplace "文件名" "原始正则表达式" "目标字符串"
 # sed-replace "文件名" "原始正则表达式" "目标字符串"
+
+
+get-cpu-arch(){
+  local arch=$(uname -m)
+  echo $arch
+}
