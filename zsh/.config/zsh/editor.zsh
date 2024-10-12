@@ -197,6 +197,8 @@ install_helix(){
 	local _helix_url="https://ghproxy.dengqi.org/https://github.com/helix-editor/helix/releases/download/${_helix_version}/helix-${_helix_version}-${_arch}-linux.tar.xz"
 	mkdir -p ~/Source/app/helix
 	cd ~/Source/app/helix
+	rm -rf helix-${_helix_version}-${_arch}-linux
+	rm -rf helix.tar.xz
 	wget -O helix.tar.xz $_helix_url
 	tar -xf helix.tar.xz
 	mkdir -p $HOME/.local/share/helix
