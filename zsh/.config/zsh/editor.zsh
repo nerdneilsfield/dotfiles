@@ -199,8 +199,9 @@ install_helix(){
 	cd ~/Source/app/helix
 	wget -O helix.tar.xz $_helix_url
 	tar -xf helix.tar.xz
-	sudo mkdir -p ~/.local/share/helix
-	sudo mv runtime ~/.local/share/helix/
-	sudo mv helix /usr/local/bin/helix
+	mkdir -p $HOME/.local/share/helix
+	mv helix-${_helix_version}-${_arch}-linux/* $HOME/.local/share/helix
+	ln -sf $HOME/.local/share/helix/hx $HOME/.local/bin/hx
+	sudo ln -sf $HOME/.local/share/helix/hx /usr/local/bin/hx
 }
 
