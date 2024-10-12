@@ -28,7 +28,6 @@ setproxy() {
 }
 
 
-
 unsetproxy() {
 	export https_proxy=""
 	export http_proxy=""
@@ -49,21 +48,67 @@ printpx() {
 }
 
 testconn() {
-	# 测试 Google 和 Gstatic 的连接
-	echo "Testing Google and Gstatic connection..."
-	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://www.gstatic.com/generate_204
-	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.com
-	# 测试 Github 的连接
-	echo "Testing Github connection..."
-	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://github.com
-	# 测试 Cloudflare DNS 的连接
-	echo "Testing Cloudflare DNS connection..."
-	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://1.1.1.1
+    # 测试 Google 和 Gstatic 的连接
+    echo "正在测试 Google 和 Gstatic 的连接..."
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://www.gstatic.com/generate_204; then
+        echo "成功连接到 www.gstatic.com"
+    else
+        echo "无法连接到 www.gstatic.com" >&2
+    fi
+
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.com &>/dev/null; then
+        echo "成功连接到 google.com"
+    else
+        echo "无法连接到 google.com" >&2
+    fi
+
+    # 测试 Github 的连接
+    echo "正在测试 Github 的连接..."
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://api.github.com &>/dev/null; then
+        echo "成功连接到 api.github.com"
+    else
+        echo "无法连接到 api.github.com" >&2
+    fi
+
+    # 测试 Cloudflare DNS 的连接
+    echo "正在测试 Cloudflare DNS 的连接..."
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://1.1.1.1 &>/dev/null; then
+        echo "成功连接到 1.1.1.1 (Cloudflare DNS)"
+    else
+        echo "无法连接到 1.1.1.1 (Cloudflare DNS)" >&2
+    fi
+
+    # 测试额外的网站连接
+    echo "正在测试额外的网站连接..."
+
+    # 测试 Reddit
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://www.reddit.com &>/dev/null; then
+        echo "成功连接到 reddit.com"
+    else
+        echo "无法连接到 reddit.com" >&2
+    fi
+
+    # 测试 Twitter
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://twitter.com &>/dev/null; then
+        echo "成功连接到 twitter.com"
+    else
+        echo "无法连接到 twitter.com" >&2
+    fi
+
+    # 测试 Stack Overflow
+    if curl --connect-time 5 --speed-time 5 --speed-limit 1 https://stackoverflow.com &>/dev/null; then
+        echo "成功连接到 stackoverflow.com"
+    else
+        echo "无法连接到 stackoverflow.com" >&2
+    fi
+
+    echo "所有测试完成。"
 }
 
 
 setpx_with_dns(){
-	if command -v dig &>/dev/null; then
+	# check if dig is installed
+	if ! command -v dig &>/dev/null; then
 		echo "Please install dig first"
 		echo "Ubuntu: sudo apt install dnsutils"
 		echo "MacOS: brew install dnsutils"
