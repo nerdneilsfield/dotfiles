@@ -17,18 +17,27 @@ wanip() {
 }
 
 setproxy() {
+	if [ -n "$1" ]; then
+		_proxy=$1
+	fi
 	export https_proxy="${_proxy}"
 	export http_proxy="${_proxy}"
 	export ftp_proxy="${_proxy}"
 	export all_proxy="${_proxy}"
-	export no_proxy="localhost,192.0.0.0/8,10.0.0.0/8"
+	export no_proxy="localhost,192.168.0.0/16,10.0.0.0/8"
 }
+
+
 
 unsetproxy() {
 	export https_proxy=""
 	export http_proxy=""
 	export ftp_proxy=""
 	export all_proxy=""
+	unset http_proxy
+	unset https_proxy
+	unset ftp_proxy
+	unset all_proxy
 }
 
 printpx() {
@@ -40,8 +49,70 @@ printpx() {
 }
 
 testconn() {
+	# 测试 Google 和 Gstatic 的连接
+	echo "Testing Google and Gstatic connection..."
 	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://www.gstatic.com/generate_204
-	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.co
+	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://google.com
+	# 测试 Github 的连接
+	echo "Testing Github connection..."
+	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://github.com
+	# 测试 Cloudflare DNS 的连接
+	echo "Testing Cloudflare DNS connection..."
+	curl --connect-time 5 --speed-time 5 --speed-limit 1 https://1.1.1.1
+}
+
+
+setpx_with_dns(){
+	if command -v dig &>/dev/null; then
+		echo "Please install dig first"
+		echo "Ubuntu: sudo apt install dnsutils"
+		echo "MacOS: brew install dnsutils"
+		echo "CentOS: sudo yum install bind-utils"
+		echo "Arch: sudo pacman -S bind"
+		echo "Alpine: sudo apk add bind-tools"
+		return
+	fi
+
+	if [ -z "$1" ]; then
+		echo "Please provide a url to get proxy"
+		return
+	fi
+
+	# 如果提供了 DNS 服务器，则使用提供的 DNS 服务器
+	if [ -n "$2" ]; then
+		export DNS_SERVER=$2
+	fi
+
+	local _url=$1
+	if [ -z "$DNS_SERVER" ]; then
+		local _dns=$(dig +short TXT $_url | tr -d '"')
+	else
+		local _dns=$(dig +short TXT $_url @$DNS_SERVER | tr -d '"')
+	fi
+	if [ -z "$_dns" ]; then
+		echo "Failed to get dns from $_url"
+		return
+	fi
+	echo "Get Proxy: ${_dns}"
+	
+	# 两种: http://1.1.1.1:8080  socks5://1.1.1.1:1080 没有密码
+	# 另外一种需要提供用户名密码 socks5://@1.1.1.1:1080 http://@1.1.1.1:8080 这种需要读取输入的账户密码
+
+	# 判断是否需要输入密码
+	if [[ $_dns == *"@"* ]]; then
+		echo "Please input username and password for $_dns"
+		read -p "Username: " _username
+		read -p "Password: " _password
+		# 提取协议和地址部分
+		_protocol=$(echo $_dns | cut -d: -f1)
+		_address=$(echo $_dns | sed 's/.*@//')
+		setproxy "${_protocol}://${_username:-}:${_password:-}@${_address}"
+	else
+		# 如果不需要用户名和密码，直接使用 $_dns
+		setproxy "$_dns"
+	fi
+	echo "Proxy set to $_dns"
+	testconn
 }
 
 setpx_and_test() {
