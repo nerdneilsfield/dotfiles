@@ -213,6 +213,17 @@ EOF
 # 	fi
 # }
 
+check_in_china() {
+	local _country=$(curl -s ipinfo.io/country)
+	if [[ $_country == "CN" ]]; then
+		# echo "You are in China"
+		return 0
+	else
+		# echo "You are not in China $_country"
+		return 1
+	fi
+}
+
 copypath() {
 	if [ $# -gt 0 ]; then
 		if [ "$(uname 2>/dev/null)" = "Linux" ]; then
