@@ -99,6 +99,11 @@ install_go_tools () {
 
 }
 
+install_gotools_goreleaser() {
+	go install github.com/goreleaser/goreleaser/v2@latest
+
+}
+
 add_golang_ppa() {
 	sudo add-apt-repository ppa:longsleep/golang-backports
 }

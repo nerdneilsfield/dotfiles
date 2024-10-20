@@ -37,6 +37,11 @@ alias pipu="python3 -m pip install -U -i https://pypi.tuna.tsinghua.edu.cn/simpl
 alias pipl="python3 -m pip list"
 alias pipf="python3 -m pip freeze"
 alias addpwd2pythonpah="export PYTHONPATH=${PWD}:$PYTHONPATH"
+alias uvpi="uv pip install"
+alias uvins="uv python install"
+alias uvrun="uv run"
+alias uvvenvt="uv venv -i https://pypi.tuna.tsinghua.edu.cn/simple"
+alias uvvenv="uv venv"
 
 install_pyenv() {
         rm -rf ${HOME}/.local/pyenv
@@ -80,6 +85,7 @@ install_python_tools() {
     "ruff"
     "pipx"
     "ptpython"
+    "uv"
   )
 
   for _tool in $_python_tools; do
@@ -133,6 +139,14 @@ install_pip(){
   curl -sSL https://bootstrap.pypa.io/get-pip.py | $1
 }
 
+install_pythontools_uv(){
+  python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple uv
+}
+
+install_pythontools_minimamba(){
+  "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+}
+
 
 set_python_mirror_cn(){
   mkdir -p ~/.pip
@@ -140,4 +154,20 @@ set_python_mirror_cn(){
 [global]
 index-url = https://pypi.tuna.tsinghua.edu.cn/simple
 EOF
+}
+
+
+init_mamba(){
+  # >>> mamba initialize >>>
+  # !! Contents within this block are managed by 'micromamba shell init' !!
+  export MAMBA_EXE='${HOME}/.local/bin/micromamba';
+  export MAMBA_ROOT_PREFIX='${HOME}/.local/micromamba';
+  __mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+      eval "$__mamba_setup"
+  else
+      alias micromamba="$MAMBA_EXE"  # Fallback on help from micromamba activate
+  fi
+  unset __mamba_setup
+  # <<< mamba initialize <<<
 }

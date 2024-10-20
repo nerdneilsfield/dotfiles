@@ -552,6 +552,8 @@ install_modertools_rust() {
     "aichat"
     "typos-cli"
     "ast-grep"
+    "du-dust" # gdu alternative
+    "dua-cli" # df alternative
   )
 
   for local _rust_tool in $_tools; do
