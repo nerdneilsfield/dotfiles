@@ -1,10 +1,13 @@
-function Install-AI-Soft {
+function Install-AI-Soft
+{
     $ai_soft=@(
         "aichat",
-        "ollama"
+        "openai-translator"
     )
-    foreach ($soft in $ai_soft) {
+    foreach ($soft in $ai_soft)
+    {
         scoop install $soft
+        scoop update $soft
     }
 }
 

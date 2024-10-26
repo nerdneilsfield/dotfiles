@@ -188,3 +188,22 @@ uninstall_nvim() {
 	sudo find $HOME/.local -name nvim -exec rm -rf {} \;
 }
 
+install_helix(){
+	green_echo "======================================"
+	green_echo "=========Install helix========"
+	green_echo "======================================"
+	local _helix_version=$(GetLatestRelease "helix-editor/helix")
+	local _arch=$(uname -m)
+	local _helix_url="https://ghproxy.dengqi.org/https://github.com/helix-editor/helix/releases/download/${_helix_version}/helix-${_helix_version}-${_arch}-linux.tar.xz"
+	mkdir -p ~/Source/app/helix
+	cd ~/Source/app/helix
+	rm -rf helix-${_helix_version}-${_arch}-linux
+	rm -rf helix.tar.xz
+	wget -O helix.tar.xz $_helix_url
+	tar -xf helix.tar.xz
+	mkdir -p $HOME/.local/share/helix
+	mv helix-${_helix_version}-${_arch}-linux/* $HOME/.local/share/helix
+	ln -sf $HOME/.local/share/helix/hx $HOME/.local/bin/hx
+	sudo ln -sf $HOME/.local/share/helix/hx /usr/local/bin/hx
+}
+

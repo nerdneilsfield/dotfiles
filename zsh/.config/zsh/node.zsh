@@ -67,7 +67,7 @@ install_nosoource_ppa(){
 
 if [ -f $HOME/.cargo/bin/fnm ]; then
     #  source $HOME/.config/zsh_generated/fnm.sh
-    eval "$(fnm env --use-on-cd)"
+    eval "$(fnm env --shell zsh)"
  fi
  
 # Created by mirror-config-china

@@ -1,3 +1,6 @@
+. $PowerShellConfDir\utils.ps1
+. $PowerShellConfDir\alias.ps1
+
 $PowerShellConfDir="$HOME\.powershell"
 
 $PrivateDotfilesDir = [System.Environment]::GetEnvironmentVariable("PRIVATE_DOTFILES", [System.EnvironmentVariableTarget]::User)
@@ -14,8 +17,6 @@ if (Test-Path $PrivateDotfilesDir\powershell\main.ps1 -ErrorAction SilentlyConti
     Write-Host "Loaded private powershell configuration" -ForegroundColor Green
 }
 
-. $PowerShellConfDir\utils.ps1
-. $PowerShellConfDir\alias.ps1
 . $PowerShellConfDir\scoop.ps1
 . $PowerShellConfDir\powershell.ps1
 . $PowerShellConfDir\networks.ps1
@@ -32,3 +33,4 @@ if (Test-Path $PrivateDotfilesDir\powershell\main.ps1 -ErrorAction SilentlyConti
 . $PowerShellConfDir\zig.ps1
 . $PowerShellConfDir\cc.ps1
 . $PowerShellConfDir\windows.ps1
+. $PowerShellConfDir\ai.ps1

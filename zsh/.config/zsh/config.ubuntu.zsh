@@ -23,6 +23,25 @@ install_llvm_tuna(){
         sudo /tmp/llvm.sh  all -m https://mirrors.tuna.tsinghua.edu.cn/llvm-apt
 }
 
+install_ubuntu_basic_packages(){
+  green_echo "-------------------------------------------------"
+	green_echo "-------------------------------------------------"
+	green_echo "---------------Install Basic From Mirror------------"
+	green_echo "-------------------------------------------------"
+	green_echo "-------------------------------------------------"
+	sudo apt-get install -y wget curl stow gpg zsh htop rsync unzip unrar p7zip openssh-server vim tmux python3-pip
+	sudo apt-get install -y cifs-utils
+	sudo apt-get install -y xclip pv lrzsz
+	sudo apt-get install -y luajit
+	sudo ln -sf /usr/bin/luajit /usr/bin/lua
+	sudo apt-get install -y linux-modules-extra-$(uname -r)
+}
+
+install_ubuntu_netwrok_packages(){
+	sudo apt-get install -y tinc nmap net-tools wireguard wireguard-tools
+  sudo apt-get install -y wireguard-dkms
+}
+
 
 add_gcc_ppa() {
    sudo add-apt-repository ppa:ubuntu-toolchain-r/test

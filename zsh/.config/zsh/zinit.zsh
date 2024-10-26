@@ -11,7 +11,7 @@ if [ ! -f "$ZINIT_PATH/zinit.zsh" ]; then
 	[ ! -d "$ZINIT_PATH" ] && mkdir -p "$ZINIT" 2> /dev/null
 	if [ -x "$(which git)" ]; then
 		#setpx
-		git clone https://github.com/zdharma-continuum/zinit.git $ZINIT_PATH
+		git clone --depth 1 https://github.com/zdharma-continuum/zinit.git $ZINIT_PATH
 	else
 		echo "ERROR: please install git before installation !!"
 		exit 1

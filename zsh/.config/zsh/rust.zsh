@@ -76,6 +76,8 @@ set_rustup_mirrors() {
   echo "[source.crates-io]\nreplace-with = 'mirror'\n\n[source.mirror]\nregistry = \"https://mirrors.ustc.edu.cn/crates.io-index/\"" | tee $HOME/.cargo/config.toml
 }
 
-
-export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
-export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+if check_in_china; then
+  echo "set rustup mirrors to tuna"
+  export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
+  export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+fi

@@ -72,3 +72,46 @@ fw_open_port_udp(){
         echo "firewall-cmd not found"
     fi
 }
+
+check_is_ubuntu(){
+    # if zorin os also return true
+    if [ -f /etc/os-release ] && [[ "$(cat /etc/os-release | grep -i ubuntu)" || "$(cat /etc/os-release | grep -i zorin)" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+check_is_debian(){
+    if [ -f /etc/os-release ] && [[ "$(cat /etc/os-release | grep -i 'Debian GNU')" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+get_ubuntu_codename(){
+    if check_is_ubuntu; then
+        grep -i "UBUNTU_CODENAME" /etc/os-release | cut -d= -f2 | tr -d '"'
+    else
+        red_echo "Not ubuntu"
+        return 1
+    fi
+}
+
+get_debian_version(){
+    if check_is_debian; then
+        grep -i "VERSION=" /etc/os-release | cut -d= -f2 | tr -d '"' | awk '{print $1}'
+    else
+        red_echo "Not debian"
+        return 1
+    fi
+}
+
+get_debian_codename(){
+    local _version=$(get_debian_version)
+    case $_version in
+        12) echo "bookworm";;
+        11) echo "bullseye";;
+    esac
+}
