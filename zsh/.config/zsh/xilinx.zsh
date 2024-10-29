@@ -4,7 +4,7 @@ source_xrt() {
 
 source_vitis() {
   case "$1" in
-    "2022.2"|"2022.1"|"2021.2"|"2021.1")
+    "2022.2"|"2022.1"|"2021.2"|"2021.1" | "2024.1" | "2024.2" | "2023.1" | "2023.2")
       source /tools/Xilinx/Vitis/$1/settings64.sh
       source /tools/Xilinx/Vivado/$1/settings64.sh
     ;;

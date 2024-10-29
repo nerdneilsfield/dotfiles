@@ -21,7 +21,7 @@ install_ros2(){
 	sudo apt install -y software-properties-common
 	sudo add-apt-repository universe
 	sudo apt-get update && sudo apt-get install -y curl gnupg2 lsb-release
-	curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.asc
+	curl -sSL https://gh.dqi.me/https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.asc
 	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.asc] http://packages.ros.org/ros2/ubuntu $(get_ubuntu_codename) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 	sudo apt-get update
 	sudo apt-get install -y ros-humble-desktop-full python3-colcon-common-extensions
@@ -31,6 +31,9 @@ install_ros2(){
 init_ros() { 
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	case $CODENAME in
+		noble | jammy)
+			red_echo "Your Ubuntu version is not supported by ROS1"
+			;;
 		bionic)
 			source /opt/ros/melodic/setup.zsh
 			;;

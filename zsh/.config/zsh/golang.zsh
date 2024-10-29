@@ -67,9 +67,10 @@ install_go_tools () {
 		"github.com/cweill/gotests/...@latest"
 		"github.com/golangci/golangci-lint/cmd/golangci-lint@latest"
 		"golang.org/x/tools/cmd/goimports@latest"
-	"github.com/nerdneilsfield/gox@v1.0.2"
-	"mvdan.cc/gofumpt@latest"
-	"github.com/segmentio/golines@latest"
+		"github.com/nerdneilsfield/gox@v1.0.2"
+		"mvdan.cc/gofumpt@latest"
+		"github.com/segmentio/golines@latest"
+		"github.com/goreleaser/goreleaser/v2@latest"
 	)
 
 	echo $PWD

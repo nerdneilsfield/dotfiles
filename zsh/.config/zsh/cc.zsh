@@ -461,6 +461,12 @@ install_latest_gcc_ppa() {
   green_echo "已成功安装 $_latest_gcc_version 及其相关包。"
 }
 
+add_clang_ppa() {
+  wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+  sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main"
+  sudo apt-get update
+}
+
 install_latest_clang_ppa() {
     # 查找最新版本的 Clang
     local _available_versions
