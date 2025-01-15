@@ -45,7 +45,8 @@ return {
   { import = "astrocommunity.recipes.telescope-nvchad-theme" },
   -- completion
   { import = "astrocommunity.completion.copilot-lua-cmp" },
-  { import = "astrocommunity.completion.tabnine-nvim" },
+  { import = "astrocommunity.completion.codeium-nvim" },
+  -- { import = "astrocommunity.completion.tabnine-nvim" },
   { import = "astrocommunity.completion.cmp-cmdline" },
   -- markdown and latex
   { import = "astrocommunity.markdown-and-latex.vimtex" },

@@ -17,3 +17,5 @@ vim.filetype.add {
     -- ["~/%.config/foo/.*"] = "fooscript",
   },
 }
+
+-- test function
