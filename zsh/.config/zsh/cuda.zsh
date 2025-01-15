@@ -35,3 +35,27 @@ add_cuda_ppa_cn(){
 install_cuda_ppa(){
     sudo apt install -y cuda
 }
+
+
+# test the cuda path exists and nvcc works
+test_cuda_path(){
+    if [ -d "/usr/local/cuda" ]; then
+        if [ -d "/usr/local/cuda/bin/nvcc" ]; then
+            return true
+        else
+            return false
+        fi
+    else
+        return false
+    fi
+}
+
+__is_cuda_exists=$(test_cuda_path)
+if $__is_cuda_exists; then
+    echo "CUDA path exists and nvcc works, enable cuda"
+    export PATH=/usr/local/cuda/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    export CUDA_HOME=/usr/local/cuda
+else
+    echo "CUDA path does not exist or nvcc does not work, disable cuda"
+fi
