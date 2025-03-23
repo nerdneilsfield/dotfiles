@@ -295,11 +295,11 @@ function GetLatestReleaseProxy() {
 	# see https://developer.github.com/v3/#rate-limiting
 	if [[ -n "$GHHH_TOKEN" ]]; then
 		# echo "have token set"
-		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
+		curl --silent "https://api-gateway-tokyo.dengqi.uk/gh/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                                                                  # Get tag line
 			sed -E 's/.*"v*([^"]+)".*/\1/'
 	else
-		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" | # Get latest release from GitHub api
+		curl --silent "https://api-gateway-tokyo.dengqi.uk/gh-token/repos/$1/releases/latest" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                   # Get tag line
 			sed -E 's/.*"v*([^"]+)".*/\1/'
 	fi
