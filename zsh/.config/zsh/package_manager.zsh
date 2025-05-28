@@ -131,6 +131,36 @@ install_smart_tool() {
     local platform=$(get_platform)
     
     case "$tool" in
+        "zoxide")
+            case "$pm" in
+                "brew")
+                    echo "📦 通过 Homebrew 安装 zoxide..."
+                    brew install zoxide
+                    ;;
+                "pacman")
+                    if [[ "$platform" == "msys2" ]]; then
+                        echo "📦 通过 MSYS2 Pacman 安装 zoxide..."
+                        pacman -S --needed --noconfirm mingw-w64-x86_64-zoxide
+                    else
+                        echo "📦 通过 Pacman 安装 zoxide..."
+                        sudo pacman -S zoxide
+                    fi
+                    ;;
+                "yay")
+                    echo "📦 通过 Yay 安装 zoxide..."
+                    yay -S zoxide
+                    ;;
+                "dnf")
+                    echo "📦 通过 DNF 安装 zoxide..."
+                    sudo dnf install zoxide
+                    ;;
+                *)
+                    echo "📦 从 GitHub 下载安装 zoxide..."
+                    install_zoxide_from_github
+                    ;;
+            esac
+            ;;
+            
         "fnm")
             case "$pm" in
                 "brew")

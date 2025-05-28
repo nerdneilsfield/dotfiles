@@ -377,6 +377,39 @@ install_batch_modern        # 智能批量安装现代工具
 install_batch_release       # 传统批量安装
 ```
 
+### 🧭 智能导航系统
+
+配置系统提供智能目录跳转，**zoxide 优先，z.lua 备选**：
+
+```bash
+# 主要导航命令 (自动选择 zoxide 或 z.lua)
+z <keyword>                # 跳转到匹配的目录
+z foo                      # 跳转到包含 'foo' 的目录  
+z foo bar                  # 跳转到同时包含 'foo' 和 'bar' 的目录
+
+# zoxide 特有功能 (如果可用)
+zi                         # 交互式选择目录
+za /path                   # 手动添加目录
+zr pattern                 # 移除匹配的目录
+zq pattern                 # 查询匹配的目录
+
+# 管理工具
+install_zoxide             # 安装 zoxide (推荐)
+nav-status                 # 检查导航系统状态
+nav-help                   # 显示使用帮助
+install-zoxide             # 别名：安装 zoxide
+```
+
+#### 🎯 **特性对比**
+
+| 功能 | zoxide | z.lua |
+|------|--------|-------|
+| **性能** | 🚀 极快 (Rust) | ⚡ 快 (Lua) |
+| **算法** | 🧠 Frecency | 📊 Frecency |
+| **交互式** | ✅ 内置 fzf | ❌ 需要配置 |
+| **平台** | ✅ 全平台 | ✅ 全平台 |
+| **维护** | ✅ 活跃 | ✅ 稳定 |
+
 ### 系统工具
 
 ```bash

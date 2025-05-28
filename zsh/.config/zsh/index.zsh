@@ -65,6 +65,9 @@ source "$ZSH_CONF_DIR/utils.zsh"
 # 安全工具 - 总是加载
 source "$ZSH_CONF_DIR/security.zsh"
 
+# 智能导航系统 - 总是加载 (zoxide 优先，z.lua 备选)
+source "$ZSH_CONF_DIR/navigation.zsh"
+
 # 智能包管理器 - 总是加载
 source "$ZSH_CONF_DIR/package_manager.zsh"
 
