@@ -247,23 +247,50 @@ list_install_functions() {
 # @category utils
 get_cpu_arch() {
     local arch=$(uname -m)
-    case "$arch" in
-        "x86_64"|"amd64")
-            echo "x86_64"
-            ;;
-        "aarch64"|"arm64")
-            echo "aarch64"
-            ;;
-        "armv7l")
-            echo "armv7"
-            ;;
-        "i386"|"i686")
-            echo "i386"
-            ;;
-        *)
-            echo "$arch"
-            ;;
-    esac
+    
+    # MSYS2/Windows 特殊处理
+    if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+        # MSYS2 环境下，检查处理器架构
+        case "$arch" in
+            "x86_64"|"amd64")
+                echo "x86_64"
+                ;;
+            "i686"|"i386")
+                echo "i386"
+                ;;
+            *)
+                # 尝试从 Windows 环境变量获取
+                if [[ -n "$PROCESSOR_ARCHITECTURE" ]]; then
+                    case "$PROCESSOR_ARCHITECTURE" in
+                        "AMD64") echo "x86_64" ;;
+                        "x86") echo "i386" ;;
+                        *) echo "x86_64" ;;  # 默认假设 x86_64
+                    esac
+                else
+                    echo "x86_64"  # MSYS2 默认 x86_64
+                fi
+                ;;
+        esac
+    else
+        # 常规 Unix/Linux 系统
+        case "$arch" in
+            "x86_64"|"amd64")
+                echo "x86_64"
+                ;;
+            "aarch64"|"arm64")
+                echo "aarch64"
+                ;;
+            "armv7l")
+                echo "armv7"
+                ;;
+            "i386"|"i686")
+                echo "i386"
+                ;;
+            *)
+                echo "$arch"
+                ;;
+        esac
+    fi
 }
 
 # @brief Get architecture variants for different naming conventions
@@ -281,7 +308,13 @@ get_arch_variants() {
             ;;
         "x86_64")
             # x86_64架构的各种命名变体
-            echo "x86_64 amd64 x86_64-unknown-linux-gnu x86_64-unknown-linux-musl x86_64-apple-darwin"
+            if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+                # MSYS2/Windows 特定命名
+                echo "x86_64 amd64 x86_64-pc-windows-msvc x86_64-pc-windows-gnu windows-x64 win64"
+            else
+                # Unix/Linux 命名
+                echo "x86_64 amd64 x86_64-unknown-linux-gnu x86_64-unknown-linux-musl x86_64-apple-darwin"
+            fi
             ;;
         "armv7")
             # ARMv7架构的各种命名变体
@@ -289,7 +322,13 @@ get_arch_variants() {
             ;;
         "i386")
             # 32位x86架构的各种命名变体
-            echo "i386 i686 x86 i586 i686-unknown-linux-gnu"
+            if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+                # MSYS2/Windows 特定命名
+                echo "i386 i686 x86 i586 i686-pc-windows-msvc i686-pc-windows-gnu windows-x86 win32"
+            else
+                # Unix/Linux 命名
+                echo "i386 i686 x86 i586 i686-unknown-linux-gnu"
+            fi
             ;;
         *)
             echo "$base_arch"

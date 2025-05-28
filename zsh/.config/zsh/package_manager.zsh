@@ -27,7 +27,7 @@ get_package_manager() {
 
 ##
 # @brief 获取当前操作系统平台信息
-# @return 平台名称 (macos|arch|debian|redhat|linux|unknown)
+# @return 平台名称 (macos|arch|debian|redhat|msys2|linux|unknown)
 # @example local platform=$(get_platform)
 # @category check
 ##
@@ -45,7 +45,16 @@ get_platform() {
                 echo "linux"
             fi
             ;;
-        *) echo "unknown" ;;
+        *)
+            # 检查 MSYS2/Cygwin
+            if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+                echo "msys2"
+            elif [[ "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+                echo "msys2"  # 将 Cygwin 也归类为 msys2
+            else
+                echo "unknown"
+            fi
+            ;;
     esac
 }
 
@@ -75,8 +84,14 @@ install_with_manager() {
             brew install "$package"
             ;;
         "pacman")
-            echo "📦 使用 Pacman 安装 $package..."
-            sudo pacman -S "$package"
+            # 区分 MSYS2 和 Arch Linux
+            if [[ "$platform" == "msys2" ]]; then
+                echo "📦 使用 MSYS2 Pacman 安装 $package..."
+                pacman -S --needed --noconfirm "$package"
+            else
+                echo "📦 使用 Pacman 安装 $package..."
+                sudo pacman -S "$package"
+            fi
             ;;
         "yay")
             echo "📦 使用 Yay 安装 $package..."

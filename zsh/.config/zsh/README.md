@@ -619,3 +619,125 @@ MIT License
 - **✅ 多层回退机制**: 确保在各种网络环境下都能成功安装工具
 
 参考完整的架构支持文档: [`ARCHITECTURE_SUPPORT.md`](./ARCHITECTURE_SUPPORT.md)
+
+## 🪟 MSYS2 Windows 支持
+
+本配置系统现已完全支持 **MSYS2** 环境，为 Windows 用户提供完整的 Unix-like 开发体验：
+
+### 🎯 **核心特性**
+
+- **🔧 智能环境检测**: 自动识别 MSYS2 环境并应用特定配置
+- **📦 包管理集成**: 完整支持 MSYS2 pacman 包管理器
+- **🛠️ 开发工具链**: 一键安装完整的开发环境
+- **🏗️ Windows 集成**: 与 Windows 系统深度集成
+
+### 🚀 **快速开始**
+
+在 MSYS2 终端中：
+
+```bash
+# 检查 MSYS2 环境信息
+show_msys2_info
+
+# 一键配置开发环境
+msys2_quick_setup
+
+# 安装现代命令行工具
+msys2_modern_tools
+
+# 安装特定编程语言工具
+install_msys2_language_tools python
+install_msys2_language_tools node
+```
+
+### 📦 **包管理支持**
+
+```bash
+# 使用智能包管理器（自动检测 MSYS2 pacman）
+install_with_manager git curl
+
+# 直接使用 MSYS2 包安装
+install_msys2_packages base-devel mingw-w64-x86_64-toolchain
+
+# 安装开发工具
+install_msys2_dev_tools
+
+# 安装现代工具
+install_msys2_modern_tools
+```
+
+### 🛠️ **支持的工具**
+
+#### 开发工具链
+- **base-devel**: 基础开发工具
+- **mingw-w64-x86_64-toolchain**: MinGW-w64 工具链
+- **cmake, ninja**: 构建系统
+- **git, curl, wget**: 版本控制和网络工具
+
+#### 现代命令行工具
+- **ripgrep (rg)**: 更快的 grep
+- **fd**: 更快的 find  
+- **bat**: 更好的 cat
+- **eza**: 更好的 ls
+- **fzf**: 模糊查找
+- **bottom**: 系统监控
+
+#### 编程语言
+- **Python**: 完整 Python 开发环境
+- **Node.js**: JavaScript 运行时和 npm
+- **Go**: Go 编程语言
+- **Rust**: 通过 rustup 安装
+
+### 🔧 **Windows 集成功能**
+
+```bash
+# Windows 路径快捷访问
+cdwin          # 进入 Windows 用户目录
+cddocs         # 进入文档目录  
+cddesk         # 进入桌面
+cddown         # 进入下载目录
+
+# 启动 Windows 程序
+notepad file.txt     # 打开记事本
+explorer .           # 打开文件资源管理器
+code .               # 打开 VS Code (如已安装)
+```
+
+### 🏗️ **架构特定支持**
+
+MSYS2 环境下的架构检测和工具下载：
+
+- **Windows-specific naming**: 支持 `x86_64-pc-windows-msvc`, `win64` 等命名
+- **智能下载回退**: 优先尝试 Windows 版本，回退到通用版本
+- **包管理器优先**: 优先使用 MSYS2 pacman，回退到直接下载
+
+### 📋 **系统要求**
+
+- **MSYS2**: 最新版本的 MSYS2 环境
+- **ZSH**: 在 MSYS2 中安装 zsh (`pacman -S zsh`)
+- **网络访问**: 用于下载软件包和工具
+
+### 🔍 **故障排除**
+
+```bash
+# 检查环境状态
+show_msys2_info
+
+# 更新包数据库
+pacman -Sy
+
+# 清理缓存
+clear_zsh_cache
+
+# 重新配置环境
+msys2_quick_setup
+```
+
+### 💡 **最佳实践**
+
+1. **定期更新**: 运行 `pacman -Syu` 保持系统最新
+2. **使用 mintty**: 推荐使用 mintty 终端获得最佳体验  
+3. **路径管理**: 避免路径中包含空格和特殊字符
+4. **权限设置**: 某些操作可能需要管理员权限
+
+MSYS2 支持让 Windows 用户也能享受完整的 Unix-like 开发体验！

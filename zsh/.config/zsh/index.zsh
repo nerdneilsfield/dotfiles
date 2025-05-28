@@ -32,6 +32,24 @@ _conditional_source "cuda.zsh" "command -v nvcc >/dev/null 2>&1 || [[ -d /usr/lo
 _conditional_source "wasm.zsh" "command -v wasmtime >/dev/null 2>&1 || command -v wasmer >/dev/null 2>&1"
 _conditional_source "zig.zsh" "command -v zig >/dev/null 2>&1"
 
+# 平台特定配置 - 基于系统类型加载
+case "$(uname -s)" in
+  "Darwin")
+    _conditional_source "config.macos.zsh" "true"
+    ;;
+  "Linux")
+    _conditional_source "config.linux.zsh" "true"
+    ;;
+  *)
+    # 检查是否为 MSYS2/Cygwin
+    if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+      _conditional_source "config.msys2.zsh" "true"
+    elif [[ "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+      _conditional_source "config.msys2.zsh" "true"  # MSYS2 配置也适用于 Cygwin
+    fi
+    ;;
+esac
+
 # 特殊硬件/系统相关 - 只在特定环境加载
 _conditional_source "hdl.zsh" "[[ -d /opt/xilinx ]] || [[ -d /opt/intel/quartus ]]"
 _conditional_source "xilinx.zsh" "[[ -d /opt/xilinx ]]"
