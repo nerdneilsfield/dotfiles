@@ -1,3 +1,7 @@
+# @brief Install Erg programming language compiler
+# @return 0 on success, 1 if cargo not available
+# @example install_erg
+# @category erg
 install_erg(){
         # if command line cargo is not installed
         if ! command -v cargo &> /dev/null; then

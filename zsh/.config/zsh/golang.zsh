@@ -35,22 +35,42 @@ alias gdv='godotenv'
 alias got='APP_ENV=dev go test --cover --race ./...'
 alias gor='APP_ENV=stage go run main.go'
 
+# @brief Create Go workspace directory
+# @return 0 on success
+# @example create_go_path
+# @category golang
 create_go_path(){
 	mkdir ~/Source/Go
 }
 
+# @brief Install yamlfmt YAML formatter tool
+# @return 0 on success
+# @example install_yamlfmt
+# @category golang
 install_yamlfmt() {
 	go install github.com/google/yamlfmt/cmd/yamlfmt@latest
 }
 
+# @brief Install YAML language server for IDE support
+# @return 0 on success
+# @example install_yaml_lsp
+# @category golang
 install_yaml_lsp() {
 	npm install -g yaml-language-server
 }
 
+# @brief Install yamllint Python tool for YAML validation
+# @return 0 on success
+# @example install_yaml_lint
+# @category golang
 install_yaml_lint(){
 	python3 -m pip install --user -U yamllint
 }
 
+# @brief Install comprehensive Go development tools and utilities
+# @return 0 on success
+# @example install_go_tools
+# @category golang
 install_go_tools () {
   mkdir -p $HOME/Source/app
 	cd $HOME/Source/app
@@ -100,15 +120,27 @@ install_go_tools () {
 
 }
 
+# @brief Install goreleaser for automated Go project releases
+# @return 0 on success
+# @example install_gotools_goreleaser
+# @category golang
 install_gotools_goreleaser() {
 	go install github.com/goreleaser/goreleaser/v2@latest
 
 }
 
+# @brief Add Go backports PPA for latest Go versions on Ubuntu
+# @return 0 on success
+# @example add_golang_ppa
+# @category golang
 add_golang_ppa() {
 	sudo add-apt-repository ppa:longsleep/golang-backports
 }
 
+# @brief Install Go from backports PPA
+# @return 0 on success
+# @example install_golang_ppa
+# @category golang
 install_golang_ppa(){
 	sudo apt install golang
 }

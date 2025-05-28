@@ -1,3 +1,7 @@
+# @brief Add NVIDIA CUDA PPA repository for Ubuntu
+# @return 0 on success
+# @example add_cuda_ppa
+# @category cuda
 add_cuda_ppa(){
     sudo apt install -y software-properties-common
     
@@ -15,6 +19,10 @@ add_cuda_ppa(){
     sudo apt update
 }
 
+# @brief Add NVIDIA CUDA PPA repository using Chinese mirror
+# @return 0 on success
+# @example add_cuda_ppa_cn
+# @category cuda
 add_cuda_ppa_cn(){
     sudo apt install -y software-properties-common
     
@@ -32,12 +40,19 @@ add_cuda_ppa_cn(){
     sudo apt update
 }
 
+# @brief Install CUDA toolkit from PPA repository
+# @return 0 on success
+# @example install_cuda_ppa
+# @category cuda
 install_cuda_ppa(){
     sudo apt install -y cuda
 }
 
 
-# test the cuda path exists and nvcc works
+# @brief Test if CUDA installation is valid and nvcc works
+# @return true if CUDA works, false otherwise
+# @example test_cuda_path
+# @category cuda
 test_cuda_path(){
     if [ -d "/usr/local/cuda" ]; then
         if [ -d "/usr/local/cuda/bin/nvcc" ]; then

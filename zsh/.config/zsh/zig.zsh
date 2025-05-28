@@ -1,3 +1,7 @@
+# @brief Install Zig Language Server (ZLS) from source
+# @return 0 on success
+# @example install_zls
+# @category zig
 install_zls() {
         # if directory zls not exists
         if [[ ! -d "$HOME/Source/app/zls" ]]; then
@@ -12,6 +16,10 @@ install_zls() {
         $HOME/.local/bin/zls --config
 }
 
+# @brief Install zigmod package manager for Zig
+# @return 0 on success
+# @example install_zigmod
+# @category zig
 install_zigmod() {
         if [[ ! -d "$HOME/Source/app/zigmod" ]]; then
                 git clone --recursive --depth 1 https://github.com/nektro/zigmod $HOME/Source/app/zigmod
@@ -24,6 +32,10 @@ install_zigmod() {
         cp -r ./zig-out/bin/zigmod $HOME/.local/bin
 }
 
+# @brief Install zigup Zig version manager
+# @return 0 on success
+# @example install_zigup
+# @category zig
 install_zigup() {
         ZIG_VER=$(GetLatestReleaseProxy "marler8997/zigup")
         mkdir -p $HOME/Source/app/zigup
@@ -36,6 +48,10 @@ install_zigup() {
         $HOME/.local/bin/zigup --help
 }
 
+# @brief Install zigup using GitHub proxy for faster downloads
+# @return 0 on success
+# @example install_zigup_proxy
+# @category zig
 install_zigup_proxy() {
         ZIG_VER=$(GetLatestReleaseProxy "marler8997/zigup")
         mkdir -p $HOME/Source/app/zigup
@@ -48,6 +64,10 @@ install_zigup_proxy() {
         $HOME/.local/bin/zigup --help
 }
 
+# @brief Install latest Zig compiler using zigup
+# @return 0 on success
+# @example install_zig
+# @category zig
 install_zig() {
         # check if zigup exists
         if [[ ! -f "$HOME/.local/bin/zigup" ]]; then

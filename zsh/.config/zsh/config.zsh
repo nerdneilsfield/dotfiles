@@ -14,7 +14,7 @@ export N_PREFIX="$HOME/code/n"
 export JABBA_HOME="$HOME/code/jabba"
 
 # rust
-RUST_BACKTRACE=1
+export RUST_BACKTRACE=1
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"

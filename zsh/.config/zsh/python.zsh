@@ -1,30 +1,54 @@
-# 获取所有安装的 Python 3 版本
-
-
-# 初始化一个数组来存储找到的 Python 版本
-python_versions=()
-# 遍历 $PATH 中的所有目录
-for dir in ${(s/:/)PATH}; do
-  # 检查目录是否存在
-  if [[ -d $dir ]]; then
-    # 查找以 python3. 开头且只包含数字的可执行文件 <-> 代表匹配一个数字
-    for file in $dir/python3.<->(N); do
-      # 检查文件是否存在且可执行
-      if [[ -x $file ]]; then
-        python_versions+=($file:t)
+# @brief Get all installed Python 3 versions with caching optimization
+# @return Latest Python 3 version found on system
+# @example _get_python_versions
+# @category python
+_get_python_versions() {
+  local _cache_file="$HOME/.cache/zsh_python_versions"
+  local _cache_ttl=3600  # 1小时缓存
+  
+  # 确保缓存目录存在
+  mkdir -p "$(dirname "$_cache_file")"
+  
+  # 检查缓存是否存在且未过期
+  if [[ -f "$_cache_file" ]]; then
+    local _cache_time=$(stat -f %m "$_cache_file" 2>/dev/null || stat -c %Y "$_cache_file" 2>/dev/null)
+    local _current_time=$(date +%s)
+    
+    if [[ $((_current_time - _cache_time)) -lt $_cache_ttl ]]; then
+      # 缓存有效，直接读取
+      local _cached_version=$(cat "$_cache_file")
+      if [[ -n "$_cached_version" ]]; then
+        echo "$_cached_version"
+        return 0
       fi
-    done
+    fi
   fi
-done 
+  
+  # 缓存过期或不存在，重新扫描
+  local python_versions=()
+  for dir in ${(s/:/)PATH}; do
+    if [[ -d $dir ]]; then
+      for file in $dir/python3.<->(N); do
+        if [[ -x $file ]]; then
+          python_versions+=($file:t)
+        fi
+      done
+    fi
+  done 
+  
+  if [[ ${#python_versions[@]} -eq 0 ]]; then
+    yellow_echo "没有找到任何 Python 3 版本。"
+    return 1
+  fi
+  
+  # 找到最新的 Python 3 版本并缓存
+  local _python_latest_version=$(printf "%s\n" "${python_versions[@]}" | sort -V | tail -n 1)
+  echo "$_python_latest_version" > "$_cache_file"
+  echo "$_python_latest_version"
+}
 
-# 如果没有找到任何 Python 3 版本，退出脚本
-if [[ ${#python_versions[@]} -eq 0 ]]; then
-  yellow_echo "没有找到任何 Python 3 版本。"
-  exit 1
-fi
-
-# 找到最新的 Python 3 版本
-local _python_latest_version=$(printf "%s\n" "${python_versions[@]}" | sort -V | tail -n 1)
+# 使用缓存的版本
+local _python_latest_version=$(_get_python_versions)
 
 green_echo "设置 Python3 版本为: $_python_latest_version"
 
@@ -43,6 +67,10 @@ alias uvrun="uv run"
 alias uvvenvt="uv venv -i https://pypi.tuna.tsinghua.edu.cn/simple"
 alias uvvenv="uv venv"
 
+# @brief Install pyenv Python version manager from source
+# @return 0 on success
+# @example install_pyenv
+# @category python
 install_pyenv() {
         rm -rf ${HOME}/.local/pyenv
         git clone https://github.com/pyenv/pyenv.git ~/.local/pyenv
@@ -69,6 +97,10 @@ install_pyenv() {
 # source ${HOME}/.local/poetry/env
 # fpath+=${HOME}/.zfunc
 
+# @brief Install essential Python development tools via pip
+# @return 0 on success
+# @example install_python_tools
+# @category python
 install_python_tools() {
   local _python_tools=(
     "blue"
@@ -94,6 +126,10 @@ install_python_tools() {
     done
 }
 
+# @brief Install Python tools written in Rust via cargo
+# @return 0 on success
+# @example install_python_rust_tools
+# @category python
 install_python_rust_tools(){
   local _python_tools=(
   "rye"
@@ -105,10 +141,18 @@ install_python_rust_tools(){
   done
 }
 
+# @brief Add deadsnakes PPA for latest Python versions on Ubuntu
+# @return 0 on success
+# @example add_python_ppa
+# @category python
 add_python_ppa(){
   sudo add-apt-repository ppa:deadsnakes/ppa
 }
 
+# @brief Install latest Python version from deadsnakes PPA
+# @return 0 on success, 1 if no versions found
+# @example install_latest_python_ppa
+# @category python
 install_latest_python_ppa() {
   # 使用 apt search 查找所有可用的 Python 版本
   available_versions=$(apt search python3 | grep -oP 'python3\.\d{2}-full' | sort -V | uniq)
@@ -135,19 +179,58 @@ install_latest_python_ppa() {
   green_echo "已成功安装 $latest_version 及其相关包。"
 }
 
+# @brief Install pip for specified Python version
+# @param $1 Python executable path
+# @return 0 on success
+# @example install_pip python3.11
+# @category python
 install_pip(){
   curl -sSL https://bootstrap.pypa.io/get-pip.py | $1
 }
 
+# @brief Install uv (ultra-fast Python package manager) intelligently
+# @return 0 on success
+# @example install_pythontools_uv
+# @category python
 install_pythontools_uv(){
-  python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple uv
+    echo "⚡ 智能安装 uv (极快的 Python 包管理器)..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool uv
+    else
+        # 回退到传统方法
+        echo "⚠️  智能安装系统未加载，使用传统方法..."
+        local pm=$(get_package_manager 2>/dev/null || echo "unknown")
+        
+        case "$pm" in
+            "brew")
+                brew install uv
+                ;;
+            "pacman")
+                sudo pacman -S uv
+                ;;
+            *)
+                # Ubuntu/CentOS 等系统使用 pip
+                python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple uv
+                ;;
+        esac
+    fi
 }
 
+# @brief Install micromamba minimal conda alternative
+# @return 0 on success
+# @example install_pythontools_minimamba
+# @category python
 install_pythontools_minimamba(){
   "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
 }
 
 
+# @brief Configure pip to use Chinese mirror for faster downloads
+# @return 0 on success
+# @example set_python_mirror_cn
+# @category python
 set_python_mirror_cn(){
   mkdir -p ~/.pip
   cat > ~/.pip/pip.conf <<EOF
@@ -157,6 +240,10 @@ EOF
 }
 
 
+# @brief Initialize micromamba environment
+# @return 0 on success
+# @example init_mamba
+# @category python
 init_mamba(){
   # >>> mamba initialize >>>
   # !! Contents within this block are managed by 'micromamba shell init' !!
@@ -173,6 +260,10 @@ init_mamba(){
 }
 
 
+# @brief Install pixi package manager for Python projects
+# @return 0 on success, 1 on error
+# @example install_pixi
+# @category python
 install_pixi(){
   VERSION="${PIXI_VERSION:-latest}"
   PIXI_HOME="${PIXI_HOME:-$HOME/.pixi}"

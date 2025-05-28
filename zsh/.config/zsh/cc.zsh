@@ -14,6 +14,10 @@ export CPP_INCLUDE_PATH=$HOME/.local/include:/usr/local/include:/usr/include
 # export CFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CFLAGS"
 # export CPPFLAGS="-I/usr/local/opt/qt/include:-I/usr/local/include:-I/usr/include:$CPPFLAGS"
 
+# @brief Find and set latest GCC and Clang compiler versions
+# @return 0 on success
+# @example find_latest_cc_compilers
+# @category cc
 find_latest_cc_compilers() {
   # 初始化数组来存储找到的 GCC 和 Clang 版本
   gcc_versions=()
@@ -76,6 +80,10 @@ find_latest_cc_compilers
 
 alias _cmk='cmake -G "Ninja"'
 
+# @brief Configure CMake to use Ninja generator with optional vcpkg
+# @return 0 on success
+# @example _cmninja
+# @category cc
 function _cmninja() {
   if [[ ${USE_VCPKG} = "ON" ]]; then
     alias _cmk="cmake -G 'Ninja' -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=${VCPKG_CMAKE_PATH}"
@@ -84,23 +92,46 @@ function _cmninja() {
   fi
 }
 
+# @brief Configure CMake to use Unix Makefiles generator
+# @return 0 on success
+# @example _cmmake
+# @category cc
 function _cmmake() {
   alias _cmk='cmake -G "Unix Makefiles"'
 }
 
+# @brief Configure CMake for debug build
+# @param $@ Additional CMake arguments
+# @return 0 on success
+# @example _cmdebug -DCUSTOM_FLAG=ON
+# @category cc
 function _cmdebug() {
   _cmk -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -B build/debug "$@"
 }
 
+# @brief Configure CMake for release build
+# @param $@ Additional CMake arguments
+# @return 0 on success
+# @example _cmrelease -DCUSTOM_FLAG=ON
+# @category cc
 function _cmrelease() {
   _cmk -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -B build/release "$@"
 }
 
+# @brief Configure and build debug version
+# @param $@ Additional CMake arguments
+# @return 0 on success
+# @example cmdebug
+# @category cc
 function cmdebug() {
   _cmdebug "$@"
   cmake --build build/debug -j "$(nproc)"
 }
 
+# @brief Build project using CMake
+# @return 0 on success
+# @example cmbuild
+# @category cc
 function cmbuild() {
   cmake --build build -j "$(nproc)"
 }
@@ -113,47 +144,100 @@ function cminsdebug() {
   cmake --install build/debug
 }
 
+# @brief Configure and build release version
+# @return 0 on success
+# @example cmrelease
+# @category cc
 function cmrelease() {
   _cmrelease
   cmake --build build/release -j$(nproc)
 }
 
+# @brief Compile C file with GCC and create executable
+# @param $1 C source file name (without extension)
+# @return 0 on success
+# @example gcco hello.c
+# @category cc
 function gcco() {
   gcc --std=c11 -Wall -Wextra -g -o "${1}.g.out" "${1}"
 }
 
+# @brief Compile and run C file with GCC
+# @param $1 C source file name (without extension)
+# @return Exit code of the program
+# @example gccr hello.c
+# @category cc
 function gccr() {
   gcc --std=c11 -Wall -Wextra -g -o "${1}.g.out" "${1}"
   ./"${1}.g.out"
 }
 
+# @brief Compile C++ file with g++ and create executable
+# @param $1 C++ source file name (without extension)
+# @return 0 on success
+# @example g++o hello.cpp
+# @category cc
 function g++o() {
   g++ --std=c++20 -Wall -Wextra -g -o "${1}.g.out" "${1}"
 }
 
+# @brief Compile and run C++ file with g++
+# @param $1 C++ source file name (without extension)
+# @return Exit code of the program
+# @example g++r hello.cpp
+# @category cc
 function g++r() {
   g++ --std=c++20 -Wall -Wextra -g -o "${1}.g.out" "${1}"
   ./"${1}.g.out"
 }
 
+# @brief Compile C file with Clang and create executable
+# @param $1 C source file name (without extension)
+# @return 0 on success
+# @example clango hello.c
+# @category cc
 function clango() {
   clang --std=c11 -Wall -Wextra -g -o "${1}.c.out" "${1}"
 }
 
+# @brief Compile and run C file with Clang
+# @param $1 C source file name (without extension)
+# @return Exit code of the program
+# @example clangr hello.c
+# @category cc
 function clangr() {
   clang --std=c11 -Wall -Wextra -g -o "${1}.c.out" "${1}"
   ./"${1}.c.out"
 }
 
+# @brief Compile and run C++ file with Clang++
+# @param $1 C++ source file name (without extension)
+# @return Exit code of the program
+# @example clang++r hello.cpp
+# @category cc
 function clang++r() {
   clang++ --std=c++20 -Wall -Wextra -g -o "${1}.c.out" "${1}"
   ./"${1}.c.out"
 }
 
+# @brief Install Universal Ctags from source with smart fallback
+# @return 0 on success
+# @example install_cpp_tools_ctags
+# @category cc
 function install_cpp_tools_ctags() {
-  echo "=====install/update ctags========="
-  local _localtion_url="https://github.com/universal-ctags/ctags.git"
-  local _localtion_path="$HOME/Source/app/universal-ctags/ctags"
+    echo "🚀 智能安装 Universal Ctags..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool ctags
+        return $?
+    fi
+    
+    # 回退到源码编译
+    echo "⚠️  智能安装系统未加载，从源码编译..."
+    echo "=====install/update ctags========="
+    local _localtion_url="https://github.com/universal-ctags/ctags.git"
+    local _localtion_path="$HOME/Source/app/universal-ctags/ctags"
 
   echo $_localtion_path
   if [[ ! -d "${_localtion_path}" ]]; then
@@ -174,6 +258,10 @@ function install_cpp_tools_ctags() {
 
 }
 
+# @brief Add Kitware CMake PPA repository
+# @return 0 on success
+# @example add_cmake_ppa
+# @category cc
 function add_cmake_ppa(){
   sudo apt update
   sudo apt install -y ca-certificates gpg wget
@@ -188,18 +276,46 @@ function add_cmake_ppa(){
   sudo apt install -y kitware-archive-keyring
 }
 
+# @brief Install latest CMake from Kitware PPA with smart fallback
+# @return 0 on success
+# @example install_cpp_tools_cmake_ppa
+# @category cc
 function install_cpp_tools_cmake_ppa() {
-  # if kitware.list not exist
-  if [ ! -f /etc/apt/sources.list.d/kitware.list ]; then
-    add_cmake_ppa
-  fi
-  sudo apt install cmake -y
+    echo "🚀 智能安装 CMake..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool cmake
+        return $?
+    fi
+    
+    # 回退到 PPA 安装
+    echo "⚠️  智能安装系统未加载，使用 PPA..."
+    # if kitware.list not exist
+    if [ ! -f /etc/apt/sources.list.d/kitware.list ]; then
+        add_cmake_ppa
+    fi
+    sudo apt install cmake -y
 }
 
+# @brief Install mold modern linker with smart fallback
+# @return 0 on success
+# @example install_cpp_tools_mold
+# @category cc
 function install_cpp_tools_mold() {
-  echo "=====install/update mold========="
-  set_cxx clang
-  mkdir -p $HOME/Source/app
+    echo "🚀 智能安装 mold 链接器..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool mold
+        return $?
+    fi
+    
+    # 回退到源码编译
+    echo "⚠️  智能安装系统未加载，从源码编译..."
+    echo "=====install/update mold========="
+    set_cxx clang
+    mkdir -p $HOME/Source/app
   if [ -d "$HOME/Source/app/mold" ]; then
     cd $HOME/Source/app/mold
     git pull
@@ -245,6 +361,10 @@ function install_cpp_tools_vtune() {
   fi
 }
 
+# @brief Install C++ development tools via Python pip
+# @return 0 on success
+# @example install_cpp_tools_in_python
+# @category cc
 install_cpp_tools_in_python() {
   local _pip_tools=(
     "cmakelang"
@@ -260,6 +380,10 @@ install_cpp_tools_in_python() {
   done
 }
 
+# @brief Install C++ development tools via Rust cargo
+# @return 0 on success
+# @example install_cpp_tools_in_rust
+# @category cc
 install_cpp_tools_in_rust() {
   local _cargo_tools=(
     "sccache"
@@ -383,17 +507,28 @@ function install_cpp_tools_xmake() {
   ./scripts/get.sh __local__ __install_only__
 }
 
+# @brief Install comprehensive C++ development toolchain
+# @return 0 on success
+# @example install_cpp_tools
+# @category cc
 function install_cpp_tools() {
-  mkdir -p $HOME/Source/app
+    echo "🛠️ 安装 C++ 开发工具链..."
+    mkdir -p $HOME/Source/app
 
-  install_cpp_tools_in_python
-  install_cpp_tools_in_rust
-  install_cpp_tools_mold
-
-  install_cpp_tools_cppcheck
-  install_cpp_tools_bear
+    install_cpp_tools_in_python
+    install_cpp_tools_in_rust
+    install_cpp_tools_mold
+    install_cpp_tools_cppcheck
+    install_cpp_tools_bear
+    
+    echo "✅ C++ 工具安装完成！"
 }
 
+# @brief Set C/C++ compiler environment variables
+# @param $1 Compiler type (gcc|clang|distcc-clang|distcc-gcc|zig)
+# @return 0 on success
+# @example set_cxx clang
+# @category cc
 function set_cxx(){
   case "$1" in
     "gcc")
@@ -435,6 +570,10 @@ function set_cxx(){
   esac
 }
 
+# @brief Install latest GCC from Ubuntu PPA
+# @return 0 on success, 1 if no versions found
+# @example install_latest_gcc_ppa
+# @category cc
 install_latest_gcc_ppa() {
   # 使用 apt search 查找所有可用的 GCC 版本
   local _available_gcc_versions=$(apt search gcc | grep -oP 'gcc-\d{2}(?=\s|/)' | sort -V | uniq)
@@ -461,12 +600,20 @@ install_latest_gcc_ppa() {
   green_echo "已成功安装 $_latest_gcc_version 及其相关包。"
 }
 
+# @brief Add LLVM/Clang PPA repository
+# @return 0 on success
+# @example add_clang_ppa
+# @category cc
 add_clang_ppa() {
   wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
   sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main"
   sudo apt-get update
 }
 
+# @brief Install latest Clang and LLVM tools from PPA
+# @return 0 on success, 1 if no versions found
+# @example install_latest_clang_ppa
+# @category cc
 install_latest_clang_ppa() {
     # 查找最新版本的 Clang
     local _available_versions
@@ -557,6 +704,10 @@ install_latest_clang_ppa() {
    green_echo "已成功安装 Clang 及其相关包。"
 }
 
+# @brief Update system alternatives for LLVM tools
+# @return 0 on success
+# @example update_llvm_alternatives
+# @category cc
 function update_llvm_alternatives(){
     # 查找最新版本的 Clang
     local _available_versions
@@ -588,6 +739,11 @@ function update_llvm_alternatives(){
    sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-$_version_number 100
 }
 
+# @brief Set linker environment variable
+# @param $1 Linker type (gold|lld|mold)
+# @return 0 on success
+# @example set_ld mold
+# @category cc
 function set_ld() {
   case "$1" in
     "gold")
@@ -605,6 +761,6 @@ function set_ld() {
   esac
 }
 
-if [[ -n "$(command -v xmake)" ]]; then
-  source $HOME/.xmake/profile
+if [[ -n "$(command -v xmake)" && -f "$HOME/.xmake/profile" ]]; then
+  source "$HOME/.xmake/profile"
 fi

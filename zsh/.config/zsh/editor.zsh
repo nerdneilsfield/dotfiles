@@ -1,5 +1,9 @@
 export NVIMRUNTIME="${HOME}/.local/share/nvim/runtime"
 
+# @brief Compare Neovim versions between source build and system
+# @return 0 on success
+# @example check_nvim_version
+# @category editor
 check_nvim_version(){
 	local source_build_version=$("$HOME/Source/app/neovim/build/bin/nvim" -version)
 	local system_default_version=$(nvim -version)
@@ -16,6 +20,10 @@ check_nvim_version(){
 	fi
 }
 
+# @brief Install Neovim from source code
+# @return 0 on success
+# @example install_nvim_source
+# @category editor
 install_nvim_source() {
 	# install dependencies
 	# pki gettext libtool-bin
@@ -39,6 +47,10 @@ install_nvim_source() {
 	check_nvim_version
 }
 
+# @brief Install stable Neovim release from GitHub
+# @return 0 on success
+# @example install_nvim_release
+# @category editor
 install_nvim_release(){
 	# install dependencies
 	# pki gettext libtool-bin
@@ -58,6 +70,10 @@ install_nvim_release(){
 	nvim --version
 }
 
+# @brief Install Neovim release using GitHub proxy for faster download
+# @return 0 on success
+# @example install_nvim_release_proxy
+# @category editor
 install_nvim_release_proxy(){
 	# install dependencies
 	# pki gettext libtool-bin
@@ -77,6 +93,10 @@ install_nvim_release_proxy(){
 	nvim --version
 }
 
+# @brief Install Kakoune editor from source
+# @return 0 on success
+# @example install_kakoune
+# @category editor
 install_kakoune(){
 	# pki libncurse-dev libstdc++-dev
 	KAKOUNE_REPO=https://github.com/mawww/kakoune.git
@@ -107,12 +127,20 @@ install_kakoune_lsp(){
 	kak -version
 }
 
+# @brief Backup current Neovim configuration
+# @return 0 on success
+# @example backup_nvim
+# @category editor
 backup_nvim() {
 	local _now_date=$(date +'%Y_%m_%d_%S')
 	echo "now_date ${_now_date}"
 	mv ~/.config/nvim "$HOME/.config/nvim_back_${_now_date}"
 }
 
+# @brief Backup all Neovim data folders
+# @return 0 on success
+# @example backup_nvim_folder
+# @category editor
 backup_nvim_folder() {
 	local _now_date=$(date +'%Y_%m_%d_%S')
 	echo "now_date ${_now_date}"
@@ -121,6 +149,10 @@ backup_nvim_folder() {
 	mv $HOME/.cache/nvim "$HOME/.cache/nvim.bak_back_${_now_date}"
 }
 
+# @brief Install NvChad Neovim configuration
+# @return 0 on success
+# @example install_nvchad
+# @category editor
 install_nvchad() {
 	git clone --recursive --depth 1 https://github.com/NvChad/NvChad ~/.config/NvChad
 	rm -rf ~/.config/NvChad/lua/custom/chadrc.lua
@@ -130,10 +162,18 @@ install_astro() {
 	# git clone  --recursive --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/AstroNvim
 }
 
+# @brief Install Kickstart.nvim configuration
+# @return 0 on success
+# @example install_kickstart
+# @category editor
 install_kickstart() {
 	git clone --recursive --depth 1 https://github.com/nvim-lua/kickstart.nvim.git ~/.config/kickstart
 }
 
+# @brief Install LazyVim Neovim configuration
+# @return 0 on success
+# @example install_lazyvim
+# @category editor
 install_lazyvim() {
 	git clone --recursive --depth 1 https://github.com/LazyVim/LazyVim.git ~/.config/LazyVim
 }
@@ -152,6 +192,10 @@ remove_nvchad() {
 	rm -rf ~/.cache/NvChad
 }
 
+# @brief Install all popular Neovim configurations
+# @return 0 on success
+# @example install_nvims
+# @category editor
 install_nvims() {
 	install_nvchad
 	install_astro
@@ -165,6 +209,10 @@ alias nvim-chad="NVIM_APPNAME=NvChad nvim"
 alias nvim-astro="NVIM_APPNAME=AstroNvim nvim"
 alias nv="nvim-astro"
 
+# @brief Install Vim editor from source
+# @return 0 on success
+# @example install_vim
+# @category editor
 install_vim(){
 	mkdir -p ~/Source/app/vim 
 	git clone https://github.com/vim/vim.git ~/Source/app/vim/vim
@@ -174,21 +222,47 @@ install_vim(){
 	sudo make install
 }
 
+# @brief Install GitHub Copilot plugin for Vim
+# @return 0 on success
+# @example install_vim_copilot
+# @category editor
 install_vim_copilot(){
-	mkdir ~/.vim/pack/github/start
+	mkdir -p ~/.vim/pack/github/start
 	git clone https://github.com/github/copilot.vim.git \
   	~/.vim/pack/github/start/copilot.vim
 }
 
+# @brief Uninstall system-wide Neovim installation
+# @return 0 on success
+# @example uninstall_nvim_sudo
+# @category editor
 uninstall_nvim_sudo() {
 	sudo find /usr/local -name nvim -exec rm -rf {} \;
 }
 
+# @brief Uninstall local Neovim installation
+# @return 0 on success
+# @example uninstall_nvim
+# @category editor
 uninstall_nvim() {
 	sudo find $HOME/.local -name nvim -exec rm -rf {} \;
 }
 
+# @brief Install Helix editor intelligently
+# @return 0 on success
+# @example install_helix
+# @category editor
 install_helix(){
+    echo "🚀 智能安装 Helix 编辑器..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool helix
+        return $?
+    fi
+    
+    # 回退到传统方法
+    echo "⚠️  智能安装系统未加载，使用传统方法..."
 	green_echo "======================================"
 	green_echo "=========Install helix========"
 	green_echo "======================================"

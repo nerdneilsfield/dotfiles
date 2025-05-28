@@ -1,3 +1,8 @@
+# @brief Install GTSAM (Georgia Tech Smoothing and Mapping library)
+# @param $1 Installation scope (local|global, default: local)
+# @return 0 on success
+# @example install_gtsam local
+# @category robotics
 install_gtsam() {
         echo "=====install/update gtsam========="
         local _localtion_url="https://github.com/borglab/gtsam.git"
@@ -59,6 +64,11 @@ install_gtsam() {
         fi
 }
 
+# @brief Install g2o (General Graph Optimization library)
+# @param $1 Installation scope (local|global, default: local)
+# @return 0 on success
+# @example install_g2o local
+# @category robotics
 install_g2o() {
         echo "=====install/update g2o========="
         local _localtion_url="https://github.com/RainerKuemmerle/g2o.git"
@@ -120,14 +130,28 @@ install_g2o() {
         fi
 }
 
+# @brief Install Ceres Solver v1 (non-linear optimization library)
+# @return 0 on success
+# @example install_ceres_v1
+# @category robotics
 install_ceres_v1() {
-
+    echo "⚠️  install_ceres_v1 not implemented yet"
+    return 1
 }
 
+# @brief Install Ceres Solver v2 (non-linear optimization library)
+# @return 0 on success
+# @example install_ceres_v2
+# @category robotics
 install_ceres_v2() {
-
+    echo "⚠️  install_ceres_v2 not implemented yet"
+    return 1
 }
 
+# @brief Install essential robotics development dependencies
+# @return 0 on success
+# @example install_robotics_deps
+# @category robotics
 install_robotics_deps() {
         sudo apt install -y libopenblas-dev libsuitesparse-dev
 }

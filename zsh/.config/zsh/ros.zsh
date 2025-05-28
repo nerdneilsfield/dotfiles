@@ -17,6 +17,10 @@ alias colbp="colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -G Nin
 
 #alias init_ros="source /opt/ros/melodic/setup.zsh"
 
+# @brief Install ROS2 Humble desktop full distribution
+# @return 0 on success
+# @example install_ros2
+# @category ros
 install_ros2(){
 	sudo apt install -y software-properties-common
 	sudo add-apt-repository universe
@@ -28,6 +32,10 @@ install_ros2(){
 }
 
 
+# @brief Initialize ROS1 environment based on Ubuntu version
+# @return 0 on success
+# @example init_ros
+# @category ros
 init_ros() { 
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	case $CODENAME in
@@ -46,6 +54,10 @@ init_ros() {
 	esac
 }
 
+# @brief Initialize ROS2 environment based on Ubuntu version
+# @return 0 on success
+# @example init_ros2
+# @category ros
 init_ros2() { 
 	CODENAME=$(lsb_release -c | awk '{print $2}')
 	case $CODENAME in
@@ -67,10 +79,18 @@ init_ros2() {
 	esac
 }
 
+# @brief Initialize current ROS1 workspace
+# @return 0 on success
+# @example init_current_ros
+# @category ros
 init_current_ros() {
 	source devel/setup.zsh
 }
 
+# @brief Initialize current ROS2 workspace
+# @return 0 on success
+# @example init_current_ros2
+# @category ros
 init_current_ros2() {
 	source install/setup.zsh
 }

@@ -119,8 +119,8 @@ alias j='z'
 # macos only
 alias refresh-dns='sudo killall -HUP mDNSResponder'
 
-alias setpx="setproxy"
-alias unsetpx="unsetproxy"
+alias setpx="proxy_enable"
+alias unsetpx="proxy_disable"
 
 # trans
 alias trans_zh="trans -to \"zh-CN\" -text"

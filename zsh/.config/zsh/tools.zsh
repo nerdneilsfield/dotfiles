@@ -187,14 +187,28 @@ source "${ZSH_CONF_DIR}/fzf/key-bindings.zsh"
 # # alias cdf="cd $(ls | fzf)"
 # alias vif="nvim $(fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build} --type f)"
 
+# @brief Execute command from shell history using fzf
+# @return 0 on success
+# @example fh
+# @category tools
 fh() {
   eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
 }
 
+# @brief Query cheat.sh for command help
+# @param $1 Language or tool name
+# @param $2 Topic or function
+# @return 0 on success
+# @example chtsh python list
+# @category tools
 chtsh() {
   curl cht.sh/$1/$2
 }
 
+# @brief Install Tmux Plugin Manager
+# @return 0 on success
+# @example install_tpm
+# @category tools
 install_tpm(){
   mkdir -p $HOME/.tmux/plugins
   if [[ -d $HOME/.tmux/plugins/tpm ]]; then
@@ -209,11 +223,19 @@ install_tpm(){
   fi
 }
 
+# @brief Install neofetch system information tool
+# @return 0 on success
+# @example install_neofetch
+# @category tools
 install_neofetch() {
   wget -O ~/.local/bin/neofetch "https://github.com/dylanaraps/neofetch/raw/master/neofetch"
   chmod +x ~/.local/bin/neofetch
 }
 
+# @brief Install fastfetch system information tool from source
+# @return 0 on success
+# @example install_fastfetch
+# @category tools
 install_fastfetch() {
   green_echo "======================================"
   green_echo "=========Install fastfetch========"
@@ -240,10 +262,24 @@ install_fastfetch() {
 }
 
 
+# @brief Install GitHub CLI tool intelligently
+# @return 0 on success
+# @example install_gh
+# @category tools
 install_gh(){
-  green_echo "======================================"
-  green_echo "=========Install gh========"
-  green_echo "======================================"
+    echo "🚀 智能安装 GitHub CLI..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool gh
+        return $?
+    fi
+    
+    # 回退到传统方法
+    echo "⚠️  智能安装系统未加载，使用传统方法..."
+    green_echo "======================================"
+    green_echo "=========Install gh========"
+    green_echo "======================================"
   local _gh_version=$(GetLatestReleaseProxy "cli/cli")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
@@ -263,10 +299,24 @@ install_gh(){
   sudo cp $HOME/.local/bin/gh /usr/local/bin/gh
 }
 
+# @brief Install fzf fuzzy finder intelligently
+# @return 0 on success
+# @example install_fzf
+# @category tools
 install_fzf(){
-  green_echo "======================================"
-  green_echo "=========Install fzf========"
-  green_echo "======================================"
+    echo "🚀 智能安装 fzf..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool fzf
+        return $?
+    fi
+    
+    # 回退到传统方法
+    echo "⚠️  智能安装系统未加载，使用传统方法..."
+    green_echo "======================================"
+    green_echo "=========Install fzf========"
+    green_echo "======================================"
   local _fzf_version=$(GetLatestReleaseProxy "junegunn/fzf")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
@@ -284,10 +334,24 @@ install_fzf(){
   sudo cp $HOME/.local/bin/fzf /usr/local/bin/fzf
 }
 
+# @brief Install eza modern ls replacement intelligently
+# @return 0 on success
+# @example install_eza
+# @category tools
 install_eza(){
-  green_echo "======================================"
-  green_echo "=========Install eza========"
-  green_echo "======================================"
+    echo "🚀 智能安装 eza..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool eza
+        return $?
+    fi
+    
+    # 回退到传统方法
+    echo "⚠️  智能安装系统未加载，使用传统方法..."
+    green_echo "======================================"
+    green_echo "=========Install eza========"
+    green_echo "======================================"
   local _eza_version=$(GetLatestReleaseProxy "eza-community/eza")
   local _arch=$(uname -m)
   local _eza_url="https://ghproxy.dengqi.org/https://github.com/eza-community/eza/releases/download/v${_eza_version}/eza_${_arch}-unknown-linux-gnu.tar.gz"
@@ -300,6 +364,10 @@ install_eza(){
   sudo cp $HOME/.local/bin/eza /usr/local/bin/eza
 }
 
+# @brief Install lazygit Git TUI
+# @return 0 on success
+# @example install_lazygit
+# @category tools
 install_lazygit(){
   green_echo "======================================"
   green_echo "=========Install lazygit========"
@@ -316,6 +384,10 @@ install_lazygit(){
   sudo cp $HOME/.local/bin/lazygit /usr/local/bin/lazygit
 }
 
+# @brief Install lazydocker Docker TUI
+# @return 0 on success
+# @example install_lazydocker
+# @category tools
 install_lazydocker(){
   green_echo "======================================"
   green_echo "=========Install lazydocker========"
@@ -332,6 +404,10 @@ install_lazydocker(){
   sudo cp $HOME/.local/bin/lazydocker /usr/local/bin/lazydocker
 }
 
+# @brief Install duf disk usage utility
+# @return 0 on success
+# @example install_duf
+# @category tools
 install_duf(){
   green_echo "======================================"
   green_echo "=========Install duf========"
@@ -351,6 +427,10 @@ install_duf(){
   sudo cp $HOME/.local/bin/duf /usr/local/bin/duf
 }
 
+# @brief Install gdu disk usage analyzer
+# @return 0 on success
+# @example install_gdu
+# @category tools
 install_gdu(){
   green_echo "======================================"
   green_echo "=========Install gdu========"
@@ -370,10 +450,24 @@ install_gdu(){
   sudo cp $HOME/.local/bin/gdu /usr/local/bin/gdu
 }
 
+# @brief Install ripgrep fast text search tool intelligently
+# @return 0 on success
+# @example install_ripgrep
+# @category tools
 install_ripgrep(){
-  green_echo "======================================"
-  green_echo "=========Install ripgrep========"
-  green_echo "======================================"
+    echo "🚀 智能安装 ripgrep..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool ripgrep
+        return $?
+    fi
+    
+    # 回退到传统方法
+    echo "⚠️  智能安装系统未加载，使用传统方法..."
+    green_echo "======================================"
+    green_echo "=========Install ripgrep========"
+    green_echo "======================================"
   local _rg_version=$(GetLatestReleaseProxy "BurntSushi/ripgrep")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
@@ -390,6 +484,10 @@ install_ripgrep(){
   sudo cp $HOME/.local/bin/rg /usr/local/bin/rg
 }
 
+# @brief Install fd fast file finder
+# @return 0 on success
+# @example install_fd
+# @category tools
 install_fd(){
   green_echo "======================================"
   green_echo "=========Install fd========"
@@ -411,6 +509,10 @@ install_fd(){
   sudo cp $HOME/.local/bin/fd /usr/local/bin/fd
 }
 
+# @brief Install mise runtime version manager
+# @return 0 on success
+# @example install_mise
+# @category tools
 install_mise(){
   green_echo "======================================"
   green_echo "=========Install mise========"
@@ -429,6 +531,10 @@ install_mise(){
   ln -sf $HOME/.local/share/mise/bin/mise $HOME/.local/bin/mise
 }
 
+# @brief Install asdf version manager
+# @return 0 on success
+# @example install_asdf
+# @category tools
 install_asdf(){
   green_echo "======================================"
   green_echo "=========Install asdf========"
@@ -445,36 +551,138 @@ install_asdf(){
   fi
 }
 
+# @brief Install Xray proxy tool intelligently
+# @return 0 on success
+# @example install_xray
+# @category tools
 install_xray(){
-  green_echo "======================================"
-  green_echo "=========Install xray========"
-  green_echo "======================================"
-  local _xray_version=$(GetLatestReleaseProxy "XTLS/Xray-core")
-  local _arch=$(get-cpu-arch)
-  local _xray_url="https://ghproxy.dengqi.org/https://github.com/XTLS/Xray-core/releases/download/v${_xray_version}/Xray-linux-${_arch}.zip"
+    echo "🚀 智能安装 Xray..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool xray
+    else
+        # 回退到传统方法
+        echo "⚠️  智能安装系统未加载，使用传统方法..."
+        local _xray_version=$(GetLatestReleaseProxy "XTLS/Xray-core")
+        local _arch=$(get_cpu_arch)
+        local _xray_url="https://ghproxy.dengqi.org/https://github.com/XTLS/Xray-core/releases/download/v${_xray_version}/Xray-linux-${_arch}.zip"
+        
+        mkdir -p /tmp/install
+        cd /tmp/install
+        wget -O xray.zip $_xray_url
+        unzip xray.zip
+        mv xray $HOME/.local/bin/
+        chmod +x $HOME/.local/bin/xray
+        sudo cp $HOME/.local/bin/xray /usr/local/bin/ 2>/dev/null || true
+    fi
 }
 
+# @brief Install sing-box proxy tool intelligently
+# @return 0 on success
+# @example install_sing_box
+# @category tools
 install_sing_box(){
-  green_echo "======================================"
-  green_echo "=========Install sing-box========"
-  green_echo "======================================"
-  local _sing_box_version=$(GetLatestReleaseProxy "SagerNet/sing-box")
-  local _arch=$(get-cpu-arch)
-  local _sing_box_url="https://ghproxy.dengqi.org/https://github.com/SagerNet/sing-box/releases/download/v${_sing_box_version}/sing-box-${_arch}.tar.gz"
+    echo "🚀 智能安装 sing-box..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool sing-box
+    else
+        # 回退到传统方法
+        echo "⚠️  智能安装系统未加载，使用传统方法..."
+        local _sing_box_version=$(GetLatestReleaseProxy "SagerNet/sing-box")
+        local _arch=$(get_cpu_arch)
+        local _sing_box_url="https://ghproxy.dengqi.org/https://github.com/SagerNet/sing-box/releases/download/v${_sing_box_version}/sing-box-${_arch}.tar.gz"
+        
+        mkdir -p /tmp/install
+        cd /tmp/install
+        wget -O sing-box.tar.gz $_sing_box_url
+        tar -xzf sing-box.tar.gz
+        mv sing-box $HOME/.local/bin/
+        chmod +x $HOME/.local/bin/sing-box
+        sudo cp $HOME/.local/bin/sing-box /usr/local/bin/ 2>/dev/null || true
+    fi
 }
 
+# @brief Install mihomo (Clash Meta) proxy tool intelligently
+# @return 0 on success
+# @example install_mihomo
+# @category tools
 install_mihomo(){
-  green_echo "======================================"
-  green_echo "=========Install mihomo========"
-  green_echo "======================================"
-  local _mihomo_version=$(GetLatestReleaseProxy "MaaAssistantArknights/MaaAssistant")
-  local _arch=$(get-cpu-arch)
-  local _mihomo_url="https://ghproxy.dengqi.org/https://github.com/MaaAssistantArknights/MaaAssistant/releases/download/v${_mihomo_version}/MaaAssistant.tar.gz"
-  
-  
+    echo "🚀 智能安装 mihomo (Clash Meta)..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool mihomo
+    else
+        # 回退到传统方法
+        echo "⚠️  智能安装系统未加载，使用传统方法..."
+        local _mihomo_version=$(GetLatestReleaseProxy "MetaCubeX/mihomo")
+        local _arch=$(get_cpu_arch)
+        local _mihomo_url="https://ghproxy.dengqi.org/https://github.com/MetaCubeX/mihomo/releases/download/v${_mihomo_version}/mihomo-linux-${_arch}-v${_mihomo_version}.gz"
+        
+        mkdir -p /tmp/install
+        cd /tmp/install
+        wget -O mihomo.gz $_mihomo_url
+        gunzip mihomo.gz
+        mv mihomo $HOME/.local/bin/
+        chmod +x $HOME/.local/bin/mihomo
+        sudo cp $HOME/.local/bin/mihomo /usr/local/bin/ 2>/dev/null || true
+    fi
 }
 
-install_modertools_release(){
+##
+# @brief 批量安装现代命令行工具
+# @description 智能安装一套现代化的命令行工具：fzf、ripgrep、fd、bat、eza、lazygit、gh、yazi、bottom
+# @return 0 安装完成
+# @example install_batch_modern
+# @category install
+##
+install_batch_modern(){
+    echo "🚀 智能批量安装现代命令行工具..."
+    
+    local modern_tools=(
+        "fzf"
+        "ripgrep"
+        "fd" 
+        "bat"
+        "eza"
+        "lazygit"
+        "gh"
+        "yazi"
+        "bottom"
+    )
+    
+    for tool in "${modern_tools[@]}"; do
+        echo ""
+        echo "📦 安装 $tool..."
+        if command -v install_smart_tool >/dev/null 2>&1; then
+            install_smart_tool "$tool"
+        else
+            echo "⚠️  智能安装系统不可用，使用传统方法"
+            case "$tool" in
+                "fzf") install_fzf ;;
+                "ripgrep") install_ripgrep ;;
+                "fd") install_fd ;;
+                "eza") install_eza ;;
+                "lazygit") install_lazygit ;;
+                "gh") install_gh ;;
+                *) echo "❌ 无法安装 $tool" ;;
+            esac
+        fi
+    done
+    
+    echo ""
+    echo "✅ 现代工具安装完成！"
+}
+
+# 传统批量安装 (保持向后兼容)
+# @brief Install batch of essential CLI tools via releases
+# @return 0 on success
+# @example install_batch_release
+# @category tools
+install_batch_release(){
   install_gh
   install_fzf
   install_eza
@@ -486,6 +694,84 @@ install_modertools_release(){
   install_fd
 }
 
+# @brief Install modern tools via Rust package manager
+# @return 0 on success
+# @example install_modern_tools_rust
+# @category tools
+install_modern_tools_rust() {
+    echo "🦀 安装现代 Rust 工具..."
+    
+    local rust_tools=(
+        "bat"
+        "ripgrep"
+        "fd-find"
+        "eza"
+        "bottom"
+        "dust"
+        "procs"
+        "sd"
+        "tokei"
+        "hyperfine"
+        "delta"
+        "tealdeer"
+        "zoxide"
+        "starship"
+    )
+    
+    for tool in "${rust_tools[@]}"; do
+        echo "📦 安装 $tool..."
+        if command -v install_smart_tool >/dev/null 2>&1; then
+            install_smart_tool "$tool"
+        else
+            cargo install "$tool" 2>/dev/null || echo "❌ 无法通过 Cargo 安装 $tool"
+        fi
+    done
+    
+    echo "✅ Rust 工具安装完成！"
+}
+
+# @brief Install development tools collection
+# @return 0 on success
+# @example install_dev_tools
+# @category tools
+install_dev_tools() {
+    echo "🛠️ 安装开发工具集..."
+    
+    local dev_tools=(
+        "git"
+        "curl"
+        "wget"
+        "jq"
+        "tmux"
+        "tree"
+        "htop"
+        "vim"
+        "rsync"
+    )
+    
+    for tool in "${dev_tools[@]}"; do
+        echo "📦 安装 $tool..."
+        if command -v install_smart_tool >/dev/null 2>&1; then
+            install_smart_tool "$tool"
+        else
+            echo "⚠️ 请手动安装 $tool"
+        fi
+    done
+    
+    echo "✅ 开发工具安装完成！"
+}
+
+# 向后兼容别名 (统一命名规范)
+alias install_modertools_smart="install_batch_modern"
+alias install_modertools_release="install_batch_release"
+alias install_modertools_rust="install_modern_tools_rust"
+alias install_modertools_python="install_modern_tools_python"
+alias install_modertools_go="install_modern_tools_go"
+
+# @brief Install code-server (VS Code in browser) on Ubuntu
+# @return 0 on success
+# @example install_code_server_ubuntu
+# @category tools
 install_code_server_ubuntu(){
   green_echo "======================================"
   green_echo "=========Install code-server========"
@@ -504,67 +790,12 @@ install_code_server_ubuntu(){
   cd -
 }
 
-install_modertools_rust() {
-  # cargo install cargo-quickinstall
-  local _tools=(
-    "tokei"
-    "boringtun-cli"
-    "hyperfine"
-    # "mdbook"
-    "navi"
-    "czkawka_cli" # duplicate file finder
-    "broot"
-    "xsv"
-    # "gping"
-    "hexyl" # a hex viewer in command line
-    "ffsend"
-    "onefetch"
-    "mdbook"
-    "rustscan"
-    # "lemmeknow"
-    "xcp" # better cp
-    "choose" # cut and awk
-    "xh" # an alternative to httpie
-    "mdcat" # cat for makrdown
-    "rm-improved" # safe rm
-    "just" # build system
-    "grex" # regex generator
-    # "helix" # a better editor
-    "bandwhich" # network bandwith monitor
-    # "dog" # a dns client
-    "bottom"
-    "git-cliff" # git-cliff
-    "miniserve" # mini http server
-    "pastel" # color manager
-    "monolith" # save html file to one file
-    "tealdeer" # a fast tldr
-    "sd" # sed alternative
-    "bat"
-    "procs"
-    "yazi"
-    "inlyne"
-    "killport"
-    "himalaya"
-    "dprint"
-    "fselect"
-    "trippy"
-    "hck"
-    "aichat"
-    "typos-cli"
-    "ast-grep"
-    "du-dust" # gdu alternative
-    "dua-cli" # df alternative
-  )
 
-  for local _rust_tool in $_tools; do
-    green_echo "-----------------------------"
-    green_echo "------install ${_rust_tool}------"
-    cargo_install $_rust_tool
-    green_echo "-----------------------------"
-  done
-}
-
-install_modertools_python() {
+# @brief Install modern Python-based command line tools (legacy name)
+# @return 0 on success
+# @example install_modertools_python
+# @category tools
+install_modern_tools_python() {
   # python3 -m pip install -U pip
   local _python_tools=(
     "glances"
@@ -580,7 +811,11 @@ install_modertools_python() {
   done
 }
 
-install_modertools_go() {
+# @brief Install modern Go-based command line tools (legacy name)
+# @return 0 on success
+# @example install_modertools_go
+# @category tools
+install_modern_tools_go() {
   echo "======================================"
   echo "=========Install Modertools Go========"
   echo "======================================"
@@ -600,34 +835,152 @@ install_modertools_go() {
   done
 }
 
-install_modertools_local() {
+# @brief Install all modern tools from local compilation
+# @return 0 on success
+# @example install_modern_tools_local
+# @category tools
+install_modern_tools_local() {
   install_neofetch
-  install_modertools_rust
-  install_modertools_python
-  install_modertools_go
-  install_modertools_jq
+  install_modern_tools_rust
+  install_modern_tools_python
+  install_modern_tools_go
+  install_jq_from_source
 }
 
-install_modertools_local_by_download(){
-  
+# @brief Install modern tools via binary downloads with architecture fallback
+# @return 0 on success
+# @example install_modern_tools_by_download
+# @category tools
+install_modern_tools_by_download(){
+    echo "📞 智能下载安装现代工具..."
+    
+    # 定义工具和它们的下载模式
+    declare -A tool_patterns=(
+        ["ripgrep"]="BurntSushi/ripgrep|ripgrep-{VERSION}-{ARCH}-unknown-linux-musl.tar.gz"
+        ["fd"]="sharkdp/fd|fd-v{VERSION}-{ARCH}-unknown-linux-gnu.tar.gz"
+        ["eza"]="eza-community/eza|eza_{ARCH}-unknown-linux-gnu.tar.gz"
+        ["bat"]="sharkdp/bat|bat-v{VERSION}-{ARCH}-unknown-linux-musl.tar.gz"
+        ["fzf"]="junegunn/fzf|fzf-{VERSION}-linux_{ARCH}.tar.gz"
+        ["lazygit"]="jesseduffield/lazygit|lazygit_{VERSION}_Linux_{ARCH}.tar.gz"
+        ["gh"]="cli/cli|gh_{VERSION}_linux_{ARCH}.tar.gz"
+    )
+    
+    local success_count=0
+    local total_count=${#tool_patterns[@]}
+    
+    # 检查是否有智能下载函数
+    if ! command -v smart_download_tool >/dev/null 2>&1; then
+        echo "❌ 智能下载系统不可用，请先加载 utils.zsh"
+        return 1
+    fi
+    
+    for tool_info in "${tool_patterns[@]}"; do
+        local repo="${tool_info%|*}"
+        local pattern="${tool_info#*|}"
+        local tool_name="${repo#*/}"
+        
+        echo ""
+        echo "🚀 安装 $tool_name..."
+        
+        # 获取最新版本
+        local version
+        if command -v GetLatestReleaseProxy >/dev/null 2>&1; then
+            version=$(GetLatestReleaseProxy "$repo")
+        else
+            echo "⚠️  无法获取最新版本，跳过 $tool_name"
+            continue
+        fi
+        
+        if [[ -z "$version" ]]; then
+            echo "⚠️  获取 $tool_name 版本失败，跳过"
+            continue
+        fi
+        
+        # 使用智能下载
+        if smart_download_tool "$tool_name" "$repo" "$version" "$pattern" "/tmp/install_modern"; then
+            echo "✅ $tool_name 下载成功"
+            ((success_count++))
+            
+            # 尝试安装二进制文件
+            (
+                cd /tmp/install_modern
+                if [[ -f "${tool_name}.tar.gz" ]]; then
+                    tar -xzf "${tool_name}.tar.gz" 2>/dev/null || true
+                    # 查找可执行文件
+                    local binary_file=$(find . -name "$tool_name" -type f -executable | head -n 1)
+                    if [[ -n "$binary_file" ]]; then
+                        mkdir -p "$HOME/.local/bin"
+                        cp "$binary_file" "$HOME/.local/bin/"
+                        chmod +x "$HOME/.local/bin/$tool_name"
+                        echo "✅ $tool_name 安装到 ~/.local/bin/"
+                    fi
+                fi
+            )
+        else
+            echo "❌ $tool_name 下载失败"
+        fi
+    done
+    
+    echo ""
+    echo "📈 安装结果: $success_count/$total_count 成功"
+    
+    if [[ $success_count -eq $total_count ]]; then
+        echo "✅ 所有工具安装完成！"
+        return 0
+    else
+        echo "⚠️  部分工具安装失败"
+        return 1
+    fi
 }
 
-install_modertools_jq() {
-  local jq_dir="${HOME}/Source/app/jq"
-  mkdir -p  $jq_dir 
-	if [ ! -d "$jq_dir" ]; then
-		git clone --depth 1 --recursive https://github.com/neovim/neovim.git $jq_dir
-	fi
-  cd $jq_dir
-  git pull origin
-  make clean
-  make distclean
-  autoreconf -i
-  ./configure --prefix="${HOME}/.local"
-  make -j $(nproc)
-  make install
-  green_echo "----jq installed----"
+# 向后兼容别名
+alias install_modertools_local_by_download="install_modern_tools_by_download"
+
+# @brief Install jq JSON processor from source
+# @return 0 on success
+# @example install_jq_from_source
+# @category tools
+install_jq_from_source() {
+    echo "🚀 智能安装 jq..."
+    
+    # 使用智能安装系统
+    if command -v install_smart_tool >/dev/null 2>&1; then
+        install_smart_tool jq
+        return $?
+    fi
+    
+    # 回退到源码编译
+    echo "⚠️  智能安装系统未加载，从源码编译..."
+    local jq_dir="${HOME}/Source/app/jq"
+    mkdir -p "$jq_dir"
+    
+    if [ ! -d "$jq_dir/.git" ]; then
+        git clone --depth 1 --recursive https://github.com/jqlang/jq.git "$jq_dir"
+    fi
+    
+    cd "$jq_dir"
+    git pull origin main 2>/dev/null || git pull origin master
+    
+    # 清理和构建
+    make clean 2>/dev/null || true
+    make distclean 2>/dev/null || true
+    
+    # 检查依赖
+    if ! command -v autoreconf >/dev/null 2>&1; then
+        echo "❌ 请先安装 autotools: sudo apt install autotools-dev autoconf"
+        return 1
+    fi
+    
+    autoreconf -i
+    ./configure --prefix="${HOME}/.local" --disable-maintainer-mode
+    make -j $(nproc)
+    make install
+    
+    green_echo "✅ jq 安装完成"
 }
+
+# 向后兼容别名
+alias install_modertools_jq="install_jq_from_source"
 
 #=======================
 #=====git diff difft====
@@ -635,6 +988,10 @@ export GIT_EXTERNAL_DIFF=difft
 
 
 # use ip address
+# @brief Show all IPv4 addresses on system
+# @return 0 on success
+# @example show_ipv4_addr
+# @category tools
 show_ipv4_addr() {
   # ip addr | grep -E "192.168" | awk '{print $2}' | cut -d "/" --field 1
   ip addr | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
@@ -645,6 +1002,10 @@ show_ipv4_addr() {
 #   ip addr | grep -E -o "([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)|([0-9a-fA-F]{1,4}:){6}(:[0-9a-fA-F]{1,4}|:)|([0-9a-fA-F]{1,4}:){5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
 # }
 
+# @brief Show all IP addresses (IPv4 and IPv6) on system
+# @return 0 on success
+# @example show_ip_addr
+# @category tools
 show_ip_addr(){
   show_ipv4_addr
   show_ipv6_addr

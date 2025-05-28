@@ -2,10 +2,18 @@
 
 
 # ================== Install Tools =======================
+# @brief Install SystemVerilog Language Server
+# @return 0 on success
+# @example install_svls
+# @category hdl
 install_svls() {
         cargo install svls
 }
 
+# @brief Install Verible SystemVerilog developer tools
+# @return 0 on success, 1 if unsupported platform
+# @example install_verible
+# @category hdl
 install_verible() {
         local _versible_version=$(GetLatestRelease "chipsalliance/verible")
 
@@ -48,16 +56,28 @@ install_verible() {
         echo "====== Install Finish ====="
 }
 
+# @brief Install HDL checker for hardware description languages
+# @return 0 on success
+# @example install_hdl_checker
+# @category hdl
 install_hdl_checker() {
         python3 -m pip install hdl-checker --user --upgrade
 }
 
+# @brief Install complete HDL development toolchain
+# @return 0 on success
+# @example install_hdl_tools
+# @category hdl
 install_hdl_tools() {
         install_svls
         install_verible
         install_hdl_checker
 }
 
+# @brief Install Icarus Verilog simulator from source
+# @return 0 on success
+# @example install_iverilog
+# @category hdl
 install_iverilog() {
         pki gperf flex bison
         git clone --recurse-submodules --depth 1 https://github.com/steveicarus/iverilog.git $HOME/Source/app/iverilog
