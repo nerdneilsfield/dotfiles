@@ -297,6 +297,124 @@ Start-PowerShellCacheWarmup            # 预热缓存
 
 # 工具性能检查
 Get-NavigationStatus                   # 导航工具状态
+```
+
+## 🌟 Phase 2 新功能 (v1.1)
+
+### 🐧 WSL 深度集成
+
+```powershell
+# WSL 发行版管理
+wstart [distro]         # 启动 WSL 发行版
+wstop [distro]          # 停止 WSL 发行版
+wstatus                 # 显示 WSL 状态
+Get-WSLDistros          # 列出所有发行版
+
+# 路径转换
+wpath "C:\Users"        # Windows -> WSL 路径
+wslpath "/home/user"    # WSL -> Windows 路径
+
+# 跨平台文件操作
+Copy-ToWSL -Source "file.txt" -Destination "/home/user/"
+Copy-FromWSL -Source "/home/user/file.txt" -Destination "C:\Temp\"
+
+# 配置同步
+wsync git               # 同步 Git 配置到 WSL
+wsync zsh               # 同步 ZSH 配置到 WSL
+wsync all               # 同步所有配置
+
+# WSL 命令包装器
+wsl-ls, wsl-grep, wsl-find, wsl-vim
+wsl-git, wsl-docker, wsl-kubectl
+```
+
+### 🔍 高级搜索工具集成
+
+```powershell
+# 智能文件查找 (fd 增强)
+find <pattern>          # 智能文件搜索
+find-code <pattern>     # 查找代码文件
+find-config <pattern>   # 查找配置文件
+Find-Files -Type file -Extension "ps1,py,js"  # 高级过滤
+
+# 高级内容搜索 (ripgrep 增强)
+grep <pattern>          # 智能内容搜索
+grep-code <pattern>     # 在代码文件中搜索
+grep-todo               # 查找 TODO/FIXME 注释
+Search-Content -Pattern "error" -Type "ps1" -Context 3
+
+# 模糊搜索 (fzf 集成)
+fgrep <query>           # 模糊内容搜索带预览
+ffd <query>             # 模糊文件搜索带预览
+search                  # 交互式搜索菜单
+
+# 项目分析
+Search-ProjectStructure # 分析项目结构和统计
+```
+
+### 🌿 Git 工具链增强
+
+```powershell
+# Lazygit 集成
+lg                      # 启动 Lazygit
+lgs -GitDir .git        # 指定 Git 目录启动
+
+# GitHub CLI 集成
+pr-create               # 创建 Pull Request
+pr-list                 # 列出 PR (支持 fzf)
+issue-create            # 创建 Issue
+
+# Git 快捷操作
+gco [branch]            # 交互式分支切换
+gst                     # 增强的 Git 状态
+glog                    # 交互式日志查看
+gbr                     # 交互式分支列表
+gclean                  # Git 仓库清理
+
+# Git 工作流
+Start-GitWorkflow -Type feature -Name "new-feature"
+Initialize-GitConfig    # 配置 Git + Delta 集成
+```
+
+### 🧠 智能命令路由系统
+
+```powershell
+# 智能命令替换 (优先使用现代工具)
+sls                     # 智能 ls (eza 优先)
+sfind                   # 智能 find (fd 优先)  
+sgrep                   # 智能 grep (ripgrep 优先)
+scat                    # 智能 cat (bat 优先)
+
+# 项目上下文感知
+srun                    # 智能运行 (npm run, cargo run, etc.)
+stest                   # 智能测试 (npm test, pytest, etc.)
+sbuild                  # 智能构建 (npm build, cargo build, etc.)
+
+# 智能建议系统
+suggest                 # 根据当前目录提供建议
+Get-ProjectContext      # 分析项目类型和工具
+perf                    # 查看命令性能统计
+```
+
+### 🌐 跨平台文件操作
+
+```powershell
+# 统一的文件操作接口
+xmkdir <path>           # 跨平台创建目录
+xcp <src> <dest>        # 跨平台文件复制
+xmv <src> <dest>        # 跨平台文件移动
+xrm <path>              # 跨平台文件删除
+xln <target> <link>     # 跨平台符号链接
+
+# 高级文件管理
+xstat <file>            # 跨平台文件信息
+xchmod <perm> <file>    # 跨平台权限设置
+xdf [path]              # 跨平台磁盘使用情况
+xwhich <command>        # 跨平台命令查找
+
+# 平台信息
+Get-PlatformInfo        # 获取当前平台信息
+ConvertTo-CrossPlatformPath  # 路径格式转换
 Get-ScoopStatus                        # Scoop 工具状态
 Get-CompletionStatus                   # 补全系统状态
 

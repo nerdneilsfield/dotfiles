@@ -207,6 +207,29 @@ Invoke-ConditionalLoad "modules\core\completion.ps1" { $true } "自动补全增�
 # 导航增强
 Invoke-ConditionalLoad "modules\tools\navigation.ps1" { $true } "智能导航"
 
+# Scoop 工具链
+Invoke-ConditionalLoad "modules\tools\scoop.ps1" { 
+    Get-Command scoop -ErrorAction SilentlyContinue 
+} "Scoop 工具链"
+
+# Starship 提示符
+Invoke-ConditionalLoad "modules\tools\starship.ps1" { 
+    Get-Command starship -ErrorAction SilentlyContinue 
+} "Starship 提示符"
+
+# 搜索工具集成
+Invoke-ConditionalLoad "modules\tools\search.ps1" { 
+    (Get-Command fd -ErrorAction SilentlyContinue) -or 
+    (Get-Command rg -ErrorAction SilentlyContinue) -or
+    (Get-Command fzf -ErrorAction SilentlyContinue)
+} "高级搜索工具"
+
+# 智能路由系统
+Invoke-ConditionalLoad "modules\core\router.ps1" { $true } "智能命令路由"
+
+# 跨平台操作
+Invoke-ConditionalLoad "modules\core\crossplatform.ps1" { $true } "跨平台文件操作"
+
 # === 私有配置加载 ===
 Write-ProfileLog "加载私有配置"
 
