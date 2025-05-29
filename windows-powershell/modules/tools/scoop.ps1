@@ -152,7 +152,7 @@ function Install-ScoopTool {
         [switch]$NoCache
     )
     
-    if (!(Test-ScoopInstialized)) {
+    if (!(Test-ScoopInitialized)) {
         if (!(Install-Scoop)) {
             return $false
         }
@@ -579,6 +579,6 @@ Set-Alias -Name scoopc -Value Clear-ScoopCache
 Set-Alias -Name scoopst -Value Get-ScoopStatus
 Set-Alias -Name scoopinfo -Value Show-ScoopToolInfo
 
-Write-ProfileLog "Scoop 工具链包装器加载完成" -Level "DEBUG"
+# Scoop 工具链包装器加载完成
 
 # Note: Functions and aliases are automatically available when dot-sourced

@@ -307,12 +307,17 @@ function New-CrossPlatformSymlink {
             }
         } else {
             # Unix-like 系统
-            $result = & ln -sf $normalizedTarget $normalizedLink
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "🔗 创建符号链接: $normalizedLink -> $normalizedTarget" -ForegroundColor Cyan
-                return $true
+            if (Get-Command ln -ErrorAction SilentlyContinue) {
+                $result = & ln -sf $normalizedTarget $normalizedLink
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "🔗 创建符号链接: $normalizedLink -> $normalizedTarget" -ForegroundColor Cyan
+                    return $true
+                } else {
+                    Write-Error "创建符号链接失败"
+                    return $false
+                }
             } else {
-                Write-Error "创建符号链接失败"
+                Write-Error "ln 命令不可用"
                 return $false
             }
         }
@@ -358,12 +363,14 @@ function Get-CrossPlatformFileInfo {
         # Unix 特有属性
         if (-not $script:IsWindows) {
             try {
-                $statInfo = & stat -c "%a %U %G" $normalizedPath 2>$null
-                if ($LASTEXITCODE -eq 0) {
-                    $parts = $statInfo -split '\s+'
-                    $info.Permissions = $parts[0]
-                    $info.Owner = $parts[1]
-                    $info.Group = $parts[2]
+                if (Get-Command stat -ErrorAction SilentlyContinue) {
+                    $statInfo = & stat -c "%a %U %G" $normalizedPath 2>$null
+                    if ($LASTEXITCODE -eq 0) {
+                        $parts = $statInfo -split '\s+'
+                        $info.Permissions = $parts[0]
+                        $info.Owner = $parts[1]
+                        $info.Group = $parts[2]
+                    }
                 }
             }
             catch {
@@ -423,12 +430,17 @@ function Set-CrossPlatformPermissions {
             }
         } else {
             # Unix-like 系统
-            & chmod $Permissions $normalizedPath
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "🔐 设置权限: $normalizedPath -> $Permissions" -ForegroundColor Yellow
-                return $true
+            if (Get-Command chmod -ErrorAction SilentlyContinue) {
+                & chmod $Permissions $normalizedPath
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "🔐 设置权限: $normalizedPath -> $Permissions" -ForegroundColor Yellow
+                    return $true
+                } else {
+                    Write-Error "设置权限失败"
+                    return $false
+                }
             } else {
-                Write-Error "设置权限失败"
+                Write-Error "chmod 命令不可用"
                 return $false
             }
         }
@@ -469,18 +481,20 @@ function Get-CrossPlatformDiskUsage {
             }
         } else {
             # Unix-like 系统使用 df
-            $dfOutput = & df -h $normalizedPath 2>$null | Select-Object -Skip 1
-            if ($LASTEXITCODE -eq 0 -and $dfOutput) {
-                $parts = $dfOutput -split '\s+' | Where-Object { $_ -ne '' }
-                if ($parts.Count -ge 6) {
-                    return @{
-                        Path = $normalizedPath
-                        Filesystem = $parts[0]
-                        TotalSize = $parts[1]
-                        UsedSize = $parts[2]
-                        FreeSize = $parts[3]
-                        UsedPercent = $parts[4] -replace '%', ''
-                        MountPoint = $parts[5]
+            if (Get-Command df -ErrorAction SilentlyContinue) {
+                $dfOutput = & df -h $normalizedPath 2>$null | Select-Object -Skip 1
+                if ($LASTEXITCODE -eq 0 -and $dfOutput) {
+                    $parts = $dfOutput -split '\s+' | Where-Object { $_ -ne '' }
+                    if ($parts.Count -ge 6) {
+                        return @{
+                            Path = $normalizedPath
+                            Filesystem = $parts[0]
+                            TotalSize = $parts[1]
+                            UsedSize = $parts[2]
+                            FreeSize = $parts[3]
+                            UsedPercent = $parts[4] -replace '%', ''
+                            MountPoint = $parts[5]
+                        }
                     }
                 }
             }
