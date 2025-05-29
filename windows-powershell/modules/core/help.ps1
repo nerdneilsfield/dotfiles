@@ -548,11 +548,12 @@ function Get-PWShHelp {
     }
 }
 
-# 别名定义
-Set-Alias -Name help -Value Get-PWShHelp -Force
+# 别名定义（避免与系统 help 冲突）
+Set-Alias -Name pwsh-help -Value Get-PWShHelp -Force
+Set-Alias -Name phelp -Value Get-PWShHelp -Force
 Set-Alias -Name docs -Value Get-PWShHelp -Force
 Set-Alias -Name funcs -Value "Get-PWShHelp functions" -Force
-Set-Alias -Name search -Value "Search-PWShFunctions" -Force
+Set-Alias -Name psearch -Value "Search-PWShFunctions" -Force
 
 # 导出函数
 Export-ModuleMember -Function @(
@@ -563,8 +564,9 @@ Export-ModuleMember -Function @(
     'Show-PWShAliases',
     'Get-PWShHelp'
 ) -Alias @(
-    'help',
+    'pwsh-help',
+    'phelp',
     'docs',
     'funcs',
-    'search'
+    'psearch'
 )

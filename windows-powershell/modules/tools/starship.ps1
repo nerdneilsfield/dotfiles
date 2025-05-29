@@ -619,3 +619,22 @@ if (Test-StarshipInstalled) {
 }
 
 Write-ProfileLog "Starship 模块加载完成" -Level "DEBUG"
+
+# 导出函数和别名
+Export-ModuleMember -Function @(
+    'Test-StarshipInstalled',
+    'Install-Starship',
+    'New-StarshipConfig',
+    'Initialize-Starship',
+    'Get-StarshipStatus',
+    'Test-StarshipConfig',
+    'Edit-StarshipConfig',
+    'Reload-StarshipConfig',
+    'Show-StarshipTemplates'
+) -Alias @(
+    'starship-status',
+    'starship-config',
+    'starship-test',
+    'starship-reload',
+    'starship-templates'
+)

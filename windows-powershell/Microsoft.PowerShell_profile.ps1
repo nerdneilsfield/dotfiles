@@ -37,7 +37,7 @@ function Write-ProfileLog {
 
 Write-ProfileLog "开始加载 PowerShell 配置"
 
-# 智能条件加载函数
+# 智能条件加载函数（性能优化版本）
 function Invoke-ConditionalLoad {
     param(
         [string]$ModulePath,
@@ -45,15 +45,44 @@ function Invoke-ConditionalLoad {
         [string]$Description = ""
     )
     
-    $fullPath = if ([System.IO.Path]::IsPathRooted($ModulePath)) {
-        $ModulePath
-    } else {
-        Join-Path $script:PWSH_CONFIG_DIR $ModulePath
+    # 缓存文件路径计算
+    if (-not $script:PathCache) { $script:PathCache = @{} }
+    
+    if (-not $script:PathCache.ContainsKey($ModulePath)) {
+        $script:PathCache[$ModulePath] = if ([System.IO.Path]::IsPathRooted($ModulePath)) {
+            $ModulePath
+        } else {
+            Join-Path $script:PWSH_CONFIG_DIR $ModulePath
+        }
     }
     
-    if (Test-Path $fullPath) {
+    $fullPath = $script:PathCache[$ModulePath]
+    
+    # 缓存文件存在性检查
+    if (-not $script:FileExistsCache) { $script:FileExistsCache = @{} }
+    
+    if (-not $script:FileExistsCache.ContainsKey($fullPath)) {
+        $script:FileExistsCache[$fullPath] = Test-Path $fullPath
+    }
+    
+    if ($script:FileExistsCache[$fullPath]) {
         try {
-            if (& $Condition) {
+            # 条件检查缓存（对于静态条件）
+            $conditionKey = $Condition.ToString()
+            if (-not $script:ConditionCache) { $script:ConditionCache = @{} }
+            
+            $shouldLoad = $true
+            if ($script:ConditionCache.ContainsKey($conditionKey)) {
+                $shouldLoad = $script:ConditionCache[$conditionKey]
+            } else {
+                $shouldLoad = & $Condition
+                # 只缓存静态条件（不包含命令检查）
+                if ($conditionKey -notmatch "Get-Command") {
+                    $script:ConditionCache[$conditionKey] = $shouldLoad
+                }
+            }
+            
+            if ($shouldLoad) {
                 Write-ProfileLog "加载模块: $Description ($ModulePath)"
                 . $fullPath
                 return $true
@@ -202,6 +231,9 @@ Invoke-ConditionalLoad "modules\core\completion.ps1" { $true } "自动补全增�
 # 帮助系统
 Invoke-ConditionalLoad "modules\core\help.ps1" { $true } "帮助文档系统"
 
+# 设置向导
+Invoke-ConditionalLoad "modules\core\wizard.ps1" { $true } "快速设置向导"
+
 # 导航增强
 Invoke-ConditionalLoad "modules\tools\navigation.ps1" { $true } "智能导航"
 
@@ -269,13 +301,18 @@ if ($script:ProfileLoadTime -gt 500) {
     Write-Host "✅ PowerShell 加载完成 ($($script:ProfileLoadTime.ToString('F0'))ms)" -ForegroundColor Green
 }
 
-# 清理临时变量
+# 清理临时变量和缓存
 Remove-Variable ProfileStartTime, ProfileEndTime -Scope Script -ErrorAction SilentlyContinue
+
+# 清理性能优化缓存（保留条件缓存用于后续重新加载）
+Remove-Variable PathCache, FileExistsCache -Scope Script -ErrorAction SilentlyContinue
 
 # 欢迎信息 (仅在交互式会话中显示)
 if ([Environment]::UserInteractive -and !$env:PWSH_NO_WELCOME) {
     Write-Host "🚀 PowerShell 现代工具链已加载 " -ForegroundColor Cyan -NoNewline
     Write-Host "| 运行 " -ForegroundColor DarkGray -NoNewline
-    Write-Host "help" -ForegroundColor Yellow -NoNewline
+    Write-Host "phelp" -ForegroundColor Yellow -NoNewline
+    Write-Host " 或 " -ForegroundColor DarkGray -NoNewline
+    Write-Host "docs" -ForegroundColor Yellow -NoNewline
     Write-Host " 查看帮助" -ForegroundColor DarkGray
 }

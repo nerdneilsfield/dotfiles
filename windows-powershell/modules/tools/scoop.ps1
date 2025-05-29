@@ -580,3 +580,26 @@ Set-Alias -Name scoopst -Value Get-ScoopStatus
 Set-Alias -Name scoopinfo -Value Show-ScoopToolInfo
 
 Write-ProfileLog "Scoop 工具链包装器加载完成" -Level "DEBUG"
+
+# 导出函数和别名
+Export-ModuleMember -Function @(
+    'Test-ScoopInstalled',
+    'Install-Scoop',
+    'Test-ScoopInitialized',
+    'Add-EssentialBuckets',
+    'Install-ScoopTool',
+    'Search-ScoopPackage',
+    'Show-ScoopToolInfo',
+    'Update-AllScoopTools',
+    'Clear-ScoopCache',
+    'Get-ScoopStatus',
+    'Install-DevEnvironment',
+    'Export-ScoopConfig'
+) -Alias @(
+    'scoopi',
+    'scoops',
+    'scoopu',
+    'scoopc',
+    'scoopst',
+    'scoopinfo'
+)

@@ -510,3 +510,14 @@ if ((Test-ModernNavTools).Eza) {
 }
 
 Write-ProfileLog "现代导航系统加载完成" -Level "DEBUG"
+
+# 导出函数
+Export-ModuleMember -Function @(
+    'Test-ModernNavTools',
+    'Install-NavigationTools',
+    'Initialize-Zoxide',
+    'll', 'la', 'lt', 'lz', 'lr', 'ld', 'lg',
+    'z', 'zi',
+    'fcd', 'fopen', 'fkill', 'fhistory', 'fjump',
+    'Get-NavigationStatus'
+)
