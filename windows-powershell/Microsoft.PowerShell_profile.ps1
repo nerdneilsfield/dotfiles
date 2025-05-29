@@ -4,9 +4,15 @@
 # 性能监控 - 启动时间测量
 $script:ProfileStartTime = Get-Date
 
-# 配置路径 - 使用当前脚本目录
+# 配置路径 - 检测并使用正确的配置目录
 $script:PWSH_SCRIPT_DIR = Split-Path $MyInvocation.MyCommand.Path -Parent
-$script:PWSH_CONFIG_DIR = $script:PWSH_SCRIPT_DIR
+
+# 如果当前脚本在默认 PowerShell 目录，则使用 dotfiles 目录
+if ($script:PWSH_SCRIPT_DIR -like "*Documents\PowerShell*" -or $script:PWSH_SCRIPT_DIR -like "*Documents\WindowsPowerShell*") {
+    $script:PWSH_CONFIG_DIR = "$env:USERPROFILE\.config\powershell"
+} else {
+    $script:PWSH_CONFIG_DIR = $script:PWSH_SCRIPT_DIR
+}
 $script:PWSH_CACHE_DIR = "$env:USERPROFILE\.cache\powershell"
 $script:PWSH_PRIVATE_DIR = "$script:PWSH_CONFIG_DIR\private"
 
