@@ -84,8 +84,9 @@ function Invoke-ConditionalLoad {
             
             if ($shouldLoad) {
                 Write-ProfileLog "加载模块: $Description ($ModulePath)"
-                # 在全局作用域中加载模块
-                Invoke-Expression ". '$fullPath'"
+                # 读取并在当前作用域执行脚本内容
+                $scriptContent = Get-Content $fullPath -Raw
+                Invoke-Expression $scriptContent
                 return $true
             } else {
                 Write-ProfileLog "跳过模块: $Description (条件不满足)"
@@ -143,25 +144,44 @@ function Get-CachedResult {
 # === 核心模块加载 (总是加载) ===
 Write-ProfileLog "加载核心模块"
 
-# 基础配置
-Invoke-ConditionalLoad "modules\core\config.ps1" { $true } "基础配置" | Out-Null
+# 直接加载核心模块（绕过函数作用域问题）
+$moduleList = @(
+    @{Path="modules\core\config.ps1"; Condition={$true}; Name="基础配置"},
+    @{Path="modules\core\aliases.ps1"; Condition={$true}; Name="别名定义"},
+    @{Path="modules\core\functions.ps1"; Condition={$true}; Name="通用函数"}, 
+    @{Path="modules\performance\benchmark.ps1"; Condition={$true}; Name="性能测试工具"}
+)
 
-# 别名定义
-Invoke-ConditionalLoad "modules\core\aliases.ps1" { $true } "别名定义" | Out-Null
-
-# 通用函数
-Invoke-ConditionalLoad "modules\core\functions.ps1" { $true } "通用函数" | Out-Null
-
-# 性能工具
-Invoke-ConditionalLoad "modules\performance\benchmark.ps1" { $true } "性能测试工具" | Out-Null
+foreach ($module in $moduleList) {
+    $fullPath = if ([System.IO.Path]::IsPathRooted($module.Path)) {
+        $module.Path
+    } else {
+        Join-Path $script:PWSH_CONFIG_DIR $module.Path
+    }
+    
+    if ((Test-Path $fullPath) -and (& $module.Condition)) {
+        try {
+            Write-ProfileLog "加载模块: $($module.Name) ($($module.Path))"
+            . $fullPath
+        } catch {
+            Write-ProfileLog "模块加载失败: $($module.Name) - $($_.Exception.Message)" "ERROR"
+        }
+    }
+}
 
 # === 条件加载模块 ===
 Write-ProfileLog "开始条件加载"
 
-# Git 集成 (如果 Git 可用)
-Invoke-ConditionalLoad "modules\tools\git.ps1" { 
-    Get-Command git -ErrorAction SilentlyContinue 
-} "Git 集成" | Out-Null
+# Git 集成 (如果 Git 可用) - 直接加载
+$gitModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\tools\git.ps1"
+if ((Test-Path $gitModulePath) -and (Get-Command git -ErrorAction SilentlyContinue)) {
+    try {
+        Write-ProfileLog "加载模块: Git 集成 (modules\tools\git.ps1)"
+        . $gitModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: Git 集成 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
 # Docker 支持 (如果 Docker 可用)
 Invoke-ConditionalLoad "modules\tools\docker.ps1" { 
@@ -230,7 +250,16 @@ if (Get-Module PSReadLine -ListAvailable) {
 Invoke-ConditionalLoad "modules\core\completion.ps1" { $true } "自动补全增强" | Out-Null
 
 # 帮助系统
-Invoke-ConditionalLoad "modules\core\help.ps1" { $true } "帮助文档系统" | Out-Null
+# 帮助文档系统 - 直接加载
+$helpModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\core\help.ps1"
+if (Test-Path $helpModulePath) {
+    try {
+        Write-ProfileLog "加载模块: 帮助文档系统 (modules\core\help.ps1)"
+        . $helpModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: 帮助文档系统 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
 # 设置向导
 Invoke-ConditionalLoad "modules\core\wizard.ps1" { $true } "快速设置向导" | Out-Null
@@ -238,10 +267,16 @@ Invoke-ConditionalLoad "modules\core\wizard.ps1" { $true } "快速设置向导" 
 # 导航增强
 Invoke-ConditionalLoad "modules\tools\navigation.ps1" { $true } "智能导航" | Out-Null
 
-# Scoop 工具链
-Invoke-ConditionalLoad "modules\tools\scoop.ps1" { 
-    Get-Command scoop -ErrorAction SilentlyContinue 
-} "Scoop 工具链" | Out-Null
+# Scoop 工具链 - 直接加载
+$scoopModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\tools\scoop.ps1"
+if ((Test-Path $scoopModulePath) -and (Get-Command scoop -ErrorAction SilentlyContinue)) {
+    try {
+        Write-ProfileLog "加载模块: Scoop 工具链 (modules\tools\scoop.ps1)"
+        . $scoopModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: Scoop 工具链 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
 # Starship 提示符
 Invoke-ConditionalLoad "modules\tools\starship.ps1" { 
