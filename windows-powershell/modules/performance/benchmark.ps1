@@ -384,3 +384,21 @@ Set-Alias pwsh-clear Clear-PowerShellCache
 Set-Alias pwsh-warmup Start-PowerShellCacheWarmup
 Set-Alias pwsh-tips Get-PowerShellOptimizationTips
 Set-Alias pwsh-test Test-PowerShellPerformance
+
+# 导出函数和别名
+Export-ModuleMember -Function @(
+    'Measure-PowerShellStartup',
+    'Clear-PowerShellCache',
+    'Show-PowerShellCacheStatus',
+    'Start-PowerShellCacheWarmup',
+    'Measure-ModuleLoadTime',
+    'Get-PowerShellOptimizationTips',
+    'Test-PowerShellPerformance'
+) -Alias @(
+    'pwsh-bench',
+    'pwsh-cache', 
+    'pwsh-clear',
+    'pwsh-warmup',
+    'pwsh-tips',
+    'pwsh-test'
+)
