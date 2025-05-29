@@ -874,87 +874,120 @@ install_modern_tools_local() {
 }
 
 # @brief Install modern tools via binary downloads with architecture fallback
+# @param $1 Optional target installation prefix (e.g., /usr/local, $HOME/.local). Defaults to $HOME/.local.
 # @return 0 on success
 # @example install_modern_tools_by_download
+# @example install_modern_tools_by_download /usr/local
 # @category tools
 install_modern_tools_by_download(){
-    echo "📞 智能下载安装现代工具..."
+    local requested_install_prefix="${1:-$HOME/.local}" # Use provided prefix or default to $HOME/.local
+    echo "📞 智能下载安装现代工具 (学习模式) 到 '$requested_install_prefix'..." >&2
     
-    # 定义工具和它们的下载模式
-    declare -A tool_patterns=(
-        ["ripgrep"]="BurntSushi/ripgrep|ripgrep-{VERSION}-{ARCH}-unknown-linux-musl.tar.gz"
-        ["fd"]="sharkdp/fd|fd-v{VERSION}-{ARCH}-unknown-linux-gnu.tar.gz"
-        ["eza"]="eza-community/eza|eza_{ARCH}-unknown-linux-gnu.tar.gz"
-        ["bat"]="sharkdp/bat|bat-v{VERSION}-{ARCH}-unknown-linux-musl.tar.gz"
-        ["fzf"]="junegunn/fzf|fzf-{VERSION}-linux_{ARCH}.tar.gz"
-        ["lazygit"]="jesseduffield/lazygit|lazygit_{VERSION}_Linux_{ARCH}.tar.gz"
-        ["gh"]="cli/cli|gh_{VERSION}_linux_{ARCH}.tar.gz"
+    # 定义工具和它们的下载模式 或 示例URL
+    declare -A tool_entries=(
+        ["ripgrep"]="BurntSushi/ripgrep|https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz"
+        ["fd"]="sharkdp/fd|https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz"
+        ["eza"]="eza-community/eza|https://github.com/eza-community/eza/releases/download/v0.21.3/eza_x86_64-unknown-linux-gnu.tar.gz" # No {VERSION} in pattern
+        ["bat"]="sharkdp/bat|https://github.com/sharkdp/bat/releases/download/v0.25.0/bat-v0.25.0-x86_64-unknown-linux-gnu.tar.gz"
+        ["fzf"]="junegunn/fzf|https://github.com/junegunn/fzf/releases/download/v0.62.0/fzf-0.62.0-linux_amd64.tar.gz"
+        ["lazygit"]="jesseduffield/lazygit|https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz"
+        ["gh"]="cli/cli|https://github.com/cli/cli/releases/download/v2.73.0/gh_2.73.0_linux_amd64.tar.gz"
+        ["duf"]="muesli/duf|https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz"
+        ["dust"]="bootandy/dust|https://github.com/bootandy/dust/releases/download/v1.2.0/dust-v1.2.0-x86_64-unknown-linux-gnu.tar.gz"
+        ["gdu"]="dundee/gdu|https://github.com/dundee/gdu/releases/download/v5.30.1/gdu_linux_amd64.tgz"
+        ["procs"]="dalance/procs|https://github.com/dalance/procs/releases/download/v0.14.0/procs-v0.14.0-x86_64-linux.tar.gz"
+        ["sd"]="chmln/sd|https://github.com/chmln/sd/releases/download/v0.9.0/sd-v0.9.0-x86_64-unknown-linux-gnu.tar.gz"
+        # ["tokei"]="XAMPPRocky/tokei|https://github.com/XAMPPRocky/tokei/releases/download/v14.1.0/tokei-x86_64-unknown-linux-gnu.tar.gz"
+        ["hyperfine"]="sharkdp/hyperfine|https://github.com/sharkdp/hyperfine/releases/download/v1.17.0/hyperfine-v1.17.0-x86_64-unknown-linux-gnu.tar.gz"
+        ["delta"]="dandavison/delta|https://github.com/dandavison/delta/releases/download/0.20.1/delta-0.20.1-x86_64-unknown-linux-gnu.tar.gz"
+        ["tealdeer"]="dbrgn/tealdeer|https://github.com/dbrgn/tealdeer/releases/download/v1.8.0/tealdeer-v1.8.0-x86_64-unknown-linux-gnu.tar.gz"
+        # Example of a tool where the version is part of the asset name in a non-standard way or URL provides it directly
+        # ["another-tool"]="another/repo|https://example.com/another-tool-stable-x86_64.zip" 
     )
     
     local success_count=0
-    local total_count=${#tool_patterns[@]}
-    
-    # 检查是否有智能下载函数
-    if ! command -v smart_download_tool >/dev/null 2>&1; then
-        echo "❌ 智能下载系统不可用，请先加载 utils.zsh"
+    local total_count=${#tool_entries[@]}
+    local func_name="install_modern_tools_by_download"
+
+    if ! command -v smart_download_tool >/dev/null 2>&1 || \
+       ! command -v extract_download_pattern >/dev/null 2>&1 || \
+       ! command -v GetLatestReleaseProxy >/dev/null 2>&1; then # Assuming GetLatestReleaseProxy is preferred or available
+        echo "❌ $func_name: 关键辅助函数 (smart_download_tool, extract_download_pattern, GetLatestReleaseProxy) 未找到。请确保 utils.zsh 已加载。" >&2
         return 1
     fi
     
-    for tool_info in "${tool_patterns[@]}"; do
-        local repo="${tool_info%|*}"
-        local pattern="${tool_info#*|}"
-        local tool_name="${repo#*/}"
+    local tool_key
+    local version # Declare version local to the loop
+    for tool_key in ${(k)tool_entries}; do
+        local entry_value="${tool_entries[$tool_key]}"
+        local repo="${entry_value%%|*}" # owner/repo
+        local pattern_or_url="${entry_value#*|}"
         
-        echo ""
-        echo "🚀 安装 $tool_name..."
+        # Infer tool_name from repo string (e.g., "BurntSushi/ripgrep" -> "ripgrep")
+        # Or use the tool_key if repo parsing is tricky (e.g. if repo is not owner/repo)
+        local tool_name_from_repo="${repo#*/}" 
+        local tool_name_to_use="${tool_name_from_repo:-$tool_key}"
+
+        echo "" >&2
+        echo "🚀 处理工具: $tool_name_to_use (Key: $tool_key, Repo: $repo)" >&2
         
-        # 获取最新版本
-        local version
-        if command -v GetLatestReleaseProxy >/dev/null 2>&1; then
-            version=$(GetLatestReleaseWithRetryProxy "$repo")
+        local asset_pattern="$pattern_or_url" # Default to this if not a URL
+        local example_tag_from_url_path=""
+
+        if [[ "$pattern_or_url" == "https://"* || "$pattern_or_url" == "http://"* ]]; then
+            echo "ℹ️ 检测到示例 URL，尝试从中学习模式: $pattern_or_url" >&2
+            # Extract the example tag from the example URL's path
+            local dir_name_from_example_url
+            dir_name_from_example_url=$(dirname "$pattern_or_url")
+            if [[ "$dir_name_from_example_url" != "." && "$dir_name_from_example_url" != "/" ]]; then
+                example_tag_from_url_path=$(basename "$dir_name_from_example_url")
+            fi
+            
+            asset_pattern=$(extract_download_pattern "$pattern_or_url")
+            if [[ $? -ne 0 || -z "$asset_pattern" ]]; then
+                echo "❌ $func_name: 无法从示例 URL 为 $tool_name_to_use 提取下载模式。跳过。" >&2
+                continue
+            fi
+            echo "✅ 从 URL 学到的模式: $asset_pattern" >&2
+            if [[ -n "$example_tag_from_url_path" ]]; then
+                echo "ℹ️ 从示例 URL 路径中提取的标签: $example_tag_from_url_path" >&2
+            fi
         else
-            echo "⚠️  无法获取最新版本，跳过 $tool_name"
-            continue
+            echo "ℹ️ 使用预定义的资源模式: $asset_pattern" >&2
         fi
+
+        # 获取最新版本号
+        # local version # Moved declaration outside the loop and made local
+        echo "🔄 正在为 $repo 获取最新的 release tag..." >&2
+        version=$(GetLatestReleaseWithRetryProxy "$repo" 2>/dev/null) # Or your preferred version fetching function
         
         if [[ -z "$version" ]]; then
-            echo "⚠️  获取 $tool_name 版本失败，跳过"
+            echo "⚠️  $func_name: 获取 $tool_name_to_use ($repo) 的版本失败。跳过。" >&2
             continue
         fi
+        echo "✅ 获取到版本: $version" >&2
         
-        # 使用智能下载
-        if smart_download_tool "$tool_name" "$repo" "$version" "$pattern" "/tmp/install_modern"; then
-            echo "✅ $tool_name 下载成功"
+        # 使用函数参数提供的或默认的安装前缀
+        local target_install_prefix="$requested_install_prefix" 
+
+        echo "⚙️  准备使用 smart_download_tool 安装 $tool_name_to_use 到 $target_install_prefix" >&2
+        # Pass example_tag_from_url_path to smart_download_tool
+        if smart_download_tool "$tool_name_to_use" "$repo" "$version" "$asset_pattern" "$target_install_prefix" "$example_tag_from_url_path"; then
+            echo "✅ $tool_name_to_use 成功处理完毕。" >&2
             ((success_count++))
-            
-            # 尝试安装二进制文件
-            (
-                cd /tmp/install_modern
-                if [[ -f "${tool_name}.tar.gz" ]]; then
-                    tar -xzf "${tool_name}.tar.gz" 2>/dev/null || true
-                    # 查找可执行文件
-                    local binary_file=$(find . -name "$tool_name" -type f -executable | head -n 1)
-                    if [[ -n "$binary_file" ]]; then
-                        mkdir -p "$HOME/.local/bin"
-                        cp "$binary_file" "$HOME/.local/bin/"
-                        chmod +x "$HOME/.local/bin/$tool_name"
-                        echo "✅ $tool_name 安装到 ~/.local/bin/"
-                    fi
-                fi
-            )
         else
-            echo "❌ $tool_name 下载失败"
+            echo "❌ $tool_name_to_use 处理失败。" >&2
         fi
     done
     
-    echo ""
-    echo "📈 安装结果: $success_count/$total_count 成功"
+    echo "" >&2
+    echo "📈 安装总结: $success_count / $total_count 工具成功处理。" >&2
     
     if [[ $success_count -eq $total_count ]]; then
-        echo "✅ 所有工具安装完成！"
+        echo "✅ 所有选定工具处理完成！" >&2
         return 0
     else
-        echo "⚠️  部分工具安装失败"
+        echo "⚠️  部分工具处理失败。" >&2
         return 1
     fi
 }

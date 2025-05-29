@@ -64,7 +64,8 @@ install_zoxide_from_github() {
     if command -v smart_download_tool >/dev/null 2>&1; then
         # 使用智能下载系统
         smart_download_tool "zoxide" "ajeetdsouza/zoxide" "latest" \
-            "zoxide-{VERSION}-{ARCH}-unknown-linux-musl.tar.gz" "/tmp"
+            "zoxide-{VERSION}-{ARCH}-unknown-linux-musl.tar.gz" "/tmp/zoxide"
+        
         
         if [[ -f "/tmp/zoxide" ]]; then
             mkdir -p "$HOME/.local/bin"
