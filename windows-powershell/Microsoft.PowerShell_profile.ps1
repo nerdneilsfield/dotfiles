@@ -218,10 +218,16 @@ Invoke-ConditionalLoad "modules\tools\rust.ps1" {
 # === 平台特定配置 ===
 Write-ProfileLog "加载平台特定配置"
 
-# WSL 集成 (如果在 WSL 环境中)
-Invoke-ConditionalLoad "modules\platform\wsl.ps1" { 
-    $env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue)
-} "WSL 集成" | Out-Null
+# WSL 集成 - 直接加载
+$wslModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\platform\wsl.ps1"
+if ((Test-Path $wslModulePath) -and ($env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue))) {
+    try {
+        Write-ProfileLog "加载模块: WSL 集成 (modules\platform\wsl.ps1)"
+        . $wslModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: WSL 集成 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
 # === PowerShell 增强 ===
 Write-ProfileLog "加载 PowerShell 增强功能"
@@ -293,22 +299,52 @@ Invoke-ConditionalLoad "modules\tools\search.ps1" {
 # 智能路由系统
 Invoke-ConditionalLoad "modules\core\router.ps1" { $true } "智能命令路由" | Out-Null
 
-# 跨平台操作
-Invoke-ConditionalLoad "modules\core\crossplatform.ps1" { $true } "跨平台文件操作" | Out-Null
+# 跨平台操作 - 直接加载
+$crossplatformModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\core\crossplatform.ps1"
+if (Test-Path $crossplatformModulePath) {
+    try {
+        Write-ProfileLog "加载模块: 跨平台文件操作 (modules\core\crossplatform.ps1)"
+        . $crossplatformModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: 跨平台文件操作 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
 # === Phase 3: 高级工具集成 ===
 Write-ProfileLog "加载 Phase 3 高级工具"
 
-# Windows 功能深度集成
-Invoke-ConditionalLoad "modules\platform\windows.ps1" { 
-    $IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)
-} "Windows 深度功能" | Out-Null
+# Windows 功能深度集成 - 直接加载
+$windowsModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\platform\windows.ps1"
+if ((Test-Path $windowsModulePath) -and ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6))) {
+    try {
+        Write-ProfileLog "加载模块: Windows 深度功能 (modules\platform\windows.ps1)"
+        . $windowsModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: Windows 深度功能 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
-# 系统监控工具
-Invoke-ConditionalLoad "modules\tools\monitoring.ps1" { $true } "系统监控工具" | Out-Null
+# 系统监控工具 - 直接加载
+$monitoringModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\tools\monitoring.ps1"
+if (Test-Path $monitoringModulePath) {
+    try {
+        Write-ProfileLog "加载模块: 系统监控工具 (modules\tools\monitoring.ps1)"
+        . $monitoringModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: 系统监控工具 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
-# 开发环境集成
-Invoke-ConditionalLoad "modules\tools\devenv.ps1" { $true } "开发环境集成" | Out-Null
+# 开发环境集成 - 直接加载
+$devenvModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules\tools\devenv.ps1"
+if (Test-Path $devenvModulePath) {
+    try {
+        Write-ProfileLog "加载模块: 开发环境集成 (modules\tools\devenv.ps1)"
+        . $devenvModulePath
+    } catch {
+        Write-ProfileLog "模块加载失败: 开发环境集成 - $($_.Exception.Message)" "ERROR"
+    }
+}
 
 # === 私有配置加载 ===
 Write-ProfileLog "加载私有配置"
