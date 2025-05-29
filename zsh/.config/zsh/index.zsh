@@ -6,6 +6,7 @@ source "$ZSH_CONF_DIR/config.zsh"
 source "$ZSH_CONF_DIR/completion.zsh"
 source "$ZSH_CONF_DIR/shell.zsh"
 source "$ZSH_CONF_DIR/help.zsh"
+source "$ZSH_CONF_DIR/ai.zsh"
 
 # 智能条件加载 - 只在需要时加载
 _conditional_source() {

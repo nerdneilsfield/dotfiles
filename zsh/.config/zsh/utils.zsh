@@ -1263,23 +1263,70 @@ batch_smart_download_tools() {
             continue
         fi
         
+        echo "meta_json: $meta_json" >&2
         local repo="" example_tag="" asset_filename="" tool_name_to_use=""
-        local cleaned_json_temp="${meta_json#\{}" # Remove leading '{'
-        cleaned_json_temp="${cleaned_json_temp%\}}"  # Remove trailing '}'
-        local cleaned_json="${cleaned_json_temp% }" # Remove potential trailing space from the previous operation.
-        # local cleaned_json="${meta_json#\{"} " cleaned_json="${cleaned_json%\} }" cleaned_json="${cleaned_json% }"
-        local -a pairs; IFS=',' read -r -A pairs <<< "$cleaned_json"
-        for pair in "${pairs[@]}"; do
-            local key val
-            key=$(echo "$pair" | cut -d ":" -f 1 | tr -d '" '); key=${(TRIM)key}
-            val=$(echo "$pair" | cut -d ":" -f 2- | tr -d '" '); val=${(TRIM)val}
-            case "$key" in
-                "repo") repo="$val" ;;
-                "example_tag") example_tag="$val" ;;
-                "asset_filename") asset_filename="$val" ;;
-                "tool_name_guess") tool_name_to_use="$val" ;;
-            esac
-        done
+        
+        # 使用 Python 解析 JSON，更可靠
+        if command -v python3 >/dev/null 2>&1; then
+            # 使用 Python 解析 JSON
+            local python_parse_result
+            python_parse_result=$(python3 -c "
+import json
+import sys
+try:
+    data = json.loads('$meta_json')
+    print(f\"repo:{data.get('repo', '')}\")
+    print(f\"example_tag:{data.get('example_tag', '')}\")
+    print(f\"asset_filename:{data.get('asset_filename', '')}\")
+    print(f\"tool_name_guess:{data.get('tool_name_guess', '')}\")
+except Exception as e:
+    print(f\"ERROR:{e}\", file=sys.stderr)
+    sys.exit(1)
+" 2>/dev/null)
+            local python_rc=$?
+            
+            if [[ $python_rc -eq 0 && -n "$python_parse_result" ]]; then
+                # 解析 Python 输出
+                while IFS= read -r line; do
+                    case "$line" in
+                        repo:*) repo="${line#repo:}" ;;
+                        example_tag:*) example_tag="${line#example_tag:}" ;;
+                        asset_filename:*) asset_filename="${line#asset_filename:}" ;;
+                        tool_name_guess:*) tool_name_to_use="${line#tool_name_guess:}" ;;
+                    esac
+                done <<< "$python_parse_result"
+            else
+                # Python解析失败，回退到简单的字符串解析
+                echo "⚠️  Python JSON解析失败，使用简单解析方法" >&2
+                # 简化的解析方法，去除花括号和引号
+                local cleaned_json="${meta_json//[\{\}\"]/}"
+                local -a pairs; IFS=',' read -rA pairs <<< "$cleaned_json"
+                for pair in "${pairs[@]}"; do
+                    # 去除前后空格
+                    pair="${pair## }"
+                    pair="${pair%% }"
+                    if [[ "$pair" == *:* ]]; then
+                        local key="${pair%%:*}"
+                        local val="${pair#*:}"
+                        # 去除前后空格
+                        key="${key## }"
+                        key="${key%% }"
+                        val="${val## }"
+                        val="${val%% }"
+                        case "$key" in
+                            "repo") repo="$val" ;;
+                            "example_tag") example_tag="$val" ;;
+                            "asset_filename") asset_filename="$val" ;;
+                            "tool_name_guess") tool_name_to_use="$val" ;;
+                        esac
+                    fi
+                done
+            fi
+        else
+            echo "❌ Python3 不可用，无法解析 JSON" >&2
+            failed_tools_list+=("Python3不可用 (URL: $url)")
+            continue
+        fi
 
         if [[ -z "$repo" || "$repo" == "null" || -z "$tool_name_to_use" || "$tool_name_to_use" == "null" || -z "$asset_filename" || "$asset_filename" == "null" ]]; then
             echo "❌ ($func_name) URL $url: 关键元数据不完整/Zsh解析失败。JSON: $meta_json" >&2
