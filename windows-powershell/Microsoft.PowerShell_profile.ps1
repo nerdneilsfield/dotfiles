@@ -168,11 +168,6 @@ Invoke-ConditionalLoad "modules\tools\rust.ps1" {
 # === 平台特定配置 ===
 Write-ProfileLog "加载平台特定配置"
 
-# Windows 特性
-Invoke-ConditionalLoad "modules\platform\windows.ps1" { 
-    $IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)
-} "Windows 特性"
-
 # WSL 集成 (如果在 WSL 环境中)
 Invoke-ConditionalLoad "modules\platform\wsl.ps1" { 
     $env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue)
@@ -204,6 +199,9 @@ if (Get-Module PSReadLine -ListAvailable) {
 # 自动补全增强
 Invoke-ConditionalLoad "modules\core\completion.ps1" { $true } "自动补全增强"
 
+# 帮助系统
+Invoke-ConditionalLoad "modules\core\help.ps1" { $true } "帮助文档系统"
+
 # 导航增强
 Invoke-ConditionalLoad "modules\tools\navigation.ps1" { $true } "智能导航"
 
@@ -229,6 +227,20 @@ Invoke-ConditionalLoad "modules\core\router.ps1" { $true } "智能命令路由"
 
 # 跨平台操作
 Invoke-ConditionalLoad "modules\core\crossplatform.ps1" { $true } "跨平台文件操作"
+
+# === Phase 3: 高级工具集成 ===
+Write-ProfileLog "加载 Phase 3 高级工具"
+
+# Windows 功能深度集成
+Invoke-ConditionalLoad "modules\platform\windows.ps1" { 
+    $IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)
+} "Windows 深度功能"
+
+# 系统监控工具
+Invoke-ConditionalLoad "modules\tools\monitoring.ps1" { $true } "系统监控工具"
+
+# 开发环境集成
+Invoke-ConditionalLoad "modules\tools\devenv.ps1" { $true } "开发环境集成"
 
 # === 私有配置加载 ===
 Write-ProfileLog "加载私有配置"
@@ -262,8 +274,8 @@ Remove-Variable ProfileStartTime, ProfileEndTime -Scope Script -ErrorAction Sile
 
 # 欢迎信息 (仅在交互式会话中显示)
 if ([Environment]::UserInteractive -and !$env:PWSH_NO_WELCOME) {
-    Write-Host "🚀 PowerShell 配置已加载 " -ForegroundColor Cyan -NoNewline
+    Write-Host "🚀 PowerShell 现代工具链已加载 " -ForegroundColor Cyan -NoNewline
     Write-Host "| 运行 " -ForegroundColor DarkGray -NoNewline
-    Write-Host "Get-PWShHelp" -ForegroundColor Yellow -NoNewline
-    Write-Host " 查看可用命令" -ForegroundColor DarkGray
+    Write-Host "help" -ForegroundColor Yellow -NoNewline
+    Write-Host " 查看帮助" -ForegroundColor DarkGray
 }

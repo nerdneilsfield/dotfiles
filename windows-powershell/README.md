@@ -1,6 +1,10 @@
-# PowerShell 配置
+# PowerShell 现代工具链配置
 
-现代化的 PowerShell 配置，具有高性能、模块化设计，参考了 ZSH 的最佳实践，深度集成现代 CLI 工具。
+[![PowerShell](https://img.shields.io/badge/PowerShell-7.x-blue.svg)](https://github.com/PowerShell/PowerShell)
+[![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4.svg)](https://www.microsoft.com/windows)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> 将 PowerShell 配置打造成媲美现代 ZSH 的高效命令行环境，深度集成 Scoop、WSL、Windows 特性和现代 CLI 工具。
 
 ## ✨ 特性
 
