@@ -625,13 +625,4 @@ Set-Alias -Name pwsh-wizard -Value Start-PWShSetupWizard -Force
 Set-Alias -Name quick-fix -Value Invoke-PWShQuickFix -Force
 Set-Alias -Name pwsh-fix -Value Invoke-PWShQuickFix -Force
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Start-PWShSetupWizard',
-    'Invoke-PWShQuickFix'
-) -Alias @(
-    'setup-wizard',
-    'pwsh-wizard', 
-    'quick-fix',
-    'pwsh-fix'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

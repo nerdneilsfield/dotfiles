@@ -302,25 +302,4 @@ Set-Alias -Name netmon -Value Monitor-Network -Force
 Set-Alias -Name dashboard -Value Show-PerformanceDashboard -Force
 Set-Alias -Name perf -Value Show-PerformanceDashboard -Force
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Install-MonitoringTools',
-    'Invoke-ModernTop',
-    'Invoke-ModernPS', 
-    'Invoke-ModernDF',
-    'Invoke-ModernDU',
-    'Get-SystemInfoModern',
-    'Monitor-Network',
-    'Show-PerformanceDashboard'
-) -Alias @(
-    'top',
-    'htop', 
-    'ps',
-    'df',
-    'du',
-    'sysinfo',
-    'neofetch',
-    'netmon',
-    'dashboard',
-    'perf'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

@@ -470,12 +470,4 @@ if (Test-WSLAvailability) {
     Write-Host "⚠️  WSL 不可用，WSL 功能已禁用" -ForegroundColor Yellow
 }
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Test-WSLAvailability', 'Get-WSLDistros', 'Start-WSLDistro', 'Stop-WSLDistro',
-    'Get-WSLStatus', 'Convert-WindowsPath', 'Convert-WSLPath', 'Copy-ToWSL',
-    'Copy-FromWSL', 'Sync-WSLConfig', 'Invoke-WSLCommand',
-    'wsl-ls', 'wsl-grep', 'wsl-find', 'wsl-vim', 'wsl-git', 'wsl-docker', 'wsl-kubectl'
-) -Alias @(
-    'wstart', 'wstop', 'wstatus', 'wpath', 'wslpath', 'wsync'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

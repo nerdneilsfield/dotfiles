@@ -595,10 +595,4 @@ if ($tools.Git -and $tools.Lazygit -and $tools.Delta -and $tools.GitHubCLI) {
     Write-Host "   运行 'Install-DevEnvironment' 安装缺失工具" -ForegroundColor Blue
 }
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Test-GitToolsAvailability', 'Initialize-GitConfig', 'Start-LazyGit', 'Start-LazyGitWith',
-    'New-PullRequest', 'Get-PullRequests', 'New-Issue', 'Get-GitBranches', 'Switch-GitBranch',
-    'Get-GitLog', 'Get-GitStatus', 'Invoke-GitCleanup', 'Start-GitWorkflow',
-    'lg', 'lgs', 'pr-create', 'pr-list', 'issue-create', 'gco', 'gst', 'glog', 'gbr', 'gclean'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

@@ -423,7 +423,7 @@ function Search-ProjectStructure {
     
     # 文件类型统计
     Write-Host "`n📁 文件类型统计:" -ForegroundColor Green
-    if (Test-SearchToolsAvailability).Fd) {
+    if ((Test-SearchToolsAvailability).Fd) {
         & fd . $Path --type f | ForEach-Object { 
             [System.IO.Path]::GetExtension($_) 
         } | Where-Object { $_ } | Group-Object | Sort-Object Count -Descending | Select-Object -First 10 | Format-Table Name, Count -AutoSize
@@ -460,11 +460,4 @@ if ($tools.Fd -and $tools.Ripgrep -and $tools.Fzf) {
     Write-Host "   运行 'Install-DevEnvironment' 安装缺失工具" -ForegroundColor Blue
 }
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Test-SearchToolsAvailability', 'Find-Files', 'Find-CodeFiles', 'Find-ConfigFiles',
-    'Search-Content', 'Search-CodeContent', 'Search-TodoComments',
-    'Invoke-FuzzyGrep', 'Invoke-FuzzyFind', 'Invoke-InteractiveSearch',
-    'Search-ProjectStructure', 'find', 'find-code', 'find-config',
-    'grep', 'grep-code', 'grep-todo', 'fgrep', 'ffd', 'search'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

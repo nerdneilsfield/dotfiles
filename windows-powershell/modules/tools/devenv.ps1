@@ -527,33 +527,4 @@ Set-Alias -Name new-python -Value New-PythonProject -Force
 Set-Alias -Name new-rust -Value New-RustProject -Force
 Set-Alias -Name devcheck -Value Test-DevEnvironment -Force
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Install-VersionManagers',
-    'Install-NodeVersionManager',
-    'Install-PythonVersions',
-    'Install-RustToolchain',
-    'Install-GoVersionManager',
-    'New-ReactProject',
-    'New-PythonProject',
-    'New-RustProject',
-    'Install-ContainerTools',
-    'Test-DevEnvironment',
-    'docker-cleanup',
-    'docker-stats-live',
-    'k',
-    'kgp',
-    'kgs', 
-    'kgd',
-    'kdesc',
-    'klogs'
-) -Alias @(
-    'node-install',
-    'py-install',
-    'rust-install',
-    'go-install',
-    'new-react',
-    'new-python',
-    'new-rust',
-    'devcheck'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

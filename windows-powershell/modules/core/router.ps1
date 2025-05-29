@@ -538,11 +538,4 @@ Write-Host "🧠 智能路由系统已加载" -ForegroundColor Green
 Write-Host "   使用 'suggest' 获取上下文建议" -ForegroundColor Blue
 Write-Host "   使用 's<command>' 智能执行命令" -ForegroundColor Blue
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Get-ToolAvailability', 'Get-ProjectContext', 'Invoke-SmartCommand',
-    'Get-SmartSuggestions', 'Get-CommandPerformance', 'Clear-CommandCache',
-    'smart-ls', 'smart-find', 'smart-grep', 'smart-cat', 'smart-run', 'smart-test', 'smart-build'
-) -Alias @(
-    'sls', 'sfind', 'sgrep', 'scat', 'srun', 'stest', 'sbuild', 'suggest', 'perf'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

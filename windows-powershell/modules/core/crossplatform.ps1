@@ -565,11 +565,4 @@ if ($script:IsWSL) {
     Write-Host "   🐧 WSL 环境检测到" -ForegroundColor Cyan
 }
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Get-PlatformInfo', 'Get-PathSeparator', 'ConvertTo-CrossPlatformPath',
-    'Test-CrossPlatformPath', 'New-CrossPlatformDirectory', 'Copy-CrossPlatformFile',
-    'Move-CrossPlatformFile', 'Remove-CrossPlatformFile', 'New-CrossPlatformSymlink',
-    'Get-CrossPlatformFileInfo', 'Set-CrossPlatformPermissions', 'Get-CrossPlatformDiskUsage',
-    'Find-CrossPlatformExecutable', 'xmkdir', 'xcp', 'xmv', 'xrm', 'xln', 'xstat', 'xchmod', 'xdf', 'xwhich'
-)
+# Note: Functions and aliases are automatically available when dot-sourced

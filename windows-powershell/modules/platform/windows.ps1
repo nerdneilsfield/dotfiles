@@ -385,23 +385,4 @@ Set-Alias -Name wg -Value Search-WingetPackage -Force
 Set-Alias -Name wgi -Value Install-WingetPackage -Force
 Set-Alias -Name wgu -Value Update-WingetPackages -Force
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Get-SystemHealth',
-    'Optimize-WindowsPerformance',
-    'Manage-StartupPrograms',
-    'Clean-SystemCache',
-    'Set-TerminalProfile',
-    'Install-WingetPackage',
-    'Search-WingetPackage',
-    'Update-WingetPackages'
-) -Alias @(
-    'syshealth',
-    'sysopt',
-    'startup',
-    'cleancache',
-    'terminal',
-    'wg',
-    'wgi',
-    'wgu'
-)
+# Note: Functions and aliases are automatically available when dot-sourced
