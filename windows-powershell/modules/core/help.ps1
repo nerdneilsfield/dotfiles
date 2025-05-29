@@ -560,19 +560,5 @@ Set-Alias -Name docs -Value Get-PWShHelp -Force
 Set-Alias -Name funcs -Value Show-PWShFunctionsList -Force
 Set-Alias -Name psearch -Value "Search-PWShFunctions" -Force
 
-# 导出函数
-Export-ModuleMember -Function @(
-    'Show-PWShReadme',
-    'Get-PWShFunctions',
-    'Show-PWShFunctionHelp', 
-    'Search-PWShFunctions',
-    'Show-PWShAliases',
-    'Get-PWShHelp',
-    'Show-PWShFunctionsList'
-) -Alias @(
-    'pwsh-help',
-    'phelp',
-    'docs',
-    'funcs',
-    'psearch'
-)
+# 注意：通过 dot sourcing 加载时，Export-ModuleMember 不生效
+# 函数和别名会自动在全局作用域中可用

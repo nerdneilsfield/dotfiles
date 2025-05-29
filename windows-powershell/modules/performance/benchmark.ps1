@@ -385,20 +385,5 @@ Set-Alias pwsh-warmup Start-PowerShellCacheWarmup
 Set-Alias pwsh-tips Get-PowerShellOptimizationTips
 Set-Alias pwsh-test Test-PowerShellPerformance
 
-# 导出函数和别名
-Export-ModuleMember -Function @(
-    'Measure-PowerShellStartup',
-    'Clear-PowerShellCache',
-    'Show-PowerShellCacheStatus',
-    'Start-PowerShellCacheWarmup',
-    'Measure-ModuleLoadTime',
-    'Get-PowerShellOptimizationTips',
-    'Test-PowerShellPerformance'
-) -Alias @(
-    'pwsh-bench',
-    'pwsh-cache', 
-    'pwsh-clear',
-    'pwsh-warmup',
-    'pwsh-tips',
-    'pwsh-test'
-)
+# 注意：通过 dot sourcing 加载时，Export-ModuleMember 不生效
+# 函数和别名会自动在全局作用域中可用
