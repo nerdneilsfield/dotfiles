@@ -423,12 +423,23 @@ smart_download_tool() {
     
     # 准备URL模式
     local base_url=""
+    local file_pattern=""
+    
     if [ "${version}" == "latest" ]; then
-        base_url="https://github.com/$repo/releases/download/$version"
+        base_url="https://github.com/$repo/releases/download/latest"
+        # 对于latest版本，需要先获取实际版本号
+        local actual_version=$(GetLatestRelease "$repo" 2>/dev/null || echo "latest")
+        if [[ "$actual_version" != "latest" ]]; then
+            actual_version="${actual_version#v}"  # 移除v前缀
+            file_pattern="${pattern//\{VERSION\}/$actual_version}"
+        else
+            # 如果无法获取版本号，使用latest模式
+            file_pattern="${pattern//\{VERSION\}/latest}"
+        fi
     else
         base_url="https://github.com/$repo/releases/download/v$version"
+        file_pattern="${pattern//\{VERSION\}/$version}"
     fi
-    local file_pattern="${pattern//\{VERSION\}/$version}"
     local full_url_pattern="$base_url/$file_pattern"
     local output_file="$output_dir/${tool_name}.tar.gz"
     
