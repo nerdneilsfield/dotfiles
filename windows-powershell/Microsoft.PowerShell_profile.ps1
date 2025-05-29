@@ -84,7 +84,8 @@ function Invoke-ConditionalLoad {
             
             if ($shouldLoad) {
                 Write-ProfileLog "加载模块: $Description ($ModulePath)"
-                . $fullPath
+                # 在全局作用域中加载模块
+                Invoke-Expression ". '$fullPath'"
                 return $true
             } else {
                 Write-ProfileLog "跳过模块: $Description (条件不满足)"
