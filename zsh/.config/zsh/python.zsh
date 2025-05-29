@@ -14,8 +14,8 @@ _get_python_versions() {
     local _cache_time=$(stat -f %m "$_cache_file" 2>/dev/null || stat -c %Y "$_cache_file" 2>/dev/null)
     local _current_time=$(date +%s)
     
-    # 确保时间变量不为空
-    if [[ -n "$_cache_time" && -n "$_current_time" && $((_current_time - _cache_time)) -lt $_cache_ttl ]]; then
+    # 确保时间变量不为空且为数字
+    if [[ -n "$_cache_time" && -n "$_current_time" && "$_cache_time" =~ ^[0-9]+$ && "$_current_time" =~ ^[0-9]+$ && $((_current_time - _cache_time)) -lt $_cache_ttl ]]; then
       # 缓存有效，直接读取
       local _cached_version=$(cat "$_cache_file")
       if [[ -n "$_cached_version" ]]; then

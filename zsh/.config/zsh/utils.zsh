@@ -422,7 +422,7 @@ smart_download_tool() {
     mkdir -p "$output_dir"
     
     # 准备URL模式
-    local base_url = ""
+    local base_url=""
     if [ "${version}" == "latest" ]; then
         base_url="https://github.com/$repo/releases/download/$version"
     else
