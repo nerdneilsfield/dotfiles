@@ -1215,3 +1215,155 @@ alias list-installs="list_install_functions"
 alias test-arch="test_arch_detection"
 alias demo-download="demo_smart_download"
 alias show-arch="show_arch_patterns"
+
+# @brief Batch download and install tools using smart_download_tool from a list of example URLs
+# @param $1 Array of example GitHub Release download URLs
+# @param $2 Optional target installation prefix (e.g., /usr/local, $HOME/.local). Defaults to $HOME/.local.
+# @return 0 if all tools processed successfully, 1 otherwise.
+# @example batch_smart_download_tools "(url1 url2 url3)" "$HOME/.local"
+# @category utils
+batch_smart_download_tools() {
+    # Due to how Zsh handles array arguments, they are passed as separate arguments.
+    # So, $1 is the first URL, $2 is the second, and so on, until the install prefix.
+    # We need to reconstruct the URL array and identify the install prefix.
+    
+    local -a urls_to_process
+    local requested_install_prefix="$HOME/.local" # Default
+    local last_arg_index=$#
+
+    if [[ $# -eq 0 ]]; then
+        echo "❌ batch_smart_download_tools: No URLs provided." >&2
+        return 1
+    fi
+
+    # Check if the last argument looks like a path (potential install_prefix)
+    # This is a heuristic. A more robust way might be a dedicated option or fixed position.
+    if [[ "${(P)last_arg_index}" == "/"* || "${(P)last_arg_index}" == "~"* || "${(P)last_arg_index}" == "$"* ]]; then
+        if [[ $# -gt 1 ]]; then # We have at least one URL and a prefix
+            requested_install_prefix="${(P)last_arg_index}"
+            urls_to_process=("${(@)@[1,last_arg_index-1]}")
+        else # Only one argument, and it looks like a path - assume it's a prefix, no URLs
+             echo "❌ batch_smart_download_tools: Install prefix provided, but no URLs." >&2
+             return 1
+        fi
+    else # Last argument doesn't look like a path, so all arguments are URLs
+        urls_to_process=("${(@)@[1,last_arg_index]}")
+        # requested_install_prefix remains $HOME/.local (default)
+    fi
+
+    if [[ ${#urls_to_process[@]} -eq 0 ]]; then
+        echo "❌ batch_smart_download_tools: No URLs to process after parsing arguments." >&2
+        return 1
+    fi
+    
+    echo "ℹ️ batch_smart_download_tools: Processing ${#urls_to_process[@]} URLs. Install prefix: $requested_install_prefix" >&2
+
+    local success_count=0
+    local total_count=${#urls_to_process[@]}
+    local func_name="batch_smart_download_tools"
+    local -a failed_tools_list=() 
+
+    # Check for helper commands and python scripts (paths need to be correct)
+    local url_meta_extractor_script="${ZDOTDIR:-$HOME/.config}/zsh/python/url_meta_extractor.py"
+    local extract_pattern_script="${ZDOTDIR:-$HOME/.config}/zsh/python/extract_pattern.py"
+
+    if ! command -v smart_download_tool >/dev/null 2>&1 || \
+       ! command -v GetLatestReleaseProxy >/dev/null 2>&1 || \
+       ! command -v python3 >/dev/null 2>&1; then 
+        echo "❌ $func_name: Critical commands (smart_download_tool, GetLatestReleaseProxy, python3) not found." >&2
+        return 1
+    fi
+    if [[ ! -f "$url_meta_extractor_script" ]]; then
+        echo "❌ $func_name: URL meta extractor script not found: $url_meta_extractor_script" >&2
+        return 1
+    fi
+    if [[ ! -f "$extract_pattern_script" ]]; then
+        echo "❌ $func_name: Asset pattern extractor script not found: $extract_pattern_script" >&2
+        return 1
+    fi
+    # _get_all_known_arch_strings should be available from this file already
+
+    for url in "${urls_to_process[@]}"; do
+        echo "" >&2
+        echo "($func_name) 🚀 处理 URL: $url" >&2
+        
+        local meta_json
+        meta_json=$(python3 "$url_meta_extractor_script" "$url")
+        local python_meta_rc=$?
+
+        if [[ $python_meta_rc -ne 0 || -z "$meta_json" ]]; then
+            echo "❌ ($func_name) 从 URL $url 提取元数据失败。" >&2
+            failed_tools_list+=("URL (Meta Extraction Error): $url")
+            continue
+        fi
+        
+        local repo="" example_tag="" asset_filename="" tool_name_to_use=""
+        local cleaned_json="${meta_json#\{"} " cleaned_json="${cleaned_json%\} }" cleaned_json="${cleaned_json% }"
+        local -a pairs; IFS=',' read -r -A pairs <<< "$cleaned_json"
+        for pair in "${pairs[@]}"; do
+            local key val
+            key=$(echo "$pair" | cut -d ":" -f 1 | tr -d '" '); key=${(TRIM)key}
+            val=$(echo "$pair" | cut -d ":" -f 2- | tr -d '" '); val=${(TRIM)val}
+            case "$key" in
+                "repo") repo="$val" ;;
+                "example_tag") example_tag="$val" ;;
+                "asset_filename") asset_filename="$val" ;;
+                "tool_name_guess") tool_name_to_use="$val" ;;
+            esac
+        done
+
+        if [[ -z "$repo" || "$repo" == "null" || -z "$tool_name_to_use" || "$tool_name_to_use" == "null" || -z "$asset_filename" || "$asset_filename" == "null" ]]; then
+            echo "❌ ($func_name) URL $url: 关键元数据不完整/Zsh解析失败。JSON: $meta_json" >&2
+            failed_tools_list+=("元数据解析失败 (URL: $url)")
+            continue
+        fi
+        echo "ℹ️  ($func_name) 提取到 -> Tool: '$tool_name_to_use', Repo: '$repo', Tag (Ex): '$example_tag', Asset: '$asset_filename'" >&2
+
+        local version_bare_from_example="${example_tag#v}"; [[ "$version_bare_from_example" == "v" ]] && version_bare_from_example=""
+        
+        local all_known_archs_str=$(_get_all_known_arch_strings)
+        local known_arch_array=(${(ps: :)all_known_archs_str})
+        local arch_json_parts=(); local arch_item
+        for arch_item in "${known_arch_array[@]}"; do arch_json_parts+=("\"$(echo "$arch_item" | sed 's/"/\\"/g')\""); done
+        local known_arch_strings_json="[$(IFS=,; echo "${arch_json_parts[*]}")]"
+
+        local asset_pattern
+        asset_pattern=$(python3 "$extract_pattern_script" "$asset_filename" "$known_arch_strings_json" "$version_bare_from_example" 2>/tmp/extract_pattern_py_stderr.log)
+        local extract_rc=$?
+
+        if [[ $extract_rc -ne 0 || -z "$asset_pattern" ]]; then
+            echo "❌ ($func_name) '$asset_filename' ($tool_name_to_use): 无法提取下载模式。" >&2
+            failed_tools_list+=("$tool_name_to_use (模式提取失败: $asset_filename)")
+            continue
+        fi
+        echo "✅ ($func_name) 学习到的资源模式: $asset_pattern" >&2
+
+        local latest_version
+        echo "🔄 ($func_name) 正在为 $repo 获取最新 release tag..." >&2
+        latest_version=$(GetLatestReleaseProxy "$repo" 2>/dev/null) # Using GetLatestReleaseProxy as per previous context
+        
+        if [[ -z "$latest_version" ]]; then
+            echo "⚠️  ($func_name) $tool_name_to_use ($repo): 获取版本失败。" >&2
+            failed_tools_list+=("$tool_name_to_use (版本获取失败)")
+            continue
+        fi
+        echo "✅ ($func_name) 获取到最新版本: $latest_version" >&2
+        
+        if smart_download_tool "$tool_name_to_use" "$repo" "$latest_version" "$asset_pattern" "$requested_install_prefix" "$example_tag"; then
+            echo "✅ ($func_name) $tool_name_to_use 成功处理。" >&2
+            ((success_count++))
+        else
+            echo "❌ ($func_name) $tool_name_to_use 处理失败。" >&2
+            failed_tools_list+=("$tool_name_to_use (下载/安装失败)")
+        fi
+    done
+    
+    echo "" >&2
+    echo "📈 ($func_name) 安装总结: $success_count / $total_count 工具成功处理。" >&2
+    if [[ ${#failed_tools_list[@]} -gt 0 ]]; then
+        echo "❌ ($func_name) 以下工具未能成功处理：" >&2
+        for failed_tool_name in "${failed_tools_list[@]}"; do echo "  - $failed_tool_name" >&2; done
+        return 1
+    fi
+    return 0
+}
