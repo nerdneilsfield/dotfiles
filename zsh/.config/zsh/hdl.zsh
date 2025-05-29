@@ -15,7 +15,7 @@ install_svls() {
 # @example install_verible
 # @category hdl
 install_verible() {
-        local _versible_version=$(GetLatestRelease "chipsalliance/verible")
+        local _versible_version=$(GetLatestReleaseWithRetryDirect "chipsalliance/verible")
 
         local _base_url="https://github.com/chipsalliance/verible/releases/download/v${_versible_version}/verible-v${_versible_version}"
         # https://github.com/chipsalliance/verible/releases/download/v0.0-2371-g73fcce82/verible-v0.0-2371-g73fcce82-Ubuntu-16.04-xenial-x86_64.tar.gz

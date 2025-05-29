@@ -266,7 +266,7 @@ install_helix(){
 	green_echo "======================================"
 	green_echo "=========Install helix========"
 	green_echo "======================================"
-	local _helix_version=$(GetLatestReleaseProxy "helix-editor/helix")
+	local _helix_version=$(GetLatestReleaseWithRetryProxy "helix-editor/helix")
 	local _arch=$(uname -m)
 	local _helix_url="https://ghproxy.dengqi.org/https://github.com/helix-editor/helix/releases/download/${_helix_version}/helix-${_helix_version}-${_arch}-linux.tar.xz"
 	mkdir -p ~/Source/app/helix

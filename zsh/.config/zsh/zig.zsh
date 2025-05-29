@@ -37,7 +37,7 @@ install_zigmod() {
 # @example install_zigup
 # @category zig
 install_zigup() {
-        ZIG_VER=$(GetLatestReleaseProxy "marler8997/zigup")
+        ZIG_VER=$(GetLatestReleaseWithRetryProxy "marler8997/zigup")
         mkdir -p $HOME/Source/app/zigup
         wget -O "$HOME/Source/app/zigup/zigup_${ZIG_VER}.tar.gz" "https://github.com/marler8997/zigup/releases/download/v${ZIG_VER}/zigup-x86_64-linux.tar.gz"
         cd $HOME/Source/app/zigup
@@ -53,7 +53,7 @@ install_zigup() {
 # @example install_zigup_proxy
 # @category zig
 install_zigup_proxy() {
-        ZIG_VER=$(GetLatestReleaseProxy "marler8997/zigup")
+        ZIG_VER=$(GetLatestReleaseWithRetryProxy "marler8997/zigup")
         mkdir -p $HOME/Source/app/zigup
         wget -O "$HOME/Source/app/zigup/zigup_${ZIG_VER}.tar.gz" "https://ghproxy.dengqi.org/https://github.com/marler8997/zigup/releases/download/v${ZIG_VER}/zigup-x86_64-linux.tar.gz"
         cd $HOME/Source/app/zigup

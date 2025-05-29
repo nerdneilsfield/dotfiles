@@ -437,25 +437,101 @@ show_rgb() {
 	printf "\e[38;2;%s;%s;%sm ■■■■■■■■■■■■ \e[0m\n" "${1}" "${2}" "${3}"
 }
 
+# @brief Wrapper for GetLatestRelease functions with retry logic and validation
+# @param $1 Function name (GetLatestRelease or GetLatestReleaseProxy)
+# @param $2 Repository name in format 'owner/repo'
+# @return Latest version tag or exits with error after 3 failed attempts
+# @example GetLatestReleaseWithRetry GetLatestReleaseProxy "microsoft/vscode"
+# @category github
+function GetLatestReleaseWithRetry() {
+    local func_name="$1"
+    local repo="$2"
+    local max_retries=3
+    local retry_count=0
+    local version=""
+    
+    if [[ -z "$func_name" || -z "$repo" ]]; then
+        echo "错误: 函数名和仓库名不能为空" >&2
+        return 1
+    fi
+    
+    while [[ $retry_count -lt $max_retries ]]; do
+        retry_count=$((retry_count + 1))
+        echo "尝试获取 $repo 的版本信息 (第 $retry_count 次)..." >&2
+        
+        # 调用指定的函数
+        version=$($func_name "$repo" 2>/dev/null)
+        
+        # 验证版本号是否有效（非空且包含版本号格式）
+        if [[ -n "$version" && "$version" =~ ^[0-9]+(\.[0-9]+)*(-.*)?$ ]]; then
+            echo "成功获取版本: $version" >&2
+            echo "$version"
+            return 0
+        fi
+        
+        echo "获取版本失败，版本信息为空或格式无效: '$version'" >&2
+        
+        if [[ $retry_count -lt $max_retries ]]; then
+            echo "等待 2 秒后重试..." >&2
+            sleep 2
+        fi
+    done
+    
+    echo "错误: 重试 $max_retries 次后仍无法获取 $repo 的版本信息" >&2
+    return 1
+}
+
 # @brief Get latest release version from GitHub repository
 # @param $1 Repository name in format 'owner/repo'
 # @return Latest version tag
 # @example GetLatestRelease microsoft/vscode
 # @category github
 function GetLatestRelease() {
+	local repo="$1"
+	local result=""
+	
+	if [[ -z "$repo" ]]; then
+		echo "错误: 仓库名不能为空" >&2
+		return 1
+	fi
+	
 	# if GH_TOKEN is not empty, then
 	# curl will use the token to get more requests
 	# see https://developer.github.com/v3/#rate-limiting
 	if [[ -n "$GHHH_TOKEN" ]]; then
 		# echo "have token set"
-		curl --silent "https://api.github.com/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
+		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api.github.com/repos/$repo/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                                                            # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/'
+			sed -E 's/.*"v*([^"]+)".*/\1/')
 	else
-		curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api.github.com/repos/$repo/releases/latest" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                             # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/'
+			sed -E 's/.*"v*([^"]+)".*/\1/')
 	fi
+	
+	if [[ -n "$result" ]]; then
+		echo "$result"
+	else
+		return 1
+	fi
+}
+
+# @brief Get latest release with retry (defaults to proxy)
+# @param $1 Repository name in format 'owner/repo'
+# @return Latest version tag with retry logic
+# @example GetLatestReleaseWithRetryProxy "microsoft/vscode"
+# @category github
+function GetLatestReleaseWithRetryProxy() {
+    GetLatestReleaseWithRetry GetLatestReleaseProxy "$1"
+}
+
+# @brief Get latest release with retry (direct GitHub API)
+# @param $1 Repository name in format 'owner/repo' 
+# @return Latest version tag with retry logic
+# @example GetLatestReleaseWithRetryDirect "microsoft/vscode"
+# @category github
+function GetLatestReleaseWithRetryDirect() {
+    GetLatestReleaseWithRetry GetLatestRelease "$1"
 }
 
 # @brief Get latest release version via proxy for faster access
@@ -464,17 +540,49 @@ function GetLatestRelease() {
 # @example GetLatestReleaseProxy microsoft/vscode
 # @category github
 function GetLatestReleaseProxy() {
+	local repo="$1"
+	local result=""
+	
+	if [[ -z "$repo" ]]; then
+		echo "错误: 仓库名不能为空" >&2
+		return 1
+	fi
+	
 	# if GH_TOKEN is not empty, then
 	# curl will use the token to get more requests
 	# see https://developer.github.com/v3/#rate-limiting
 	if [[ -n "$GHHH_TOKEN" ]]; then
 		# echo "have token set"
-		curl --silent "https://api-gateway-tokyo.dengqi.uk/gh/repos/$1/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
+		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api-gateway-tokyo.dengqi.uk/gh/repos/$repo/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                                                                  # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/'
+			sed -E 's/.*"v*([^"]+)".*/\1/')
 	else
-		curl --silent "https://api-gateway-tokyo.dengqi.uk/gh-token/repos/$1/releases/latest" | # Get latest release from GitHub api
+		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api-gateway-tokyo.dengqi.uk/gh-token/repos/$repo/releases/latest" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                   # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/'
+			sed -E 's/.*"v*([^"]+)".*/\1/')
 	fi
+	
+	if [[ -n "$result" ]]; then
+		echo "$result"
+	else
+		return 1
+	fi
+}
+
+# @brief Get latest release with retry (defaults to proxy)
+# @param $1 Repository name in format 'owner/repo'
+# @return Latest version tag with retry logic
+# @example GetLatestReleaseWithRetryProxy "microsoft/vscode"
+# @category github
+function GetLatestReleaseWithRetryProxy() {
+    GetLatestReleaseWithRetry GetLatestReleaseProxy "$1"
+}
+
+# @brief Get latest release with retry (direct GitHub API)
+# @param $1 Repository name in format 'owner/repo' 
+# @return Latest version tag with retry logic
+# @example GetLatestReleaseWithRetryDirect "microsoft/vscode"
+# @category github
+function GetLatestReleaseWithRetryDirect() {
+    GetLatestReleaseWithRetry GetLatestRelease "$1"
 }

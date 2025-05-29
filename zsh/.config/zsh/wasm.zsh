@@ -6,7 +6,7 @@ install_wasmtime_proxy() {
     green_echo "======================================"
     green_echo "=========Install wasmtime Proxy========"
     green_echo "======================================"
-    local _WASMTIME_VERSION=$(GetLatestReleaseProxy "bytecodealliance/wasmtime")
+    local _WASMTIME_VERSION=$(GetLatestReleaseWithRetryProxy "bytecodealliance/wasmtime")
     local _arch=$(uname -m)
     #   if [[ $_arch == "x86_64" ]]; then
     #     _arch="amd64"
@@ -37,7 +37,7 @@ install_wasmtime() {
     green_echo "======================================"
     green_echo "=========Install wasmtime========"
     green_echo "======================================"
-    local _WASM_VERSION=$(GetLatestReleaseProxy "bytecodealliance/wasmtime")
+    local _WASM_VERSION=$(GetLatestReleaseWithRetryProxy "bytecodealliance/wasmtime")
     local _arch=$(uname -m)
     #   if [[ $_arch == "x86_64" ]]; then
     #     _arch="amd64"

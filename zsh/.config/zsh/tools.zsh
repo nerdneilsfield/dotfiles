@@ -280,7 +280,7 @@ install_gh(){
     green_echo "======================================"
     green_echo "=========Install gh========"
     green_echo "======================================"
-  local _gh_version=$(GetLatestReleaseProxy "cli/cli")
+  local _gh_version=$(GetLatestReleaseWithRetryProxy "cli/cli")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
     _arch="amd64"
@@ -317,7 +317,7 @@ install_fzf(){
     green_echo "======================================"
     green_echo "=========Install fzf========"
     green_echo "======================================"
-  local _fzf_version=$(GetLatestReleaseProxy "junegunn/fzf")
+  local _fzf_version=$(GetLatestReleaseWithRetryProxy "junegunn/fzf")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
     _arch="amd64"
@@ -352,7 +352,7 @@ install_eza(){
     green_echo "======================================"
     green_echo "=========Install eza========"
     green_echo "======================================"
-  local _eza_version=$(GetLatestReleaseProxy "eza-community/eza")
+  local _eza_version=$(GetLatestReleaseWithRetryProxy "eza-community/eza")
   local _arch=$(uname -m)
   local _eza_url="https://ghproxy.dengqi.org/https://github.com/eza-community/eza/releases/download/v${_eza_version}/eza_${_arch}-unknown-linux-gnu.tar.gz"
   mkdir -p /tmp/install
@@ -372,7 +372,7 @@ install_lazygit(){
   green_echo "======================================"
   green_echo "=========Install lazygit========"
   green_echo "======================================"
-  local _lazygit_version=$(GetLatestReleaseProxy "jesseduffield/lazygit")
+  local _lazygit_version=$(GetLatestReleaseWithRetryProxy "jesseduffield/lazygit")
   local _arch=$(uname -m)
   local _lazygit_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazygit/releases/download/v${_lazygit_version}/lazygit_${_lazygit_version}_Linux_${_arch}.tar.gz"
   mkdir -p /tmp/install
@@ -392,7 +392,7 @@ install_lazydocker(){
   green_echo "======================================"
   green_echo "=========Install lazydocker========"
   green_echo "======================================"
-  local _lazydocker_version=$(GetLatestReleaseProxy "jesseduffield/lazydocker")
+  local _lazydocker_version=$(GetLatestReleaseWithRetryProxy "jesseduffield/lazydocker")
   local _arch=$(uname -m)
   local _lazydocker_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazydocker/releases/download/v${_lazydocker_version}/lazydocker_${_lazydocker_version}_Linux_${_arch}.tar.gz"
   mkdir -p /tmp/install
@@ -412,7 +412,7 @@ install_duf(){
   green_echo "======================================"
   green_echo "=========Install duf========"
   green_echo "======================================"
-  local _duf_version=$(GetLatestReleaseProxy "muesli/duf")
+  local _duf_version=$(GetLatestReleaseWithRetryProxy "muesli/duf")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
   #   _arch="amd64"
@@ -435,7 +435,7 @@ install_gdu(){
   green_echo "======================================"
   green_echo "=========Install gdu========"
   green_echo "======================================"
-  local _gdu_version=$(GetLatestReleaseProxy "dundee/gdu")
+  local _gdu_version=$(GetLatestReleaseWithRetryProxy "dundee/gdu")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
     _arch="amd64"
@@ -468,7 +468,7 @@ install_ripgrep(){
     green_echo "======================================"
     green_echo "=========Install ripgrep========"
     green_echo "======================================"
-  local _rg_version=$(GetLatestReleaseProxy "BurntSushi/ripgrep")
+  local _rg_version=$(GetLatestReleaseWithRetryProxy "BurntSushi/ripgrep")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
   #   _arch="amd64"
@@ -492,7 +492,7 @@ install_fd(){
   green_echo "======================================"
   green_echo "=========Install fd========"
   green_echo "======================================"
-  local _fd_version=$(GetLatestReleaseProxy "sharkdp/fd")
+  local _fd_version=$(GetLatestReleaseWithRetryProxy "sharkdp/fd")
   local _arch=$(uname -m)
   # if [[ $_arch == "x86_64" ]]; then
   #   _arch="amd64"
@@ -517,7 +517,7 @@ install_mise(){
   green_echo "======================================"
   green_echo "=========Install mise========"
   green_echo "======================================"
-  local _mise_version=$(GetLatestReleaseProxy "jdx/mise")
+  local _mise_version=$(GetLatestReleaseWithRetryProxy "jdx/mise")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
     _arch="x64"
@@ -564,7 +564,7 @@ install_xray(){
     else
         # 回退到传统方法
         echo "⚠️  智能安装系统未加载，使用传统方法..."
-        local _xray_version=$(GetLatestReleaseProxy "XTLS/Xray-core")
+        local _xray_version=$(GetLatestReleaseWithRetryProxy "XTLS/Xray-core")
         local _arch=$(get_cpu_arch)
         local _xray_url="https://ghproxy.dengqi.org/https://github.com/XTLS/Xray-core/releases/download/v${_xray_version}/Xray-linux-${_arch}.zip"
         
@@ -591,7 +591,7 @@ install_sing_box(){
     else
         # 回退到传统方法
         echo "⚠️  智能安装系统未加载，使用传统方法..."
-        local _sing_box_version=$(GetLatestReleaseProxy "SagerNet/sing-box")
+        local _sing_box_version=$(GetLatestReleaseWithRetryProxy "SagerNet/sing-box")
         local _arch=$(get_cpu_arch)
         local _sing_box_url="https://ghproxy.dengqi.org/https://github.com/SagerNet/sing-box/releases/download/v${_sing_box_version}/sing-box-${_arch}.tar.gz"
         
@@ -618,7 +618,7 @@ install_mihomo(){
     else
         # 回退到传统方法
         echo "⚠️  智能安装系统未加载，使用传统方法..."
-        local _mihomo_version=$(GetLatestReleaseProxy "MetaCubeX/mihomo")
+        local _mihomo_version=$(GetLatestReleaseWithRetryProxy "MetaCubeX/mihomo")
         local _arch=$(get_cpu_arch)
         local _mihomo_url="https://ghproxy.dengqi.org/https://github.com/MetaCubeX/mihomo/releases/download/v${_mihomo_version}/mihomo-linux-${_arch}-v${_mihomo_version}.gz"
         
@@ -776,7 +776,7 @@ install_code_server_ubuntu(){
   green_echo "======================================"
   green_echo "=========Install code-server========"
   green_echo "======================================"
-  local _code_server_version=$(GetLatestReleaseProxy "coder/code-server")
+  local _code_server_version=$(GetLatestReleaseWithRetryProxy "coder/code-server")
   local _arch=$(uname -m)
   if [[ $_arch == "x86_64" ]]; then
     _arch="amd64"
@@ -885,7 +885,7 @@ install_modern_tools_by_download(){
         # 获取最新版本
         local version
         if command -v GetLatestReleaseProxy >/dev/null 2>&1; then
-            version=$(GetLatestReleaseProxy "$repo")
+            version=$(GetLatestReleaseWithRetryProxy "$repo")
         else
             echo "⚠️  无法获取最新版本，跳过 $tool_name"
             continue
