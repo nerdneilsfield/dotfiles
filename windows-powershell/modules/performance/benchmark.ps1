@@ -3,6 +3,10 @@
 
 # 测量 PowerShell 启动时间
 function Measure-PowerShellStartup {
+    <#
+    .SYNOPSIS
+    测量 PowerShell 启动时间性能
+    #>
     [CmdletBinding()]
     param(
         [int]$Iterations = 5,
@@ -89,6 +93,10 @@ function Measure-PowerShellStartup {
 
 # 清理 PowerShell 缓存
 function Clear-PowerShellCache {
+    <#
+    .SYNOPSIS
+    清理 PowerShell 缓存文件
+    #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [switch]$Force
@@ -130,6 +138,10 @@ function Clear-PowerShellCache {
 
 # 显示缓存状态
 function Show-PowerShellCacheStatus {
+    <#
+    .SYNOPSIS
+    显示 PowerShell 缓存状态信息
+    #>
     $cacheDir = "$env:USERPROFILE\.cache\powershell"
     
     Write-Host "📋 PowerShell 缓存状态:" -ForegroundColor Cyan
@@ -205,6 +217,10 @@ function Show-PowerShellCacheStatus {
 
 # 预热缓存
 function Start-PowerShellCacheWarmup {
+    <#
+    .SYNOPSIS
+    预热 PowerShell 缓存以提升性能
+    #>
     Write-Host "🔥 预热 PowerShell 缓存..." -ForegroundColor Cyan
     
     $tasks = @()
@@ -240,6 +256,10 @@ function Start-PowerShellCacheWarmup {
 
 # 分析模块加载时间
 function Measure-ModuleLoadTime {
+    <#
+    .SYNOPSIS
+    测量 PowerShell 模块加载时间
+    #>
     [CmdletBinding()]
     param(
         [string[]]$ModuleName = @()
@@ -303,6 +323,10 @@ function Measure-ModuleLoadTime {
 
 # PowerShell 性能优化建议
 function Get-PowerShellOptimizationTips {
+    <#
+    .SYNOPSIS
+    获取 PowerShell 性能优化建议
+    #>
     Write-Host "🚀 PowerShell 性能优化建议:" -ForegroundColor Cyan
     Write-Host ""
     
@@ -338,6 +362,10 @@ function Get-PowerShellOptimizationTips {
 
 # 系统诊断
 function Test-PowerShellPerformance {
+    <#
+    .SYNOPSIS
+    诊断 PowerShell 性能问题
+    #>
     Write-Host "🔍 PowerShell 性能诊断..." -ForegroundColor Cyan
     Write-Host ""
     

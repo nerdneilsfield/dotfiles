@@ -5,6 +5,10 @@
 
 # 创建目录并进入
 function mkcd {
+    <#
+    .SYNOPSIS
+    创建目录并进入
+    #>
     param([string]$Path)
     
     if (!(Test-Path $Path)) {
@@ -17,6 +21,10 @@ function mkcd {
 
 # 安全删除 - 确认后删除
 function rm-safe {
+    <#
+    .SYNOPSIS
+    安全删除文件或目录(需确认)
+    #>
     param(
         [string[]]$Path,
         [switch]$Recursive,
@@ -59,6 +67,10 @@ function rm-safe {
 
 # 复制并保持目录结构
 function cp-tree {
+    <#
+    .SYNOPSIS
+    复制文件或目录并保持目录结构
+    #>
     param(
         [string]$Source,
         [string]$Destination,
@@ -84,6 +96,10 @@ function cp-tree {
 
 # 查找文件
 function find-file {
+    <#
+    .SYNOPSIS
+    查找指定名称的文件
+    #>
     param(
         [string]$Name,
         [string]$Path = ".",
@@ -99,6 +115,10 @@ function find-file {
 
 # 查找目录
 function find-dir {
+    <#
+    .SYNOPSIS
+    查找指定名称的目录
+    #>
     param(
         [string]$Name,
         [string]$Path = ".",
@@ -116,6 +136,10 @@ function find-dir {
 
 # 统计文件行数、字数、字符数
 function wc {
+    <#
+    .SYNOPSIS
+    统计文件行数、字数、字符数
+    #>
     param(
         [string[]]$Path,
         [switch]$Lines,
@@ -153,6 +177,10 @@ function wc {
 
 # 显示文件前几行
 function head {
+    <#
+    .SYNOPSIS
+    显示文件前几行内容
+    #>
     param(
         [string]$Path,
         [int]$Lines = 10
@@ -168,6 +196,10 @@ function head {
 
 # 显示文件后几行
 function tail {
+    <#
+    .SYNOPSIS
+    显示文件后几行内容
+    #>
     param(
         [string]$Path,
         [int]$Lines = 10,
@@ -190,6 +222,10 @@ function tail {
 
 # 显示系统信息
 function sysinfo {
+    <#
+    .SYNOPSIS
+    显示详细系统信息
+    #>
     Write-Host "🖥️  系统信息" -ForegroundColor Cyan
     Write-Host "============" -ForegroundColor Cyan
     Write-Host ""
@@ -249,6 +285,10 @@ function sysinfo {
 
 # 获取公网 IP
 function Get-PublicIP {
+    <#
+    .SYNOPSIS
+    获取当前公网IP地址
+    #>
     try {
         $ip = (Invoke-RestMethod -Uri "https://api.ipify.org" -TimeoutSec 5).Trim()
         Write-Host "公网 IP: " -NoNewline -ForegroundColor Gray
@@ -263,6 +303,10 @@ function Get-PublicIP {
 
 # JSON 格式化
 function Format-Json {
+    <#
+    .SYNOPSIS
+    格式化JSON字符串或文件
+    #>
     param(
         [Parameter(ValueFromPipeline)]
         [string]$InputObject,
@@ -288,6 +332,10 @@ function Format-Json {
 
 # 生成随机密码
 function New-Password {
+    <#
+    .SYNOPSIS
+    生成随机密码
+    #>
     param(
         [int]$Length = 12,
         [switch]$NoSymbols
@@ -317,6 +365,10 @@ function New-Password {
 
 # 计算文件或字符串的哈希值
 function Get-Hash {
+    <#
+    .SYNOPSIS
+    计算文件或字符串的哈希值
+    #>
     param(
         [string]$InputObject,
         [string]$FilePath,
@@ -346,6 +398,10 @@ function Get-Hash {
 
 # 倒计时器
 function Start-Countdown {
+    <#
+    .SYNOPSIS
+    启动倒计时器
+    #>
     param(
         [int]$Seconds,
         [int]$Minutes = 0,
@@ -369,6 +425,10 @@ function Start-Countdown {
 
 # 颜色测试
 function Test-Colors {
+    <#
+    .SYNOPSIS
+    测试PowerShell颜色显示
+    #>
     Write-Host "🎨 PowerShell 颜色测试:" -ForegroundColor Cyan
     Write-Host ""
     
@@ -383,6 +443,10 @@ function Test-Colors {
 
 # 快速编辑配置文件
 function Edit-Profile {
+    <#
+    .SYNOPSIS
+    编辑PowerShell配置文件
+    #>
     if ($env:EDITOR) {
         & $env:EDITOR $PROFILE
     } elseif (Get-Command code -ErrorAction SilentlyContinue) {
@@ -396,6 +460,10 @@ function Edit-Profile {
 
 # 重新加载配置文件
 function Reload-Profile {
+    <#
+    .SYNOPSIS
+    重新加载PowerShell配置文件
+    #>
     Write-Host "重新加载 PowerShell 配置..." -ForegroundColor Cyan
     . $PROFILE
     Write-Host "配置重新加载完成!" -ForegroundColor Green
@@ -403,6 +471,10 @@ function Reload-Profile {
 
 # 显示所有可用函数
 function Get-PWShHelp {
+    <#
+    .SYNOPSIS
+    显示PowerShell自定义函数帮助
+    #>
     Write-Host "🔧 PowerShell 自定义函数帮助:" -ForegroundColor Cyan
     Write-Host ""
     

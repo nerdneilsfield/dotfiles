@@ -115,6 +115,10 @@ if ($PSVersionTable.PSVersion.Major -ge 5) {
 
 # 开发者模式检测和设置
 function Test-DeveloperMode {
+    <#
+    .SYNOPSIS
+    检测Windows开发者模式状态
+    #>
     if ($script:IsWindows) {
         try {
             $devMode = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -ErrorAction SilentlyContinue
@@ -142,6 +146,10 @@ if ($script:IsWindows) {
 $script:ToolCache = @{}
 
 function Test-CommandAvailable {
+    <#
+    .SYNOPSIS
+    检查命令是否可用并缓存结果
+    #>
     param([string]$Command)
     
     if (!$script:ToolCache.ContainsKey($Command)) {
@@ -160,6 +168,10 @@ $script:HasCargo = Test-CommandAvailable 'cargo'
 
 # 路径优化函数
 function Add-PathIfExists {
+    <#
+    .SYNOPSIS
+    将存在的路径添加到PATH环境变量
+    #>
     param([string]$Path)
     
     if ((Test-Path $Path) -and ($env:PATH -notlike "*$Path*")) {

@@ -16,6 +16,10 @@ Set-Alias -Name tail -Value Select-Object
 
 # ls 增强版 - 显示详细信息
 function ll {
+    <#
+    .SYNOPSIS
+    显示详细的文件列表
+    #>
     param(
         [string]$Path = ".",
         [switch]$All,
@@ -49,12 +53,20 @@ function ll {
 
 # la - 显示所有文件包括隐藏文件
 function la {
+    <#
+    .SYNOPSIS
+    显示所有文件(包括隐藏文件)
+    #>
     param([string]$Path = ".")
     ll -Path $Path -All -Human
 }
 
 # grep 增强版
 function grep {
+    <#
+    .SYNOPSIS
+    文本模式搜索工具
+    #>
     param(
         [string]$Pattern,
         [string[]]$Path = @("."),
@@ -77,6 +89,10 @@ function grep {
 
 # which 增强版 - 显示命令完整信息
 function which {
+    <#
+    .SYNOPSIS
+    显示命令的详细信息和位置
+    #>
     param([string]$Command)
     
     $cmd = Get-Command $Command -ErrorAction SilentlyContinue
@@ -111,6 +127,10 @@ function which {
 
 # touch - 创建文件或更新时间戳
 function touch {
+    <#
+    .SYNOPSIS
+    创建文件或更新时间戳
+    #>
     param([string[]]$Path)
     
     foreach ($file in $Path) {
@@ -129,13 +149,35 @@ Set-Alias -Name .. -Value Set-LocationUp
 Set-Alias -Name ... -Value Set-LocationUp2
 Set-Alias -Name .... -Value Set-LocationUp3
 
-function Set-LocationUp { Set-Location .. }
-function Set-LocationUp2 { Set-Location ..\.. }
-function Set-LocationUp3 { Set-Location ..\..\.. }
+function Set-LocationUp {
+    <#
+    .SYNOPSIS
+    跳转到上级目录
+    #>
+    Set-Location ..
+}
+function Set-LocationUp2 {
+    <#
+    .SYNOPSIS
+    跳转到上两级目录
+    #>
+    Set-Location ..\..
+}
+function Set-LocationUp3 {
+    <#
+    .SYNOPSIS
+    跳转到上三级目录
+    #>
+    Set-Location ..\..\..\
+}
 
 # cd 增强 - 支持 - 返回上一个目录
 $script:PreviousLocation = $PWD
 function cd {
+    <#
+    .SYNOPSIS
+    增强的目录切换工具
+    #>
     param([string]$Path = "~")
     
     if ($Path -eq "-") {
@@ -153,6 +195,10 @@ function cd {
 
 # ps 增强版 - 进程查看
 function ps {
+    <#
+    .SYNOPSIS
+    显示进程信息
+    #>
     param(
         [string]$Name,
         [switch]$All
@@ -171,6 +217,10 @@ function ps {
 
 # top 替代 - 显示系统资源使用情况
 function top {
+    <#
+    .SYNOPSIS
+    显示系统资源使用排名
+    #>
     param([int]$Count = 10)
     
     Write-Host "系统资源使用情况 (前 $Count 名)" -ForegroundColor Cyan
@@ -191,6 +241,10 @@ function top {
 
 # df 替代 - 磁盘使用情况
 function df {
+    <#
+    .SYNOPSIS
+    显示磁盘使用情况
+    #>
     if ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)) {
         Get-WmiObject -Class Win32_LogicalDisk | 
             Format-Table @(
@@ -216,6 +270,10 @@ function df {
 
 # 简化的 curl 
 function curl {
+    <#
+    .SYNOPSIS
+    HTTP请求工具
+    #>
     param(
         [string]$Url,
         [string]$OutFile,
@@ -247,6 +305,10 @@ function curl {
 
 # wget 替代
 function wget {
+    <#
+    .SYNOPSIS
+    文件下载工具
+    #>
     param(
         [string]$Url,
         [string]$OutFile
@@ -269,6 +331,10 @@ function wget {
 
 # tree 替代 - 显示目录树
 function tree {
+    <#
+    .SYNOPSIS
+    显示目录树结构
+    #>
     param(
         [string]$Path = ".",
         [int]$Depth = 3,
@@ -321,6 +387,10 @@ function tree {
 
 # clear 增强
 function clear {
+    <#
+    .SYNOPSIS
+    清屏并显示状态信息
+    #>
     [System.Console]::Clear()
     if ([Environment]::UserInteractive -and !$env:PWSH_NO_WELCOME) {
         Write-Host "PowerShell $($PSVersionTable.PSVersion) " -ForegroundColor Green -NoNewline
@@ -331,6 +401,10 @@ function clear {
 
 # 历史记录清理
 function clear-history {
+    <#
+    .SYNOPSIS
+    清空命令历史记录
+    #>
     Clear-History
     if (Test-Path (Get-PSReadlineOption).HistorySavePath) {
         Remove-Item (Get-PSReadlineOption).HistorySavePath -Force
@@ -340,6 +414,10 @@ function clear-history {
 
 # 显示所有自定义别名
 function Show-CustomAliases {
+    <#
+    .SYNOPSIS
+    显示所有自定义别名和函数
+    #>
     Write-Host "🔧 自定义别名和函数:" -ForegroundColor Cyan
     Write-Host ""
     

@@ -3,6 +3,10 @@
 
 # PSReadLine 模块检查和配置
 function Initialize-PSReadLine {
+    <#
+    .SYNOPSIS
+    初始化PSReadLine模块和配置
+    #>
     # 检查 PSReadLine 是否可用
     if (!(Get-Module PSReadLine -ListAvailable)) {
         Write-ProfileLog "PSReadLine 模块不可用" -Level "WARN"
@@ -65,6 +69,10 @@ function Initialize-PSReadLine {
 
 # 设置键绑定
 function Set-PSReadLineKeyBindings {
+    <#
+    .SYNOPSIS
+    设置PSReadLine键位绑定
+    #>
     if (!(Get-Module PSReadLine)) {
         return
     }
@@ -102,6 +110,10 @@ function Set-PSReadLineKeyBindings {
 
 # FZF 集成键绑定
 function Set-FzfKeyBindings {
+    <#
+    .SYNOPSIS
+    设置fzf模糊搜索键位绑定
+    #>
     # 检查 fzf 是否可用
     if (!(Get-Command fzf -ErrorAction SilentlyContinue)) {
         Write-ProfileLog "fzf 未安装，跳过 fzf 键绑定" -Level "DEBUG"
@@ -148,6 +160,10 @@ function Set-FzfKeyBindings {
 
 # 智能补全函数
 function Register-CustomCompleters {
+    <#
+    .SYNOPSIS
+    注册自定义命令补全器
+    #>
     # Git 分支补全
     if (Get-Command git -ErrorAction SilentlyContinue) {
         Register-ArgumentCompleter -Native -CommandName git -ScriptBlock {
@@ -223,6 +239,10 @@ function Register-CustomCompleters {
 
 # 智能路径补全增强
 function Enable-SmartPathCompletion {
+    <#
+    .SYNOPSIS
+    启用智能路径补全功能
+    #>
     if (!(Get-Module PSReadLine)) {
         return
     }
@@ -240,6 +260,10 @@ function Enable-SmartPathCompletion {
 
 # 补全菜单增强
 function Set-CompletionMenuStyle {
+    <#
+    .SYNOPSIS
+    设置补全菜单样式
+    #>
     if (!(Get-Module PSReadLine)) {
         return
     }
@@ -265,6 +289,10 @@ function Set-CompletionMenuStyle {
 
 # 历史记录增强
 function Configure-HistoryFeatures {
+    <#
+    .SYNOPSIS
+    配置历史记录功能
+    #>
     if (!(Get-Module PSReadLine)) {
         return
     }
@@ -316,6 +344,10 @@ function Configure-HistoryFeatures {
 
 # 显示补全状态
 function Get-CompletionStatus {
+    <#
+    .SYNOPSIS
+    显示补全系统状态信息
+    #>
     Write-Host "🔤 补全系统状态" -ForegroundColor Cyan
     Write-Host "==================" -ForegroundColor Cyan
     
@@ -363,6 +395,10 @@ function Get-CompletionStatus {
 
 # 主初始化函数
 function Initialize-CompletionSystem {
+    <#
+    .SYNOPSIS
+    初始化整个补全系统
+    #>
     Write-ProfileLog "初始化补全系统" -Level "DEBUG"
     
     # 初始化 PSReadLine

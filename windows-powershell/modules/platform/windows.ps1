@@ -3,6 +3,10 @@
 
 # 系统健康检查
 function Get-SystemHealth {
+    <#
+    .SYNOPSIS
+    执行Windows系统健康检查
+    #>
     [CmdletBinding()]
     param()
     

@@ -3,6 +3,10 @@
 
 # 安装版本管理器
 function Install-VersionManagers {
+    <#
+    .SYNOPSIS
+    安装各种编程语言的版本管理器
+    #>
     [CmdletBinding()]
     param(
         [switch]$Node,
@@ -93,6 +97,10 @@ function Install-VersionManagers {
 
 # Node.js 版本管理
 function Install-NodeVersionManager {
+    <#
+    .SYNOPSIS
+    安装和配置Node.js版本管理器
+    #>
     [CmdletBinding()]
     param(
         [string]$Version = "lts",
@@ -123,6 +131,10 @@ function Install-NodeVersionManager {
 
 # Python 版本管理
 function Install-PythonVersions {
+    <#
+    .SYNOPSIS
+    安装指定Python版本
+    #>
     [CmdletBinding()]
     param(
         [string[]]$Versions = @("3.11", "3.12"),
