@@ -102,7 +102,7 @@ function Set-PSReadLineKeyBindings {
     Set-PSReadLineKeyHandler -Key Ctrl+u -Function DeleteLine
     
     # 智能补全
-    Set-PSReadLineKeyHandler -Key Ctrl+Space -Function Complete
+    Set-PSReadLineKeyHandler -Key Ctrl+Spacebar -Function Complete
     Set-PSReadLineKeyHandler -Key Alt+? -Function WhatIsKey
     
     Write-ProfileLog "PSReadLine 键绑定设置完成" -Level "DEBUG"

@@ -62,7 +62,6 @@ function Invoke-ConditionalLoad {
             Join-Path $script:PWSH_CONFIG_DIR $ModulePath
         }
     }
-    
     $fullPath = $script:PathCache[$ModulePath]
     
     # 缓存文件存在性检查
@@ -90,10 +89,18 @@ function Invoke-ConditionalLoad {
             }
             
             if ($shouldLoad) {
-                Write-ProfileLog "加载模块: $Description ($ModulePath)"
-                # 读取并在当前作用域执行脚本内容
-                $scriptContent = Get-Content $fullPath -Raw
-                Invoke-Expression $scriptContent
+                Write-ProfileLog "加载模块 (全局): $Description ($ModulePath)"
+                $moduleContent = Get-Content -Path $fullPath -Raw
+                # 创建唯一的动态模块名称，基于文件名，并清理特殊字符
+                $dynamicModuleName = "DynamicPSModule_$(($ModulePath | Split-Path -Leaf) -replace '[^a-zA-Z0-9_]', '_')"
+                
+                # 如果模块已存在（例如 profile 重载），先移除
+                if (Get-Module $dynamicModuleName -ErrorAction SilentlyContinue) {
+                    Write-ProfileLog "重新加载模块: 移除旧的 $dynamicModuleName"
+                    Remove-Module $dynamicModuleName -Force -ErrorAction SilentlyContinue
+                }
+
+                New-Module -Name $dynamicModuleName -ScriptBlock ([scriptblock]::Create($moduleContent)) | Import-Module -Global -Force -DisableNameChecking
                 return $true
             } else {
                 Write-ProfileLog "跳过模块: $Description (条件不满足)"
@@ -156,7 +163,7 @@ $moduleList = @(
     @{Path="modules/core/config.ps1"; Condition={$true}; Name="基础配置"},
     @{Path="modules/core/aliases.ps1"; Condition={$true}; Name="别名定义"},
     @{Path="modules/core/functions.ps1"; Condition={$true}; Name="通用函数"}, 
-    @{Path="modules/core/crossplatform.ps1"; Condition={$true}; Name="跨平台工具"},
+    # @{Path="modules/core/crossplatform.ps1"; Condition={$true}; Name="跨平台工具"},
     @{Path="modules/performance/benchmark.ps1"; Condition={$true}; Name="性能测试工具"}
 
 )

@@ -1,6 +1,8 @@
 # Advanced Search Tools Integration
 # fd + ripgrep + fzf 深度集成搜索功能
 
+# Write-Host "🔍 搜索工具初始化" -ForegroundColor Cyan
+
 # 工具可用性检查
 $script:FdAvailable = $null
 $script:RipgrepAvailable = $null

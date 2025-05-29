@@ -2,7 +2,7 @@
 # 跨平台文件操作辅助函数，统一 Windows/WSL/Unix 操作
 
 # 平台检测
-$script:IsWindows = $PSVersionTable.PSVersion.Major -le 5 -or $IsWindows
+# $script:IsWindows = $PSVersionTable.PSVersion.Major -le 5 -or $IsWindows # Commented out
 $script:IsLinux = $PSVersionTable.PSVersion.Major -gt 5 -and $IsLinux
 $script:IsMacOS = $PSVersionTable.PSVersion.Major -gt 5 -and $IsMacOS
 $script:IsWSL = $false
@@ -24,12 +24,12 @@ function Get-PlatformInfo {
     获取当前平台信息
     #>
     return @{
-        IsWindows = $script:IsWindows
-        IsLinux = $script:IsLinux
-        IsMacOS = $script:IsMacOS
+        IsWindows = $IsWindows # Changed from $script:IsWindows
+        IsLinux = $IsLinux   # Changed from $script:IsLinux
+        IsMacOS = $IsMacOS # Changed from $script:IsMacOS
         IsWSL = $script:IsWSL
         PowerShellVersion = $PSVersionTable.PSVersion
-        OS = if ($script:IsWindows) { "Windows" } 
+        OS = if ($IsWindows) { "Windows" } 
              elseif ($script:IsLinux) { if ($script:IsWSL) { "WSL" } else { "Linux" } }
              elseif ($script:IsMacOS) { "macOS" }
              else { "Unknown" }
@@ -41,7 +41,7 @@ function Get-PathSeparator {
     .SYNOPSIS
     获取路径分隔符
     #>
-    if ($script:IsWindows) {
+    if ($IsWindows) { # Changed from $script:IsWindows
         return "\"
     } else {
         return "/"
@@ -65,7 +65,7 @@ function ConvertTo-CrossPlatformPath {
     )
     
     if ($TargetPlatform -eq "Auto") {
-        $TargetPlatform = if ($script:IsWindows) { "Windows" } else { "Unix" }
+        $TargetPlatform = if ($IsWindows) { "Windows" } else { "Unix" } # Changed from $script:IsWindows
     }
     
     switch ($TargetPlatform) {
@@ -293,7 +293,7 @@ function New-CrossPlatformSymlink {
         $normalizedTarget = ConvertTo-CrossPlatformPath -Path $Target
         $normalizedLink = ConvertTo-CrossPlatformPath -Path $LinkPath
         
-        if ($script:IsWindows) {
+        if ($IsWindows) {
             # Windows 需要管理员权限创建符号链接
             if ($Directory) {
                 $result = cmd /c "mklink /D `"$normalizedLink`" `"$normalizedTarget`""
@@ -364,7 +364,7 @@ function Get-CrossPlatformFileInfo {
         }
         
         # Unix 特有属性
-        if (-not $script:IsWindows) {
+        if (-not $IsWindows) {
             try {
                 if (Get-Command stat -ErrorAction SilentlyContinue) {
                     $statInfo = & stat -c "%a %U %G" $normalizedPath 2>$null
@@ -413,7 +413,7 @@ function Set-CrossPlatformPermissions {
             return $false
         }
         
-        if ($script:IsWindows) {
+        if ($IsWindows) {
             # Windows 权限设置更复杂，这里提供基础实现
             if ($Permissions -match "readonly|hidden|system") {
                 $attr = [System.IO.FileAttributes]::Normal
@@ -470,7 +470,7 @@ function Get-CrossPlatformDiskUsage {
     try {
         $normalizedPath = ConvertTo-CrossPlatformPath -Path $Path
         
-        if ($script:IsWindows) {
+        if ($IsWindows) {
             # Windows 使用 Get-PSDrive 或 WMI
             $drive = (Get-Item $normalizedPath).PSDrive
             if ($drive) {
@@ -539,7 +539,7 @@ function Find-CrossPlatformExecutable {
             $fullPath = Join-Path $dir $Name
             
             # Windows 需要检查多个扩展名
-            if ($script:IsWindows) {
+            if ($IsWindows) {
                 $extensions = @(".exe", ".cmd", ".bat", ".ps1")
                 foreach ($ext in $extensions) {
                     $pathWithExt = $fullPath + $ext
