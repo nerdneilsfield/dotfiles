@@ -75,6 +75,9 @@ function ConvertTo-CrossPlatformPath {
         "Unix" {
             return $Path -replace "\\", "/"
         }
+        default {
+            return $Path
+        }
     }
 }
 

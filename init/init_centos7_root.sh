@@ -6,7 +6,7 @@ GLOBAL_USER_EXISTS=""
 function GetLatestRelease() {
 	curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
 		grep '"tag_name":' |                                             # Get tag line
-		sed -E 's/.*"v*([^"]+)".*/\1/'
+		sed -E 's/.*"v?([^"]+)".*/\1/'
 }
 
 function CheckRoot() {
@@ -337,7 +337,7 @@ function InstallNeovimGithub() {
 	echo "-----------Install Neovim From Github------------"
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
-	mkdir -p /tmp/install_app && /tmp/install_app
+	mkdir -p /tmp/install_app && cd /tmp/install_app
 	NVIM_VERSION=$(GetLatestRelease "neovim/neovim")
 	echo "-----The version of NVIM is ${NVIM_VERSION}-----"
 	wget -O /tmp/install_app/neovim.tar.gz "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux64.tar.gz"

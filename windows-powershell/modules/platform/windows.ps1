@@ -1,6 +1,25 @@
 # Windows 功能深度包装
 # 提供系统健康检查、性能优化、启动项管理等 Windows 特有功能
 
+# 开发者模式检测
+function Test-DeveloperMode {
+    <#
+    .SYNOPSIS
+    检测Windows开发者模式状态
+    .DESCRIPTION
+    检查当前Windows系统是否启用了开发者模式，这对于某些开发工具和功能是必需的
+    #>
+    if ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)) {
+        try {
+            $devMode = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -ErrorAction SilentlyContinue
+            return $devMode.AllowDevelopmentWithoutDevLicense -eq 1
+        } catch {
+            return $false
+        }
+    }
+    return $true  # Unix-like 系统默认为开发者友好
+}
+
 # 系统健康检查
 function Get-SystemHealth {
     <#

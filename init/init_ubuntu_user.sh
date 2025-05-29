@@ -19,7 +19,7 @@ function GenLocalSSHKey() {
 	cat ~/.ssh/id_ed25519.pub
 	
 	echo "please copy the public key"
-	read $text
+	read text
 }
 
 
@@ -36,7 +36,7 @@ function InstallNvm() {
 function InstallRust() {
 	echo "----install rustup ------"
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  cargo install carog-quickinstall
+  cargo install cargo-quickinstall
 }
 
 function InstallGoTools() {
@@ -93,7 +93,7 @@ function CloneConfigs() {
 	
 	cd ~/Source/configs/dotfiles
 	stow -vt ~ zsh
-	cd ~/Source/confgis/private_dotfiles
+	cd ~/Source/configs/private_dotfiles
 }
 
 

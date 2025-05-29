@@ -181,11 +181,37 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview '${FZF
 [[ $- == *i* ]] && source "${ZSH_CONF_DIR}/fzf/completion.zsh" 2> /dev/null
 source "${ZSH_CONF_DIR}/fzf/key-bindings.zsh"
 
-# alias fpreview="fzf --min-height 30 --preview-window down:60% --preview-window noborder --preview '($FZF_PREVIEW_COMMAND) 2> /dev/null'"
+alias fpreview="fzf --min-height 30 --preview-window down:60% --preview-window noborder --preview '($FZF_PREVIEW_COMMAND) 2> /dev/null'"
 
 # cdf - cd into the directory of the selected file
 # # alias cdf="cd $(ls | fzf)"
-# alias vif="nvim $(fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build} --type f)"
+# Interactive file edit with fzf+fd
+alias vif='fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build} --type f | fzf --preview "$FZF_PREVIEW_COMMAND" | xargs -r nvim'
+
+# Advanced search integrations
+alias rgf='rg --files-with-matches --no-messages | fzf --preview "rg --context 3 --color=always {}" | xargs -r nvim'
+alias fdf='fd --type d | fzf --preview "eza --tree --level=2 --color=always {}" | xargs -r cd'
+alias rgp='rg --line-number --no-heading --color=always . | fzf --delimiter : --preview "bat --color=always --highlight-line {2} {1}" --preview-window +{2}-/2'
+
+# Tool upgrade aliases  
+alias upgrade-tools='bash ~/Source/configs/dotfiles/init/init_ubuntu_root.sh UpgradeAllTools'
+alias check-versions='for tool in fzf rg fd bat starship lazygit nvim; do echo -n "$tool: "; $tool --version 2>/dev/null | head -n1 || echo "未安装"; done'
+
+# User-friendly upgrade functions (no sudo required for checking)
+function check-tool-updates() {
+	echo "🔍 检查工具更新状态..."
+	for tool in fzf rg fd bat starship lazygit nvim; do
+		echo -n "🔍 $tool: "
+		local current_version=$($tool --version 2>/dev/null | head -n1 | awk '{print $2}' 2>/dev/null)
+		if [[ -n "$current_version" ]]; then
+			echo "当前版本 $current_version"
+		else
+			echo "❌ 未安装"
+		fi
+	done
+	echo ""
+	echo "💡 运行 'upgrade-tools' 来升级所有工具"
+}
 
 # @brief Execute command from shell history using fzf
 # @return 0 on success

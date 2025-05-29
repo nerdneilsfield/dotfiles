@@ -114,7 +114,7 @@ alias now='date +%s'
 alias dateunix='date +%s'
 alias sz="source $HOME/.zshrc"
 alias j='z'
-# alias rg='rg --column --line-number --hidden --sort path --no-heading --color=always --smart-case -- '
+alias rg='rg --column --line-number --hidden --sort path --no-heading --color=always --smart-case -- '
 
 # macos only
 alias refresh-dns='sudo killall -HUP mDNSResponder'

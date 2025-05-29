@@ -11,11 +11,11 @@ function GetLatestRelease() {
 	if [[ -n "$GH_TOKEN" ]]; then
 		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" --header "Authorization: Bearer ${GH_TOKEN}" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                                                                # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/'
+			sed -E 's/.*"v?([^"]+)".*/\1/'
 	else
 		curl --silent "https://gh-api-sg.dengqi.org/repos/$1/releases/latest" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                   # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/'
+			sed -E 's/.*"v?([^"]+)".*/\1/'
 	fi
 }
 
@@ -403,7 +403,7 @@ function InstallNeovimGithub() {
 	echo "-----------Install Neovim From Github------------"
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
-	mkdir -p /tmp/install_app && /tmp/install_app
+	mkdir -p /tmp/install_app && cd /tmp/install_app
 	NVIM_VERSION=$(GetLatestRelease "neovim/neovim")
 	echo "-----The version of NVIM is ${NVIM_VERSION}-----"
 	wget -O /tmp/install_app/neovim.tar.gz "https://ghproxy.dengqi.org/https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux64.tar.gz"
@@ -630,7 +630,7 @@ function InstallZigUp() {
 
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	wget -O zigup.zip https://ghproxy.dengqi.org/https://github.com/marler8997/zigup/releases/download/v2023_07_27/zigup.ubuntu-latest-x86_64.zip
-	unzip zigup.zip & chmod +x /usr/local/bin/zigup
+	unzip zigup.zip && chmod +x /usr/local/bin/zigup
 	mv zigup /usr/local/bin/zigup
 }
 

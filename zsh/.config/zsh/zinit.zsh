@@ -49,6 +49,17 @@ zinit light zsh-users/zsh-completions
 # ==================================================================
 # zinit self-update
 
+# Convenient update functions
+function zinit-update-all() {
+    echo "🔄 Updating zinit itself..."
+    zinit self-update
+    echo "🔄 Updating all plugins..."
+    zinit update --all
+    echo "✅ All updates completed!"
+}
+
+alias zup='zinit-update-all'
+
 # ==================================================================
 # plugin config
 # ==================================================================

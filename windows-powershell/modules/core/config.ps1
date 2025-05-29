@@ -1,6 +1,16 @@
 # PowerShell 核心配置
 # 基础设置和环境配置
 
+# 简单日志函数 - 确保在模块中可用
+if (-not (Get-Command Write-ProfileLog -ErrorAction SilentlyContinue)) {
+    function Write-ProfileLog {
+        param([string]$Message, [string]$Level = "DEBUG")
+        if ($env:PWSH_DEBUG -eq "1") {
+            Write-Host "[$Level] $Message" -ForegroundColor DarkGray
+        }
+    }
+}
+
 # PowerShell 行为优化
 $PSDefaultParameterValues = @{
     # 编码设置

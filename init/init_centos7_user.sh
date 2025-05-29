@@ -18,7 +18,7 @@ function GenLocalSSHKey() {
 	cat ~/.ssh/id_ed25519.pub
 	
 	echo "please copy the public key"
-	read $text
+	read text
 }
 
 

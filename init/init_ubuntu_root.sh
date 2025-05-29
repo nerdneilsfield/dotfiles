@@ -5,9 +5,154 @@ GLOBAL_USER_EXISTS=""
 ARCHTECH=$(dpkg --print-architecture)
 
 function GetLatestRelease() {
-	curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-		grep '"tag_name":' |                                             # Get tag line
-		sed -E 's/.*"v*([^"]+)".*/\1/'
+	local repo="$1"
+	local version=$(curl --silent "https://api.github.com/repos/$repo/releases/latest" | \
+		grep '"tag_name":' | \
+		sed -E 's/.*"([^"]+)".*/\1/')
+	
+	if [[ -z "$version" ]]; then
+		echo "latest"
+	else
+		echo "$version"
+	fi
+}
+
+function GetVersionWithoutV() {
+	local version="$1"
+	echo "${version#v}"
+}
+
+function ShowVersion() {
+	local tool="$1"
+	local version="$2"
+	echo "📦 正在安装 $tool 版本: $version"
+}
+
+function CompareVersions() {
+	local current="$1"
+	local latest="$2"
+	
+	# 去掉 v 前缀
+	current=$(echo "$current" | sed 's/^v//')
+	latest=$(echo "$latest" | sed 's/^v//')
+	
+	# 如果版本相同，返回0
+	if [[ "$current" == "$latest" ]]; then
+		return 0
+	fi
+	
+	# 使用 sort -V 进行版本比较
+	local older=$(printf '%s\n%s\n' "$current" "$latest" | sort -V | head -n1)
+	
+	if [[ "$older" == "$current" ]]; then
+		return 1  # current < latest (需要升级)
+	else
+		return 2  # current > latest (当前版本更新)
+	fi
+}
+
+function GetInstalledVersion() {
+	local tool="$1"
+	local version=""
+	
+	case "$tool" in
+		"fzf")
+			if command -v fzf &> /dev/null; then
+				version=$(fzf --version | awk '{print $1}')
+			fi
+			;;
+		"rg"|"ripgrep")
+			if command -v rg &> /dev/null; then
+				version=$(rg --version | head -n1 | awk '{print $2}')
+			fi
+			;;
+		"fd")
+			if command -v fd &> /dev/null; then
+				version=$(fd --version | awk '{print $2}')
+			fi
+			;;
+		"bat")
+			if command -v bat &> /dev/null; then
+				version=$(bat --version | awk '{print $2}')
+			fi
+			;;
+		"starship")
+			if command -v starship &> /dev/null; then
+				version=$(starship --version | awk '{print $2}')
+			fi
+			;;
+		"lazygit")
+			if command -v lazygit &> /dev/null; then
+				version=$(lazygit --version | grep "version=" | cut -d'=' -f2 | cut -d',' -f1)
+			fi
+			;;
+		"nvim"|"neovim")
+			if command -v nvim &> /dev/null; then
+				version=$(nvim --version | head -n1 | awk '{print $2}' | sed 's/^v//')
+			fi
+			;;
+	esac
+	
+	echo "$version"
+}
+
+function CheckAndUpgrade() {
+	local tool="$1"
+	local repo="$2"
+	local install_function="$3"
+	
+	echo "🔍 检查 $tool 更新..."
+	
+	local current_version=$(GetInstalledVersion "$tool")
+	local latest_version=$(GetLatestRelease "$repo")
+	
+	if [[ -z "$current_version" ]]; then
+		echo "❌ $tool 未安装，正在安装最新版本 $latest_version"
+		$install_function
+		return
+	fi
+	
+	echo "📋 当前版本: $current_version"
+	echo "📋 最新版本: $latest_version"
+	
+	CompareVersions "$current_version" "$latest_version"
+	local compare_result=$?
+	
+	case $compare_result in
+		0)
+			echo "✅ $tool 已是最新版本 ($current_version)"
+			;;
+		1)
+			echo "🚀 发现新版本，正在升级 $tool: $current_version → $latest_version"
+			$install_function
+			;;
+		2)
+			echo "⚠️  当前版本 ($current_version) 比最新版本 ($latest_version) 更新"
+			;;
+	esac
+}
+
+function UpgradeAllTools() {
+	# 检查权限
+	if (($EUID != 0)); then
+		echo "🔐 需要 root 权限来升级工具，正在请求 sudo..."
+		exec sudo bash "$0" UpgradeAllTools
+		exit
+	fi
+	
+	echo "🚀 开始检查和升级所有工具..."
+	echo "=================================="
+	
+	CheckAndUpgrade "fzf" "junegunn/fzf" "InstallFzf"
+	CheckAndUpgrade "rg" "BurntSushi/ripgrep" "InstallRipgrep"  
+	CheckAndUpgrade "fd" "sharkdp/fd" "InstallFd"
+	CheckAndUpgrade "bat" "sharkdp/bat" "InstallBat"
+	CheckAndUpgrade "starship" "starship/starship" "InstallStarShip"
+	CheckAndUpgrade "lazygit" "jesseduffield/lazygit" "InstallLazygit"
+	CheckAndUpgrade "nvim" "neovim/neovim" "InstallNeovimGithub"
+	
+	echo "=================================="
+	echo "✅ 所有工具检查完成！"
 }
 
 function CheckRoot() {
@@ -85,7 +230,7 @@ function UpgradeSystem() {
 
 function DisableIPv6 {
 	echo "net.ipv6.conf.all.disable_ipv6 = 1" >>/etc/sysctl.conf
-	echo "net.ipv6.conf.default.disable_ipv6 = 1" >>/et/sysctl.conf
+	echo "net.ipv6.conf.default.disable_ipv6 = 1" >>/etc/sysctl.conf
 	sysctl -p
 }
 
@@ -170,7 +315,8 @@ function InstallFzf() {
 	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	FZF_VERSION=$(GetLatestRelease "junegunn/fzf")
-	wget -O /tmp/install_app/fzf_latest.tar.gz "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
+	ShowVersion "fzf" "$FZF_VERSION"
+	wget -O /tmp/install_app/fzf_latest.tar.gz "https://github.com/junegunn/fzf/releases/download/$(GetVersionWithoutV "$FZF_VERSION")/fzf-$(GetVersionWithoutV "$FZF_VERSION")-linux_amd64.tar.gz"
 	tar xf fzf_latest.tar.gz && mv fzf /usr/local/bin
 }
 
@@ -179,7 +325,8 @@ function InstallStarShip() {
 	echo "-------------------------------------------------"
 	echo "---------------Install StarShip From Github------------"
 	echo "-------------------------------------------------"
-	echo "-------------------------------------------------" mkdir -p /tmp/install_app && cd /tmp/install_app
+	echo "-------------------------------------------------"
+	mkdir -p /tmp/install_app && cd /tmp/install_app
 	SS_VERSION=$(GetLatestRelease "starship/starship")
 	wget -O /tmp/install_app/starship_latest.tar.gz "https://github.com/starship/starship/releases/download/v${SS_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz"
 	tar xf starship_latest.tar.gz
@@ -264,7 +411,8 @@ function InstallRg() {
 	echo "-------------------------------------------------"
 	mkdir -p /tmp/install_app && cd /tmp/install_app
 	RG_VERSION=$(GetLatestRelease "BurntSushi/ripgrep")
-	wget -O /tmp/install_app/rg_latest.tar.gz "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+	ShowVersion "ripgrep" "$RG_VERSION"
+	wget -O /tmp/install_app/rg_latest.tar.gz "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-$(GetVersionWithoutV "$RG_VERSION")-x86_64-unknown-linux-musl.tar.gz"
 	tar xf rg_latest.tar.gz && cd "ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl/"
 	mv rg /usr/local/bin
 	mv complete/_rg /usr/share/zsh/vendor-completions/
@@ -361,7 +509,7 @@ function InstallNeovimGithub() {
 	echo "-----------Install Neovim From Github------------"
 	echo "-------------------------------------------------"
 	echo "-------------------------------------------------"
-	mkdir -p /tmp/install_app && /tmp/install_app
+	mkdir -p /tmp/install_app && cd /tmp/install_app
 	NVIM_VERSION=$(GetLatestRelease "neovim/neovim")
 	echo "-----The version of NVIM is ${NVIM_VERSION}-----"
 	wget -O /tmp/install_app/neovim.tar.gz "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux64.tar.gz"
@@ -638,4 +786,27 @@ function main() {
 	AddUser
 }
 
-#main
+# 参数处理
+if [[ $# -gt 0 ]]; then
+	case "$1" in
+		"UpgradeAllTools")
+			UpgradeAllTools
+			;;
+		"CheckAndUpgrade")
+			if [[ $# -eq 4 ]]; then
+				CheckAndUpgrade "$2" "$3" "$4"
+			else
+				echo "Usage: $0 CheckAndUpgrade <tool> <repo> <install_function>"
+				exit 1
+			fi
+			;;
+		*)
+			echo "未知函数: $1"
+			echo "可用函数: UpgradeAllTools, CheckAndUpgrade"
+			exit 1
+			;;
+	esac
+else
+	# 默认执行 main 函数
+	main
+fi

@@ -502,11 +502,11 @@ function GetLatestRelease() {
 		# echo "have token set"
 		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api.github.com/repos/$repo/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                                                            # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/')
+			sed -E 's/.*"v?([^"]+)".*/\1/')
 	else
 		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api.github.com/repos/$repo/releases/latest" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                             # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/')
+			sed -E 's/.*"v?([^"]+)".*/\1/')
 	fi
 	
 	if [[ -n "$result" ]]; then
@@ -555,11 +555,11 @@ function GetLatestReleaseProxy() {
 		# echo "have token set"
 		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api-gateway-tokyo.dengqi.uk/gh/repos/$repo/releases/latest" --header "Authorization: Bearer ${GHHH_TOKEN}" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                                                                  # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/')
+			sed -E 's/.*"v?([^"]+)".*/\1/')
 	else
 		result=$(curl --connect-timeout 10 --max-time 30 --silent "https://api-gateway-tokyo.dengqi.uk/gh-token/repos/$repo/releases/latest" | # Get latest release from GitHub api
 			grep '"tag_name":' |                                                   # Get tag line
-			sed -E 's/.*"v*([^"]+)".*/\1/')
+			sed -E 's/.*"v?([^"]+)".*/\1/')
 	fi
 	
 	if [[ -n "$result" ]]; then
