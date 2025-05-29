@@ -14,12 +14,24 @@ benchmark_zsh() {
         local start_time=$(date +%s%3N)
         zsh -c "source ~/.zshrc" >/dev/null 2>&1
         local end_time=$(date +%s%3N)
-        local duration=$((end_time - start_time))
+        
+        # 确保时间变量是数字
+        if [[ -n "$start_time" && -n "$end_time" && "$start_time" =~ ^[0-9]+$ && "$end_time" =~ ^[0-9]+$ ]]; then
+            local duration=$((end_time - start_time))
+        else
+            local duration=0
+            echo "第 $i 次: 时间获取失败"
+            continue
+        fi
         echo "第 $i 次: ${duration}ms"
         total_time=$((total_time + duration))
     done
     
-    local avg_time=$((total_time / iterations))
+    # 避免除零错误
+    local avg_time=0
+    if [[ $total_time -gt 0 && $iterations -gt 0 ]]; then
+        avg_time=$((total_time / iterations))
+    fi
     echo "📊 平均启动时间: ${avg_time}ms"
     
     if [[ $avg_time -lt 100 ]]; then
@@ -81,7 +93,12 @@ show_zsh_cache() {
         if [[ -f "$file" ]]; then
             local mod_time=$(stat -f %m "$file" 2>/dev/null || stat -c %Y "$file" 2>/dev/null)
             local current_time=$(date +%s)
-            local age=$(( (current_time - mod_time) / 60 ))
+            
+            # 确保时间变量不为空且为数字
+            local age=0
+            if [[ -n "$mod_time" && -n "$current_time" && "$mod_time" =~ ^[0-9]+$ && "$current_time" =~ ^[0-9]+$ ]]; then
+                age=$(( (current_time - mod_time) / 60 ))
+            fi
             local content=$(cat "$file" 2>/dev/null)
             
             printf "  %-15s | %3dm ago | %s\n" "$desc" "$age" "${content:0:20}"
@@ -405,7 +422,12 @@ smart_download_tool() {
     mkdir -p "$output_dir"
     
     # 准备URL模式
-    local base_url="https://github.com/$repo/releases/download/v$version"
+    local base_url = ""
+    if [ "${version}" == "latest" ]; then
+        base_url="https://github.com/$repo/releases/download/$version"
+    else
+        base_url="https://github.com/$repo/releases/download/v$version"
+    fi
     local file_pattern="${pattern//\{VERSION\}/$version}"
     local full_url_pattern="$base_url/$file_pattern"
     local output_file="$output_dir/${tool_name}.tar.gz"
