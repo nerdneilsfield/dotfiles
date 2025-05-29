@@ -156,7 +156,9 @@ $moduleList = @(
     @{Path="modules/core/config.ps1"; Condition={$true}; Name="基础配置"},
     @{Path="modules/core/aliases.ps1"; Condition={$true}; Name="别名定义"},
     @{Path="modules/core/functions.ps1"; Condition={$true}; Name="通用函数"}, 
+    @{Path="modules/core/crossplatform.ps1"; Condition={$true}; Name="跨平台工具"},
     @{Path="modules/performance/benchmark.ps1"; Condition={$true}; Name="性能测试工具"}
+
 )
 
 foreach ($module in $moduleList) {
