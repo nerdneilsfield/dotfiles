@@ -144,16 +144,16 @@ function Get-CachedResult {
 Write-ProfileLog "加载核心模块"
 
 # 基础配置
-Invoke-ConditionalLoad "modules\core\config.ps1" { $true } "基础配置"
+Invoke-ConditionalLoad "modules\core\config.ps1" { $true } "基础配置" | Out-Null
 
 # 别名定义
-Invoke-ConditionalLoad "modules\core\aliases.ps1" { $true } "别名定义"
+Invoke-ConditionalLoad "modules\core\aliases.ps1" { $true } "别名定义" | Out-Null
 
 # 通用函数
-Invoke-ConditionalLoad "modules\core\functions.ps1" { $true } "通用函数"
+Invoke-ConditionalLoad "modules\core\functions.ps1" { $true } "通用函数" | Out-Null
 
 # 性能工具
-Invoke-ConditionalLoad "modules\performance\benchmark.ps1" { $true } "性能测试工具"
+Invoke-ConditionalLoad "modules\performance\benchmark.ps1" { $true } "性能测试工具" | Out-Null
 
 # === 条件加载模块 ===
 Write-ProfileLog "开始条件加载"
@@ -161,39 +161,39 @@ Write-ProfileLog "开始条件加载"
 # Git 集成 (如果 Git 可用)
 Invoke-ConditionalLoad "modules\tools\git.ps1" { 
     Get-Command git -ErrorAction SilentlyContinue 
-} "Git 集成"
+} "Git 集成" | Out-Null
 
 # Docker 支持 (如果 Docker 可用)
 Invoke-ConditionalLoad "modules\tools\docker.ps1" { 
     Get-Command docker -ErrorAction SilentlyContinue 
-} "Docker 支持"
+} "Docker 支持" | Out-Null
 
 # 开发工具集成
 Invoke-ConditionalLoad "modules\tools\development.ps1" { 
     (Get-Command code -ErrorAction SilentlyContinue) -or 
     (Get-Command nvim -ErrorAction SilentlyContinue) -or
     (Get-Command vim -ErrorAction SilentlyContinue)
-} "开发工具"
+} "开发工具" | Out-Null
 
 # Node.js 工具
 Invoke-ConditionalLoad "modules\tools\node.ps1" { 
     (Get-Command node -ErrorAction SilentlyContinue) -or
     (Get-Command fnm -ErrorAction SilentlyContinue) -or
     (Get-Command nvm -ErrorAction SilentlyContinue)
-} "Node.js 工具"
+} "Node.js 工具" | Out-Null
 
 # Python 工具
 Invoke-ConditionalLoad "modules\tools\python.ps1" { 
     (Get-Command python -ErrorAction SilentlyContinue) -or
     (Get-Command python3 -ErrorAction SilentlyContinue) -or
     (Get-Command py -ErrorAction SilentlyContinue)
-} "Python 工具"
+} "Python 工具" | Out-Null
 
 # Rust 工具
 Invoke-ConditionalLoad "modules\tools\rust.ps1" { 
     (Get-Command cargo -ErrorAction SilentlyContinue) -or
     (Test-Path "$env:USERPROFILE\.cargo\bin")
-} "Rust 工具"
+} "Rust 工具" | Out-Null
 
 # === 平台特定配置 ===
 Write-ProfileLog "加载平台特定配置"
@@ -201,7 +201,7 @@ Write-ProfileLog "加载平台特定配置"
 # WSL 集成 (如果在 WSL 环境中)
 Invoke-ConditionalLoad "modules\platform\wsl.ps1" { 
     $env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue)
-} "WSL 集成"
+} "WSL 集成" | Out-Null
 
 # === PowerShell 增强 ===
 Write-ProfileLog "加载 PowerShell 增强功能"
@@ -227,39 +227,39 @@ if (Get-Module PSReadLine -ListAvailable) {
 }
 
 # 自动补全增强
-Invoke-ConditionalLoad "modules\core\completion.ps1" { $true } "自动补全增强"
+Invoke-ConditionalLoad "modules\core\completion.ps1" { $true } "自动补全增强" | Out-Null
 
 # 帮助系统
-Invoke-ConditionalLoad "modules\core\help.ps1" { $true } "帮助文档系统"
+Invoke-ConditionalLoad "modules\core\help.ps1" { $true } "帮助文档系统" | Out-Null
 
 # 设置向导
-Invoke-ConditionalLoad "modules\core\wizard.ps1" { $true } "快速设置向导"
+Invoke-ConditionalLoad "modules\core\wizard.ps1" { $true } "快速设置向导" | Out-Null
 
 # 导航增强
-Invoke-ConditionalLoad "modules\tools\navigation.ps1" { $true } "智能导航"
+Invoke-ConditionalLoad "modules\tools\navigation.ps1" { $true } "智能导航" | Out-Null
 
 # Scoop 工具链
 Invoke-ConditionalLoad "modules\tools\scoop.ps1" { 
     Get-Command scoop -ErrorAction SilentlyContinue 
-} "Scoop 工具链"
+} "Scoop 工具链" | Out-Null
 
 # Starship 提示符
 Invoke-ConditionalLoad "modules\tools\starship.ps1" { 
     Get-Command starship -ErrorAction SilentlyContinue 
-} "Starship 提示符"
+} "Starship 提示符" | Out-Null
 
 # 搜索工具集成
 Invoke-ConditionalLoad "modules\tools\search.ps1" { 
     (Get-Command fd -ErrorAction SilentlyContinue) -or 
     (Get-Command rg -ErrorAction SilentlyContinue) -or
     (Get-Command fzf -ErrorAction SilentlyContinue)
-} "高级搜索工具"
+} "高级搜索工具" | Out-Null
 
 # 智能路由系统
-Invoke-ConditionalLoad "modules\core\router.ps1" { $true } "智能命令路由"
+Invoke-ConditionalLoad "modules\core\router.ps1" { $true } "智能命令路由" | Out-Null
 
 # 跨平台操作
-Invoke-ConditionalLoad "modules\core\crossplatform.ps1" { $true } "跨平台文件操作"
+Invoke-ConditionalLoad "modules\core\crossplatform.ps1" { $true } "跨平台文件操作" | Out-Null
 
 # === Phase 3: 高级工具集成 ===
 Write-ProfileLog "加载 Phase 3 高级工具"
@@ -267,13 +267,13 @@ Write-ProfileLog "加载 Phase 3 高级工具"
 # Windows 功能深度集成
 Invoke-ConditionalLoad "modules\platform\windows.ps1" { 
     $IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)
-} "Windows 深度功能"
+} "Windows 深度功能" | Out-Null
 
 # 系统监控工具
-Invoke-ConditionalLoad "modules\tools\monitoring.ps1" { $true } "系统监控工具"
+Invoke-ConditionalLoad "modules\tools\monitoring.ps1" { $true } "系统监控工具" | Out-Null
 
 # 开发环境集成
-Invoke-ConditionalLoad "modules\tools\devenv.ps1" { $true } "开发环境集成"
+Invoke-ConditionalLoad "modules\tools\devenv.ps1" { $true } "开发环境集成" | Out-Null
 
 # === 私有配置加载 ===
 Write-ProfileLog "加载私有配置"

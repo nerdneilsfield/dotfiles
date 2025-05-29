@@ -3,7 +3,11 @@
 
 # 帮助系统配置
 $script:HelpConfig = @{
-    ConfigDir = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSCommandPath))
+    ConfigDir = if ($PSCommandPath) { 
+        Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSCommandPath))
+    } else {
+        "$env:USERPROFILE\.config\powershell"
+    }
     Categories = @('core', 'tools', 'platform', 'performance')
     Colors = @{
         Title = 'Green'
