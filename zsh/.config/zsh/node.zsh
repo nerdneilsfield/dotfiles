@@ -107,10 +107,12 @@ install_nosoource_ppa(){
   sudo apt install -y nodejs
 }
 
+export FNM_MULTISHELL_PATH="$HOME/.fnm_multishells"
+mkdir -p "$FNM_MULTISHELL_PATH" # 确保目录存在
 
 # 优化的 fnm 初始化 - 避免重复检查和执行
 if command -v fnm >/dev/null 2>&1 || [[ -f "$HOME/.cargo/bin/fnm" ]]; then
-    echo "Have fnm init"
+    # echo "Have fnm init"
     
     # 安全的 eval - 验证命令输出
     local fnm_output=$(fnm env --shell zsh 2>/dev/null)

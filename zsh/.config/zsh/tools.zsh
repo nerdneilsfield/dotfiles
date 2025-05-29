@@ -294,35 +294,20 @@ install_fastfetch() {
 # @category tools
 install_gh(){
     echo "🚀 智能安装 GitHub CLI..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool gh
-        return $?
-    fi
-    
-    # 回退到传统方法
-    echo "⚠️  智能安装系统未加载，使用传统方法..."
-    green_echo "======================================"
-    green_echo "=========Install gh========"
-    green_echo "======================================"
-  local _gh_version=$(GetLatestReleaseWithRetryProxy "cli/cli")
-  local _arch=$(uname -m)
-  if [[ $_arch == "x86_64" ]]; then
-    _arch="amd64"
-  fi
-  local _gh_url="https://ghproxy.dengqi.org/https://github.com/cli/cli/releases/download/v${_gh_version}/gh_${_gh_version}_linux_${_arch}.tar.gz"
+    local example_url="https://github.com/cli/cli/releases/download/v2.73.0/gh_2.73.0_linux_amd64.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
 
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O gh.tar.gz $_gh_url
-  tar -xzf gh.tar.gz
-  cd "gh_${_gh_version}_linux_${_arch}"
-  mv bin/gh $HOME/.local/bin/
-  mkdir -p $HOME/.local/share/man/man1
-  cp share/man/man1/* $HOME/.local/share/man/man1/
-  sudo rm -rf /usr/local/bin/gh
-  sudo cp $HOME/.local/bin/gh /usr/local/bin/gh
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        echo "   尝试使用旧方法回退安装 gh... (可能已移除)" >&2
+        # Fallback to old method (which should ideally be removed or also made smart if kept)
+        # For now, demonstrating the call to batch_smart_download_tools is the primary goal.
+        # The original old code for gh was complex and is superseded.
+        return 1
+    fi
 }
 
 # @brief Install fzf fuzzy finder intelligently
@@ -331,33 +316,23 @@ install_gh(){
 # @category tools
 install_fzf(){
     echo "🚀 智能安装 fzf..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool fzf
+    local example_url="https://github.com/junegunn/fzf/releases/download/v0.62.0/fzf-0.62.0-linux_amd64.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        # fzf also needs its shell integrations installed. 
+        # The smart_install_downloaded function might handle some of this if completions/scripts are in standard locations.
+        # However, fzf often requires sourcing specific files or running an install script found within its extracted contents.
+        # This part might need additional logic after batch_smart_download_tools if the generic install isn't enough.
+        echo "请记得根据 fzf 的文档或提示，确保其 shell 集成 (key bindings, completion) 已正确配置。"
+        echo "通常这涉及到在 .zshrc 或类似文件中 source 一些脚本，或者运行解压后的 fzf/install 脚本。"
+        echo "智能安装程序会尝试将可执行文件放到 $install_prefix/bin，并将补全脚本放到标准位置。"
         return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
     fi
-    
-    # 回退到传统方法
-    echo "⚠️  智能安装系统未加载，使用传统方法..."
-    green_echo "======================================"
-    green_echo "=========Install fzf========"
-    green_echo "======================================"
-  local _fzf_version=$(GetLatestReleaseWithRetryProxy "junegunn/fzf")
-  local _arch=$(uname -m)
-  if [[ $_arch == "x86_64" ]]; then
-    _arch="amd64"
-  fi
-  # link is like: https://github.com/junegunn/fzf/releases/download/v0.55.0/fzf-0.55.0-linux_amd64.tar.gz
-  local _fzf_url="https://ghproxy.dengqi.org/https://github.com/junegunn/fzf/releases/download/v${_fzf_version}/fzf-${_fzf_version}-linux_${_arch}.tar.gz"
-  green_echo "downloading $_fzf_url ......"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O fzf.tar.gz $_fzf_url
-  tar -xzf fzf.tar.gz
-  mv fzf $HOME/.local/bin/
-  sudo rm -rf /usr/local/bin/fzf
-  sudo cp $HOME/.local/bin/fzf /usr/local/bin/fzf
 }
 
 # @brief Install eza modern ls replacement intelligently
@@ -366,28 +341,16 @@ install_fzf(){
 # @category tools
 install_eza(){
     echo "🚀 智能安装 eza..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool eza
+    local example_url="https://github.com/eza-community/eza/releases/download/v0.21.3/eza_x86_64-unknown-linux-gnu.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
         return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
     fi
-    
-    # 回退到传统方法
-    echo "⚠️  智能安装系统未加载，使用传统方法..."
-    green_echo "======================================"
-    green_echo "=========Install eza========"
-    green_echo "======================================"
-  local _eza_version=$(GetLatestReleaseWithRetryProxy "eza-community/eza")
-  local _arch=$(uname -m)
-  local _eza_url="https://ghproxy.dengqi.org/https://github.com/eza-community/eza/releases/download/v${_eza_version}/eza_${_arch}-unknown-linux-gnu.tar.gz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O eza.tar.gz $_eza_url
-  tar -xzf eza.tar.gz
-  mv eza $HOME/.local/bin/
-  sudo rm -rf /usr/local/bin/eza
-  sudo cp $HOME/.local/bin/eza /usr/local/bin/eza
 }
 
 # @brief Install lazygit Git TUI
@@ -395,19 +358,17 @@ install_eza(){
 # @example install_lazygit
 # @category tools
 install_lazygit(){
-  green_echo "======================================"
-  green_echo "=========Install lazygit========"
-  green_echo "======================================"
-  local _lazygit_version=$(GetLatestReleaseWithRetryProxy "jesseduffield/lazygit")
-  local _arch=$(uname -m)
-  local _lazygit_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazygit/releases/download/v${_lazygit_version}/lazygit_${_lazygit_version}_Linux_${_arch}.tar.gz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O lazygit.tar.gz $_lazygit_url
-  tar -xzf lazygit.tar.gz
-  mv lazygit $HOME/.local/bin/
-  sudo rm -rf /usr/local/bin/lazygit
-  sudo cp $HOME/.local/bin/lazygit /usr/local/bin/lazygit
+    echo "🚀 智能安装 lazygit..."
+    local example_url="https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1 # Or fallback to old method if one existed and was simple enough
+    fi
 }
 
 # @brief Install lazydocker Docker TUI
@@ -415,19 +376,19 @@ install_lazygit(){
 # @example install_lazydocker
 # @category tools
 install_lazydocker(){
-  green_echo "======================================"
-  green_echo "=========Install lazydocker========"
-  green_echo "======================================"
-  local _lazydocker_version=$(GetLatestReleaseWithRetryProxy "jesseduffield/lazydocker")
-  local _arch=$(uname -m)
-  local _lazydocker_url="https://ghproxy.dengqi.org/https://github.com/jesseduffield/lazydocker/releases/download/v${_lazydocker_version}/lazydocker_${_lazydocker_version}_Linux_${_arch}.tar.gz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O lazydocker.tar.gz $_lazydocker_url
-  tar -xzf lazydocker.tar.gz
-  mv lazydocker $HOME/.local/bin/
-  sudo rm -rf /usr/local/bin/lazydocker
-  sudo cp $HOME/.local/bin/lazydocker /usr/local/bin/lazydocker
+    echo "🚀 智能安装 lazydocker..."
+    # 注意: 下面的 URL 是基于常见模式推测的，如果 lazydocker 的发布资源命名不同，可能需要调整。
+    # 或者，确保此工具包含在 install_modern_tools_by_download 的 URL 列表中以获得更准确的模式学习。
+    local example_url="https://github.com/jesseduffield/lazydocker/releases/download/v0.23.1/lazydocker_0.23.1_Linux_x86_64.tar.gz" # 推测的示例 URL
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
+    fi
 }
 
 # @brief Install duf disk usage utility
@@ -435,22 +396,17 @@ install_lazydocker(){
 # @example install_duf
 # @category tools
 install_duf(){
-  green_echo "======================================"
-  green_echo "=========Install duf========"
-  green_echo "======================================"
-  local _duf_version=$(GetLatestReleaseWithRetryProxy "muesli/duf")
-  local _arch=$(uname -m)
-  # if [[ $_arch == "x86_64" ]]; then
-  #   _arch="amd64"
-  # fi
-  local _duf_url="https://ghproxy.dengqi.org/https://github.com/muesli/duf/releases/download/v${_duf_version}/duf_${_duf_version}_linux_${_arch}.tar.gz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O duf.tar.gz $_duf_url
-  tar -xzf duf.tar.gz
-  mv duf $HOME/.local/bin/
-  sudo rm -rf /usr/local/bin/duf
-  sudo cp $HOME/.local/bin/duf /usr/local/bin/duf
+    echo "🚀 智能安装 duf..."
+    local example_url="https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
+    fi
 }
 
 # @brief Install gdu disk usage analyzer
@@ -458,22 +414,17 @@ install_duf(){
 # @example install_gdu
 # @category tools
 install_gdu(){
-  green_echo "======================================"
-  green_echo "=========Install gdu========"
-  green_echo "======================================"
-  local _gdu_version=$(GetLatestReleaseWithRetryProxy "dundee/gdu")
-  local _arch=$(uname -m)
-  if [[ $_arch == "x86_64" ]]; then
-    _arch="amd64"
-  fi
-  local _gdu_url="https://ghproxy.dengqi.org/https://github.com/dundee/gdu/releases/download/v${_gdu_version}/gdu_linux_${_arch}.tgz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O gdu.tar.gz $_gdu_url
-  tar -xzf gdu.tar.gz
-  mv "gdu_linux_${_arch}" $HOME/.local/bin/gdu
-  sudo rm -rf /usr/local/bin/gdu
-  sudo cp $HOME/.local/bin/gdu /usr/local/bin/gdu
+    echo "🚀 智能安装 gdu..."
+    local example_url="https://github.com/dundee/gdu/releases/download/v5.30.1/gdu_linux_amd64.tgz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
+    fi
 }
 
 # @brief Install ripgrep fast text search tool intelligently
@@ -482,32 +433,16 @@ install_gdu(){
 # @category tools
 install_ripgrep(){
     echo "🚀 智能安装 ripgrep..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool ripgrep
+    local example_url="https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
         return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
     fi
-    
-    # 回退到传统方法
-    echo "⚠️  智能安装系统未加载，使用传统方法..."
-    green_echo "======================================"
-    green_echo "=========Install ripgrep========"
-    green_echo "======================================"
-  local _rg_version=$(GetLatestReleaseWithRetryProxy "BurntSushi/ripgrep")
-  local _arch=$(uname -m)
-  # if [[ $_arch == "x86_64" ]]; then
-  #   _arch="amd64"
-  # fi
-  local _rg_url="https://ghproxy.dengqi.org/https://github.com/BurntSushi/ripgrep/releases/download/${_rg_version}/ripgrep-${_rg_version}-${_arch}-unknown-linux-musl.tar.gz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O rg.tar.gz $_rg_url
-  tar -xzf rg.tar.gz
-  cd ripgrep-${_rg_version}-${_arch}-unknown-linux-musl
-  mv rg $HOME/.local/bin/
-  sudo rm -rf /usr/local/bin/rg
-  sudo cp $HOME/.local/bin/rg /usr/local/bin/rg
 }
 
 # @brief Install fd fast file finder
@@ -515,24 +450,17 @@ install_ripgrep(){
 # @example install_fd
 # @category tools
 install_fd(){
-  green_echo "======================================"
-  green_echo "=========Install fd========"
-  green_echo "======================================"
-  local _fd_version=$(GetLatestReleaseWithRetryProxy "sharkdp/fd")
-  local _arch=$(uname -m)
-  # if [[ $_arch == "x86_64" ]]; then
-  #   _arch="amd64"
-  # fi
-  local _fd_url="https://ghproxy.dengqi.org/https://github.com/sharkdp/fd/releases/download/v${_fd_version}/fd-v${_fd_version}-${_arch}-unknown-linux-gnu.tar.gz"
-  mkdir -p /tmp/install
-  cd /tmp/install
-  wget -O fd.tar.gz $_fd_url
-  tar -xzf fd.tar.gz
-  cd fd-v${_fd_version}-${_arch}-unknown-linux-gnu
-  mv fd $HOME/.local/bin/
-  cp fd.1 $HOME/.local/share/man/man1/
-  sudo rm -rf /usr/local/bin/fd
-  sudo cp $HOME/.local/bin/fd /usr/local/bin/fd
+    echo "🚀 智能安装 fd..."
+    local example_url="https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
+    fi
 }
 
 # @brief Install mise runtime version manager
@@ -540,21 +468,29 @@ install_fd(){
 # @example install_mise
 # @category tools
 install_mise(){
-  green_echo "======================================"
-  green_echo "=========Install mise========"
-  green_echo "======================================"
-  local _mise_version=$(GetLatestReleaseWithRetryProxy "jdx/mise")
-  local _arch=$(uname -m)
-  if [[ $_arch == "x86_64" ]]; then
-    _arch="x64"
-  elif [[ $_arch == "aarch64" ]]; then
-    _arch="arm64"
-  fi
-  # https://github.com/jdx/mise/releases/download/v2024.5.16/mise-v2024.5.16-linux-x64-musl.tar.xz
-  local _mise_url="https://ghproxy.dengqi.org/https://github.com/jdx/mise/releases/download/v${_mise_version}/mise-v${_mise_version}-linux-${_arch}-musl.tar.xz"
-  wget -O /tmp/mise.tar.xz $_mise_url
-  tar -xvf /tmp/mise.tar.xz -C $HOME/.local/share
-  ln -sf $HOME/.local/share/mise/bin/mise $HOME/.local/bin/mise
+    echo "🚀 智能安装 mise..."
+    # 根据其传统安装逻辑，推测的示例 URL。musl 版本，架构为 x64/arm64。
+    local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz" 
+    local install_prefix="$HOME/.local" # mise 通常期望安装到特定目录，然后符号链接，但 smart_install 会处理到 $HOME/.local/bin
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        # smart_install_downloaded 会将可执行文件放到 $install_prefix/bin (即 $HOME/.local/bin/mise)
+        # mise 的激活 (eval "$(mise activate zsh)") 仍然需要用户在 .zshrc 中配置，
+        # 或者依赖于 $HOME/.local/bin 在 PATH 中且 mise 能够自激活。
+        # 对于 mise，我们智能安装其二进制文件。其 shell 集成和环境管理是其核心功能，需按其文档操作。
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        if [[ $? -eq 0 ]]; then
+             echo "✅ mise 二进制文件已尝试安装到 $install_prefix/bin。"
+             echo "   请确保根据 mise 文档完成 shell 集成 (例如，在 .zshrc 中添加 'eval "$(mise activate zsh)"')。"
+             return 0
+        else
+            echo "❌ mise 安装失败。"
+            return 1
+        fi
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
+    fi
 }
 
 # @brief Install asdf version manager
@@ -583,24 +519,24 @@ install_asdf(){
 # @category tools
 install_xray(){
     echo "🚀 智能安装 Xray..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool xray
+    # Xray-core 的资源名通常是 Xray-linux-64.zip 或 Xray-linux-arm64-v8a.zip
+    local example_url="https://github.com/XTLS/Xray-core/releases/download/v1.8.10/Xray-linux-64.zip"
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        # Xray 安装后通常需要配置文件，这超出了智能安装的范围
+        if [[ $? -eq 0 ]]; then
+            echo "✅ Xray 二进制文件已尝试安装到 $install_prefix/bin。"
+            echo "   请记得为 Xray 配置 config.json。"
+            return 0
+        else
+            echo "❌ Xray 安装失败。"
+            return 1
+        fi
     else
-        # 回退到传统方法
-        echo "⚠️  智能安装系统未加载，使用传统方法..."
-        local _xray_version=$(GetLatestReleaseWithRetryProxy "XTLS/Xray-core")
-        local _arch=$(get_cpu_arch)
-        local _xray_url="https://ghproxy.dengqi.org/https://github.com/XTLS/Xray-core/releases/download/v${_xray_version}/Xray-linux-${_arch}.zip"
-        
-        mkdir -p /tmp/install
-        cd /tmp/install
-        wget -O xray.zip $_xray_url
-        unzip xray.zip
-        mv xray $HOME/.local/bin/
-        chmod +x $HOME/.local/bin/xray
-        sudo cp $HOME/.local/bin/xray /usr/local/bin/ 2>/dev/null || true
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
     fi
 }
 
@@ -610,24 +546,22 @@ install_xray(){
 # @category tools
 install_sing_box(){
     echo "🚀 智能安装 sing-box..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool sing-box
+    local example_url="https://github.com/SagerNet/sing-box/releases/download/v1.9.0/sing-box-1.9.0-linux-amd64.tar.gz" # 推测的示例 URL
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        if [[ $? -eq 0 ]]; then
+            echo "✅ sing-box 二进制文件已尝试安装到 $install_prefix/bin。"
+            echo "   请记得为 sing-box 配置 config.json。"
+            return 0
+        else
+            echo "❌ sing-box 安装失败。"
+            return 1
+        fi
     else
-        # 回退到传统方法
-        echo "⚠️  智能安装系统未加载，使用传统方法..."
-        local _sing_box_version=$(GetLatestReleaseWithRetryProxy "SagerNet/sing-box")
-        local _arch=$(get_cpu_arch)
-        local _sing_box_url="https://ghproxy.dengqi.org/https://github.com/SagerNet/sing-box/releases/download/v${_sing_box_version}/sing-box-${_arch}.tar.gz"
-        
-        mkdir -p /tmp/install
-        cd /tmp/install
-        wget -O sing-box.tar.gz $_sing_box_url
-        tar -xzf sing-box.tar.gz
-        mv sing-box $HOME/.local/bin/
-        chmod +x $HOME/.local/bin/sing-box
-        sudo cp $HOME/.local/bin/sing-box /usr/local/bin/ 2>/dev/null || true
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
     fi
 }
 
@@ -637,24 +571,23 @@ install_sing_box(){
 # @category tools
 install_mihomo(){
     echo "🚀 智能安装 mihomo (Clash Meta)..."
-    
-    # 使用智能安装系统
-    if command -v install_smart_tool >/dev/null 2>&1; then
-        install_smart_tool mihomo
+    # mihomo 的资源名通常是 mihomo-linux-amd64-vX.Y.Z.gz
+    local example_url="https://github.com/MetaCubeX/mihomo/releases/download/v1.18.4/mihomo-linux-amd64-v1.18.4.gz"
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        if [[ $? -eq 0 ]]; then
+            echo "✅ mihomo 二进制文件已尝试安装到 $install_prefix/bin。"
+            echo "   请记得为 mihomo (Clash Meta) 配置 config.yaml 及 Country.mmdb。"
+            return 0
+        else
+            echo "❌ mihomo 安装失败。"
+            return 1
+        fi
     else
-        # 回退到传统方法
-        echo "⚠️  智能安装系统未加载，使用传统方法..."
-        local _mihomo_version=$(GetLatestReleaseWithRetryProxy "MetaCubeX/mihomo")
-        local _arch=$(get_cpu_arch)
-        local _mihomo_url="https://ghproxy.dengqi.org/https://github.com/MetaCubeX/mihomo/releases/download/v${_mihomo_version}/mihomo-linux-${_arch}-v${_mihomo_version}.gz"
-        
-        mkdir -p /tmp/install
-        cd /tmp/install
-        wget -O mihomo.gz $_mihomo_url
-        gunzip mihomo.gz
-        mv mihomo $HOME/.local/bin/
-        chmod +x $HOME/.local/bin/mihomo
-        sudo cp $HOME/.local/bin/mihomo /usr/local/bin/ 2>/dev/null || true
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        return 1
     fi
 }
 

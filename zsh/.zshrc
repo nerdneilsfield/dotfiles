@@ -26,17 +26,17 @@ autoload -U compinit && compinit
 source "$ZSH_CONF_DIR/keymap.zsh"
 
 # system specified configuration
-if [ "$(uname 2> /dev/null)" = "Linux" ]; then
-	source "$ZSH_CONF_DIR/config.linux.zsh"
-	if [ $"uname -r | grep -q 'Microsoft'" ]; # if in wsl 
-	then
-		source "$ZSH_CONF_DIR/config.wsl.zsh"
-	fi
-fi
+# if [ "$(uname 2> /dev/null)" = "Linux" ]; then
+# 	source "$ZSH_CONF_DIR/config.linux.zsh"
+# 	if [ $"uname -r | grep -q 'Microsoft'" ]; # if in wsl 
+# 	then
+# 		source "$ZSH_CONF_DIR/config.wsl.zsh"
+# 	fi
+# fi
 
-if [ "$(uname 2> /dev/null)" = "Darwin" ]; then
-	source "$ZSH_CONF_DIR/config.macos.zsh"
-fi
+# if [ "$(uname 2> /dev/null)" = "Darwin" ]; then
+# 	source "$ZSH_CONF_DIR/config.macos.zsh"
+# fi
 
 ## fzf
 # export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'

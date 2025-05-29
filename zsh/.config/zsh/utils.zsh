@@ -1,3 +1,6 @@
+# echo ">>>> STARTING utils.zsh execution (Timestamp: $(date +%s.%N)) <<<<"
+# echo ">>>> SOURCING FILE: $0 <<<<"
+
 # ZSH 性能调试和缓存管理工具
 
 # @brief Benchmark ZSH startup time performance
@@ -115,51 +118,26 @@ show_zsh_cache() {
 warmup_cache() {
     echo "🔥 预热缓存..."
     
-    # 预热地区检查缓存
-    echo -n "  地区检查... "
+    # 预热地区检查缓存 (Simplified Echo)
+    echo "Checking location..."
     if check_in_china >/dev/null 2>&1; then
-        echo "✅"
+        echo "In China"
     else
-        echo "❌"
+        echo "Not in China"
     fi
     
-    # 预热 Python 版本缓存
+    # 预热 Python 版本缓存 (Simplified Echo)
     if command -v python3 >/dev/null 2>&1; then
-        echo -n "  Python版本... "
+        echo "Checking Python version..."
         local python_ver=$(_get_python_versions 2>/dev/null)
         if [[ -n "$python_ver" ]]; then
-            echo "✅ ($python_ver)"
+            echo "Python version found"
         else
-            echo "❌"
+            echo "Python version not found"
         fi
     fi
     
     echo "🎯 缓存预热完成"
-}
-
-# @brief Display ZSH performance optimization tips
-# @return 0 on success
-# @example zsh_performance_tips
-# @category performance
-zsh_performance_tips() {
-    echo "🚀 ZSH 性能优化建议："
-    echo ""
-    echo "1. 📦 只安装需要的工具 - 避免不必要的模块加载"
-    echo "2. 🗂️  定期清理缓存 - 运行 clear_zsh_cache"
-    echo "3. ⏱️  监控启动时间 - 运行 benchmark_zsh"
-    echo "4. 🔥 预热缓存 - 运行 warmup_cache"
-    echo "5. 🔍 检查缓存状态 - 运行 show_zsh_cache"
-    echo ""
-    echo "缓存文件位置: ~/.cache/zsh_*"
-    echo "缓存默认TTL: 地区检查(24h), Python版本(1h)"
-}
-
-# @brief Check if smart installation system is available
-# @return 0 if available, 1 otherwise
-# @example check_smart_install_available
-# @category utils
-check_smart_install_available() {
-    command -v install_smart_tool >/dev/null 2>&1
 }
 
 # @brief Get system package manager type
@@ -1204,18 +1182,6 @@ show_arch_patterns() {
     echo "🚀 智能下载系统会自动尝试这些变体！"
 }
 
-# 别名
-alias zsh-bench="benchmark_zsh"
-alias zsh-cache="show_zsh_cache"
-alias zsh-clear="clear_zsh_cache"
-alias zsh-warmup="warmup_cache"
-alias zsh-tips="zsh_performance_tips"
-alias show-install="show_install_methods"
-alias list-installs="list_install_functions"
-alias test-arch="test_arch_detection"
-alias demo-download="demo_smart_download"
-alias show-arch="show_arch_patterns"
-
 # @brief Batch download and install tools using smart_download_tool from a list of example URLs
 # @param $1 Array of example GitHub Release download URLs
 # @param $2 Optional target installation prefix (e.g., /usr/local, $HOME/.local). Defaults to $HOME/.local.
@@ -1228,7 +1194,7 @@ batch_smart_download_tools() {
     # We need to reconstruct the URL array and identify the install prefix.
     
     local -a urls_to_process
-    local requested_install_prefix="$HOME/.local" # Default
+    local requested_install_prefix="${HOME}/.local" # Default
     local last_arg_index=$#
 
     if [[ $# -eq 0 ]]; then
@@ -1298,7 +1264,10 @@ batch_smart_download_tools() {
         fi
         
         local repo="" example_tag="" asset_filename="" tool_name_to_use=""
-        local cleaned_json="${meta_json#\{"} " cleaned_json="${cleaned_json%\} }" cleaned_json="${cleaned_json% }"
+        local cleaned_json_temp="${meta_json#\{}" # Remove leading '{'
+        cleaned_json_temp="${cleaned_json_temp%\}}"  # Remove trailing '}'
+        local cleaned_json="${cleaned_json_temp% }" # Remove potential trailing space from the previous operation.
+        # local cleaned_json="${meta_json#\{"} " cleaned_json="${cleaned_json%\} }" cleaned_json="${cleaned_json% }"
         local -a pairs; IFS=',' read -r -A pairs <<< "$cleaned_json"
         for pair in "${pairs[@]}"; do
             local key val
@@ -1367,3 +1336,15 @@ batch_smart_download_tools() {
     fi
     return 0
 }
+
+# 别名
+alias zsh-bench="benchmark_zsh"
+alias zsh-cache="show_zsh_cache"
+alias zsh-clear="clear_zsh_cache"
+alias zsh-warmup="warmup_cache"
+alias zsh-tips="zsh_performance_tips"
+alias show-install="show_install_methods"
+alias list-installs="list_install_functions"
+alias test-arch="test_arch_detection"
+alias demo-download="demo_smart_download"
+alias show-arch="show_arch_patterns"

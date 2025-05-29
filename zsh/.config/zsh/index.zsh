@@ -60,7 +60,7 @@ _conditional_source "robotics.zsh" "[[ -d /opt/ros ]]"
 source "$ZSH_CONF_DIR/html.zsh"
 
 # 性能工具 - 总是加载
-source "$ZSH_CONF_DIR/utils.zsh"
+# source "$ZSH_CONF_DIR/utils.zsh"
 
 # 安全工具 - 总是加载
 source "$ZSH_CONF_DIR/security.zsh"
