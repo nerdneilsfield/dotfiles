@@ -486,12 +486,12 @@ function Install-DevEnvironment {
     )
     
     $environments = @{
-        'Minimal' = @('git', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship')
-        'Frontend' = @('git', 'nodejs', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh')
-        'Backend' = @('git', 'python', 'go', 'rustup', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'httpie', 'jq')
-        'FullStack' = @('git', 'nodejs', 'python', 'go', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'httpie', 'jq', 'docker')
-        'DevOps' = @('git', 'python', 'go', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'kubectl', 'terraform', 'docker', 'aws')
-        'DataScience' = @('git', 'python', 'r', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'jq', 'pandoc')
+        'Minimal' = @('git', 'delta', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship')
+        'Frontend' = @('git', 'delta', 'nodejs', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh')
+        'Backend' = @('git', 'delta', 'python', 'go', 'rustup', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'httpie', 'jq')
+        'FullStack' = @('git', 'delta', 'nodejs', 'python', 'go', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'httpie', 'jq', 'docker')
+        'DevOps' = @('git', 'delta', 'python', 'go', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'kubectl', 'terraform', 'docker', 'aws')
+        'DataScience' = @('git', 'delta', 'python', 'r', 'fd', 'ripgrep', 'eza', 'fzf', 'zoxide', 'bat', 'starship', 'gh', 'jq', 'pandoc')
     }
     
     $tools = $environments[$Profile]
@@ -571,6 +571,73 @@ function Export-ScoopConfig {
     }
 }
 
+# 环境变量刷新功能（模拟 Chocolatey 的 refreshenv）
+function Update-Environment {
+    <#
+    .SYNOPSIS
+    刷新环境变量，类似于 Chocolatey 的 refreshenv 命令
+    
+    .DESCRIPTION
+    重新读取系统和用户的环境变量，更新当前 PowerShell 会话
+    
+    .EXAMPLE
+    Update-Environment
+    刷新环境变量
+    
+    .EXAMPLE
+    refreshenv
+    使用别名刷新环境变量
+    #>
+    
+    Write-Host "🔄 刷新环境变量..." -ForegroundColor Cyan
+    
+    # 刷新用户环境变量
+    $userEnv = [Environment]::GetEnvironmentVariables([EnvironmentVariableTarget]::User)
+    foreach ($key in $userEnv.Keys) {
+        [Environment]::SetEnvironmentVariable($key, $userEnv[$key], [EnvironmentVariableTarget]::Process)
+    }
+    
+    # 刷新系统环境变量
+    $systemEnv = [Environment]::GetEnvironmentVariables([EnvironmentVariableTarget]::Machine)
+    foreach ($key in $systemEnv.Keys) {
+        if ($key -ne 'PATH') {  # PATH 需要特殊处理
+            [Environment]::SetEnvironmentVariable($key, $systemEnv[$key], [EnvironmentVariableTarget]::Process)
+        }
+    }
+    
+    # 特殊处理 PATH 环境变量
+    $machinePath = [Environment]::GetEnvironmentVariable('PATH', [EnvironmentVariableTarget]::Machine)
+    $userPath = [Environment]::GetEnvironmentVariable('PATH', [EnvironmentVariableTarget]::User)
+    
+    $newPath = @()
+    if ($machinePath) { $newPath += $machinePath.Split(';') }
+    if ($userPath) { $newPath += $userPath.Split(';') }
+    
+    # 去除重复和空路径
+    $cleanPath = $newPath | Where-Object { $_ -and $_.Trim() } | Select-Object -Unique
+    
+    $env:PATH = $cleanPath -join ';'
+    
+    Write-Host "✅ 环境变量已刷新" -ForegroundColor Green
+    
+    # 显示一些关键路径信息
+    Write-Host "当前 PATH 包含 $($cleanPath.Count) 个路径" -ForegroundColor Gray
+    
+    # 检查常用工具是否在 PATH 中
+    $commonTools = @('git', 'scoop', 'starship', 'fzf', 'delta')
+    $availableTools = @()
+    
+    foreach ($tool in $commonTools) {
+        if (Get-Command $tool -ErrorAction SilentlyContinue) {
+            $availableTools += $tool
+        }
+    }
+    
+    if ($availableTools.Count -gt 0) {
+        Write-Host "可用工具: $($availableTools -join ', ')" -ForegroundColor Green
+    }
+}
+
 # 设置常用别名
 Set-Alias -Name scoopi -Value Install-ScoopTool
 Set-Alias -Name scoops -Value Search-ScoopPackage
@@ -578,6 +645,8 @@ Set-Alias -Name scoopu -Value Update-AllScoopTools
 Set-Alias -Name scoopc -Value Clear-ScoopCache
 Set-Alias -Name scoopst -Value Get-ScoopStatus
 Set-Alias -Name scoopinfo -Value Show-ScoopToolInfo
+Set-Alias -Name refreshenv -Value Update-Environment
+Set-Alias -Name refresh-env -Value Update-Environment
 
 # Scoop 工具链包装器加载完成
 
