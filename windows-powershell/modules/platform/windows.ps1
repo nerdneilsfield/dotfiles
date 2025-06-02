@@ -398,6 +398,66 @@ function Update-WingetPackages {
     winget upgrade --all
 }
 
+# 打开防火墙端口
+function Open-FirewallPort {
+    param(
+        [Parameter(Mandatory=$true)]
+        [int[]]$Ports,
+        [string]$RuleName = "WSL Port Forwarding",
+        [string]$Protocol = "TCP"
+    )
+    
+    try {
+        # 删除现有规则（如果存在）
+        Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
+        
+        $portsString = $Ports -join ","
+        
+        # 创建入站规则
+        New-NetFirewallRule -DisplayName $RuleName -Direction Inbound -LocalPort $portsString -Action Allow -Protocol $Protocol[2][4]
+        
+        # 创建出站规则
+        New-NetFirewallRule -DisplayName $RuleName -Direction Outbound -LocalPort $portsString -Action Allow -Protocol $Protocol[2][4]
+        
+        Write-Host "防火墙规则已创建: $RuleName (端口: $portsString)" -ForegroundColor Green
+    }
+    catch {
+        Write-Error "创建防火墙规则失败: $_"
+    }
+}
+
+# 设置端口转发
+function Set-PortForwarding {
+    param(
+        [Parameter(Mandatory=$true)]
+        [int[]]$Ports,
+        [Parameter(Mandatory=$true)]
+        [string]$WslIpAddress,
+        [string]$ListenAddress = "0.0.0.0"
+    )
+    
+    try {
+        foreach ($port in $Ports) {
+            # 删除现有的端口代理规则
+            netsh interface portproxy delete v4tov4 listenport=$port listenaddress=$ListenAddress | Out-Null
+            
+            # 添加新的端口代理规则
+            netsh interface portproxy add v4tov4 listenport=$port listenaddress=$ListenAddress connectport=$port connectaddress=$WslIpAddress[3][4]
+            
+            Write-Host "端口转发已设置: $port -> ${WslIpAddress}:${port}" -ForegroundColor Green
+        }
+        
+        # 显示当前的端口代理设置
+        Write-Host "`n当前端口代理设置:" -ForegroundColor Yellow
+        netsh interface portproxy show v4tov4
+    }
+    catch {
+        Write-Error "设置端口转发失败: $_"
+    }
+}
+
+
+
 # 别名
 Set-Alias -Name syshealth -Value Get-SystemHealth -Force
 Set-Alias -Name sysopt -Value Optimize-WindowsPerformance -Force
@@ -407,5 +467,6 @@ Set-Alias -Name terminal -Value Set-TerminalProfile -Force
 Set-Alias -Name wg -Value Search-WingetPackage -Force
 Set-Alias -Name wgi -Value Install-WingetPackage -Force
 Set-Alias -Name wgu -Value Update-WingetPackages -Force
+Set-Alias -Name fw -Value Open-FirewallPort -Force
 
 # Note: Functions and aliases are automatically available when dot-sourced

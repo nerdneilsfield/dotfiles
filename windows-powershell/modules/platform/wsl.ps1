@@ -443,6 +443,204 @@ function Invoke-WSLCommand {
     }
 }
 
+# 获取 WSL 发行版的 IP 地址
+function Get-WslIpAddress {
+    param(
+        [string]$DistributionName = $null
+    )
+    
+    try {
+        # 方法1：使用 ip addr 命令获取 eth0 接口的 IP
+        if ($DistributionName) {
+            $ipOutput = wsl -d $DistributionName -- ip addr show eth0
+        } else {
+            $ipOutput = wsl -- ip addr show eth0
+        }
+        
+        # 从输出中提取 IPv4 地址
+        $ipAddress = ($ipOutput | Select-String "inet\s+(\d+\.\d+\.\d+\.\d+)" | ForEach-Object { $_.Matches.Groups[1].Value }) | Where-Object { $_ -ne "127.0.0.1" } | Select-Object -First 1
+        
+        if ($ipAddress) {
+            return $ipAddress
+        }
+        
+        # 方法2：如果方法1失败，尝试使用 hostname -I 但过滤掉本地地址
+        Write-Warning "尝试备用方法获取 IP 地址..."
+        if ($DistributionName) {
+            $hostnameOutput = wsl -d $DistributionName hostname -I
+        } else {
+            $hostnameOutput = wsl hostname -I
+        }
+        
+        $validIps = ($hostnameOutput -split '\s+') | Where-Object { 
+            $_ -match '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$' -and 
+            $_ -ne "127.0.0.1" -and 
+            $_ -ne "127.0.1.1" 
+        }
+        
+        if ($validIps) {
+            return $validIps[0]
+        }
+        
+        throw "无法获取有效的 WSL IP 地址"
+    }
+    catch {
+        Write-Error "获取 WSL IP 地址失败: $_"
+        return $null
+    }
+}
+
+# 获取 WSL IP 地址的备用方法
+function Get-WslIpAddress-Alternative1 {
+    param([string]$DistributionName = $null)
+    
+    try {
+        # 获取默认路由网关，然后获取对应接口的 IP
+        if ($DistributionName) {
+            $gateway = wsl -d $DistributionName -- ip route show default
+            $interface = ($gateway | Select-String "dev\s+(\w+)" | ForEach-Object { $_.Matches.Groups[1].Value })
+            $ipAddress = wsl -d $DistributionName -- ip addr show $interface
+        } else {
+            $gateway = wsl -- ip route show default
+            $interface = ($gateway | Select-String "dev\s+(\w+)" | ForEach-Object { $_.Matches.Groups[1].Value })
+            $ipAddress = wsl -- ip addr show $interface
+        }
+        
+        $ip = ($ipAddress | Select-String "inet\s+(\d+\.\d+\.\d+\.\d+)" | ForEach-Object { $_.Matches.Groups[1].Value }) | Where-Object { $_ -ne "127.0.0.1" } | Select-Object -First 1
+        
+        return $ip
+    }
+    catch {
+        Write-Error "获取 WSL IP 地址失败: $_"
+        return $null
+    }
+}
+
+# 从 Windows 网络适配器信息中获取 WSL IP
+function Get-WslIpAddress-FromWindows {
+    try {
+        # 获取 WSL 相关的网络适配器
+        $wslAdapter = Get-NetAdapter | Where-Object { $_.InterfaceDescription -like "*WSL*" -or $_.Name -like "*WSL*" }
+        
+        if ($wslAdapter) {
+            $ipConfig = Get-NetIPAddress -InterfaceIndex $wslAdapter.InterfaceIndex -AddressFamily IPv4 | Where-Object { $_.IPAddress -ne "127.0.0.1" }
+            if ($ipConfig) {
+                # 这通常是 Windows 侧的 IP，WSL 的 IP 通常在同一网段
+                $windowsIp = $ipConfig.IPAddress
+                Write-Host "Windows WSL 适配器 IP: $windowsIp" -ForegroundColor Yellow
+                
+                # WSL IP 通常是 Windows IP + 1
+                $parts = $windowsIp.Split('.')
+                $parts[3] = ([int]$parts[3] + 1).ToString()
+                $possibleWslIp = $parts -join '.'
+                
+                return $possibleWslIp
+            }
+        }
+        
+        throw "无法找到 WSL 网络适配器"
+    }
+    catch {
+        Write-Error "从 Windows 网络信息获取 WSL IP 失败: $_"
+        return $null
+    }
+}
+
+# 测试 WSL IP 地址连通性
+function Test-WslIpAddress {
+    param([string]$IpAddress)
+    
+    if (-not $IpAddress) {
+        return $false
+    }
+    
+    try {
+        # 尝试 ping WSL IP 来验证连通性
+        $pingResult = Test-Connection -ComputerName $IpAddress -Count 1 -Quiet
+        return $pingResult
+    }
+    catch {
+        return $false
+    }
+}
+
+
+
+# 获取有效的 WSL IP 地址
+function Get-ValidWslIpAddress {
+    param([string]$DistributionName = $null)
+    
+    Write-Host "正在尝试多种方法获取 WSL IP 地址..." -ForegroundColor Yellow
+    
+    # 尝试方法1
+    $ip1 = Get-WslIpAddress -DistributionName $DistributionName
+    if ($ip1 -and (Test-WslIpAddress -IpAddress $ip1)) {
+        Write-Host "✅ 方法1成功，IP: $ip1" -ForegroundColor Green
+        return $ip1
+    }
+    
+    # 尝试方法2
+    $ip2 = Get-WslIpAddress-Alternative1 -DistributionName $DistributionName
+    if ($ip2 -and (Test-WslIpAddress -IpAddress $ip2)) {
+        Write-Host "✅ 方法2成功，IP: $ip2" -ForegroundColor Green
+        return $ip2
+    }
+    
+    # 尝试方法3
+    $ip3 = Get-WslIpAddress-FromWindows
+    if ($ip3 -and (Test-WslIpAddress -IpAddress $ip3)) {
+        Write-Host "✅ 方法3成功，IP: $ip3" -ForegroundColor Green
+        return $ip3
+    }
+    
+    Write-Error "所有方法都无法获取有效的 WSL IP 地址"
+    return $null
+}
+
+# 设置 WSL 端口转发
+function Enable-WslPortForwarding {
+    param(
+        [Parameter(Mandatory=$true)]
+        [int[]]$Ports,
+        [string]$DistributionName = $null,
+        [string]$RuleName = "WSL Port Forwarding"
+    )
+    
+    # 检查是否以管理员权限运行
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        Write-Error "此函数需要管理员权限运行"
+        return
+    }
+    
+    Write-Host "开始配置 WSL 端口转发..." -ForegroundColor Cyan
+    
+    # 1. 获取 WSL IP 地址
+    Write-Host "正在获取 WSL IP 地址..." -ForegroundColor Yellow
+    $wslIp = Get-ValidWslIpAddress -DistributionName $DistributionName
+    
+    if (-not $wslIp) {
+        Write-Error "无法获取 WSL IP 地址，配置失败"
+        return
+    }
+    
+    Write-Host "WSL IP 地址: $wslIp" -ForegroundColor Green
+    
+    # 2. 设置端口转发
+    Write-Host "正在设置端口转发..." -ForegroundColor Yellow
+    Set-PortForwarding -Ports $Ports -WslIpAddress $wslIp
+    
+    # 3. 配置防火墙
+    Write-Host "正在配置防火墙..." -ForegroundColor Yellow
+    Open-FirewallPort -Ports $Ports -RuleName $RuleName
+    
+    Write-Host "`n✅ WSL 端口转发配置完成!" -ForegroundColor Green
+    Write-Host "转发的端口: $($Ports -join ', ')" -ForegroundColor Green
+    Write-Host "WSL IP 地址: $wslIp" -ForegroundColor Green
+}
+
+
+
+
 # 常用 WSL 别名和函数
 function wsl-ls { Invoke-WSLCommand "ls $args" }
 function wsl-grep { Invoke-WSLCommand "grep $args" }
