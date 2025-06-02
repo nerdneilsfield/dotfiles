@@ -1,0 +1,60 @@
+// 默认 Shell
+default_shell "/usr/bin/zsh"
+
+// 去掉窗格边框
+pane_frames false
+
+// 缓冲区行数
+scroll_buffer_size 10000
+
+// 鼠标选择和复制
+copy_on_select true
+mouse_mode true
+
+// 镜像会话
+mirror_session true
+
+// 默认模式（锁定模式可避免快捷键冲突）
+default_mode "locked"
+
+// 主题
+theme "nord"
+
+// 自定义主题颜色
+themes {
+    nord {
+        fg 216 222 233
+        bg 46 52 64
+        black 64 67 77
+        red 191 97 106
+        green 163 190 140
+        yellow 235 203 139
+        blue 129 161 193
+        magenta 180 142 173
+        cyan 136 192 208
+        white 229 233 240
+        orange 208 135 112
+    }
+}
+
+// 自定义快捷键
+// keybinds {
+//     normal clear-defaults=true {
+//         // 切换到锁定模式
+//         bind "Ctrl s" { SwitchToMode "locked"; }
+//         // 关闭当前窗格
+//         bind "x" { CloseFocus; }
+//         // 分屏
+//         bind "\\" { NewPane "Right"; }
+//         bind "-" { NewPane "Down"; }
+//         // 窗格导航
+//         bind "h" { MoveFocus "Left"; }
+//         bind "l" { MoveFocus "Right"; }
+//         bind "k" { MoveFocus "Up"; }
+//         bind "j" { MoveFocus "Down"; }
+//     }
+    
+//     locked clear-defaults=true {
+//         bind "Ctrl s" { SwitchToMode "normal"; }
+//     }
+// }
