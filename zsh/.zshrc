@@ -5,7 +5,10 @@ set -o vi
 
 set +e
 
-source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
+# if ZSH_PRIVATE_CONF_DIR exists, source it
+if [ -d "$ZSH_PRIVATE_CONF_DIR" ]; then
+	source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
+fi
 source "$ZSH_CONF_DIR/utils.zsh"
 
 source "$ZSH_CONF_DIR/index.zsh"
