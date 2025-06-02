@@ -48,10 +48,10 @@ source "$ZSH_CONF_DIR/keymap.zsh"
 # [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ## z.lua
-export _ZL_MATCH_MODE=1
-export _ZL_CMD=z
-export _ZL_ADD_ONCE=1
-eval "$(lua $ZSH_CONF_DIR/z.lua --init zsh fzf)" #  once enhanced)"
+# export _ZL_MATCH_MODE=1
+# export _ZL_CMD=z
+# export _ZL_ADD_ONCE=1
+# eval "$(lua $ZSH_CONF_DIR/z.lua --init zsh fzf)" #  once enhanced)"
 ##eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh  once enhanced)"
 
 

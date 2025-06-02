@@ -310,6 +310,28 @@ install_gh(){
     fi
 }
 
+# @brief Install zellij terminal editor intelligently
+# @return 0 on success
+# @example install_zellij
+# @category tools
+install_zellij(){
+    echo "🚀 智能安装 zellij..."
+    local example_url="https://github.com/zellij-org/zellij/releases/download/v0.42.2/zellij-x86_64-unknown-linux-musl.tar.gz" # 从 install_modern_tools_by_download 列表获取
+    local install_prefix="$HOME/.local"
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
+        echo "   尝试使用旧方法回退安装 zellij... (可能已移除)" >&2
+        # Fallback to old method (which should ideally be removed or also made smart if kept)
+        # For now, demonstrating the call to batch_smart_download_tools is the primary goal.
+        # The original old code for gh was complex and is superseded.
+        return 1
+    fi
+}
+
 # @brief Install fzf fuzzy finder intelligently
 # @return 0 on success
 # @example install_fzf
@@ -834,6 +856,7 @@ install_modern_tools_by_download(){
         "https://github.com/sharkdp/hyperfine/releases/download/v1.17.0/hyperfine-v1.17.0-x86_64-unknown-linux-gnu.tar.gz"
         "https://github.com/dandavison/delta/releases/download/0.20.1/delta-0.20.1-x86_64-unknown-linux-gnu.tar.gz"
         "https://github.com/dbrgn/tealdeer/releases/download/v1.8.0/tealdeer-v1.8.0-x86_64-unknown-linux-gnu.tar.gz"
+        "https://github.com/zellij-org/zellij/releases/download/v0.42.2/zellij-x86_64-unknown-linux-musl.tar.gz"
         # Add more URLs here
     )
 
