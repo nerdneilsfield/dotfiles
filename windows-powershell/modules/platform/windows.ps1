@@ -409,15 +409,15 @@ function Open-FirewallPort {
     
     try {
         # 删除现有规则（如果存在）
-        Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
+        sudo Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
         
         $portsString = $Ports -join ","
         
         # 创建入站规则
-        New-NetFirewallRule -DisplayName $RuleName -Direction Inbound -LocalPort $portsString -Action Allow -Protocol $Protocol[2][4]
+        sudo New-NetFirewallRule -DisplayName $RuleName -Direction Inbound -LocalPort $portsString -Action Allow -Protocol $Protocol[2][4]
         
         # 创建出站规则
-        New-NetFirewallRule -DisplayName $RuleName -Direction Outbound -LocalPort $portsString -Action Allow -Protocol $Protocol[2][4]
+        sudo New-NetFirewallRule -DisplayName $RuleName -Direction Outbound -LocalPort $portsString -Action Allow -Protocol $Protocol[2][4]
         
         Write-Host "防火墙规则已创建: $RuleName (端口: $portsString)" -ForegroundColor Green
     }
@@ -439,17 +439,17 @@ function Set-PortForwarding {
     try {
         foreach ($port in $Ports) {
             # 删除现有的端口代理规则
-            netsh interface portproxy delete v4tov4 listenport=$port listenaddress=$ListenAddress | Out-Null
+            sudo netsh interface portproxy delete v4tov4 listenport=$port listenaddress=$ListenAddress | Out-Null
             
             # 添加新的端口代理规则
-            netsh interface portproxy add v4tov4 listenport=$port listenaddress=$ListenAddress connectport=$port connectaddress=$WslIpAddress[3][4]
+            sudo netsh interface portproxy add v4tov4 listenport=$port listenaddress=$ListenAddress connectport=$port connectaddress=$WslIpAddress[3][4]
             
             Write-Host "端口转发已设置: $port -> ${WslIpAddress}:${port}" -ForegroundColor Green
         }
         
         # 显示当前的端口代理设置
         Write-Host "`n当前端口代理设置:" -ForegroundColor Yellow
-        netsh interface portproxy show v4tov4
+        sudo netsh interface portproxy show v4tov4
     }
     catch {
         Write-Error "设置端口转发失败: $_"

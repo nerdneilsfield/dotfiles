@@ -607,10 +607,10 @@ function Enable-WslPortForwarding {
     )
     
     # 检查是否以管理员权限运行
-    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-        Write-Error "此函数需要管理员权限运行"
-        return
-    }
+    # if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    #     Write-Error "此函数需要管理员权限运行"
+    #     return
+    # }
     
     Write-Host "开始配置 WSL 端口转发..." -ForegroundColor Cyan
     
