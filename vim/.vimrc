@@ -126,8 +126,7 @@ set lazyredraw
 " 错误格式
 set errorformat+=[%f:%l]\ ->\ %m,[%f:%l]:%m
 
-" 设置分隔符可视
-set listchars=tab:\|\ ,trail:.,extends:>,precedes:<
+" 原来的 listchars 设置已移动到显示设置部分
 
 
 " 设置 tags：当前文件所在目录往上向根目录搜索直到碰到 .tags 文件
@@ -268,6 +267,9 @@ endif
 " 备份设置
 "----------------------------------------------------------------------
 
+" 创建备份目录，并且忽略可能出现的警告
+silent! call mkdir(expand('~/.vim/tmp'), "p", 0755)
+
 " 允许备份
 set backup
 
@@ -275,7 +277,7 @@ set backup
 set writebackup
 
 " 备份文件地址，统一管理
-set backupdir=~/.vim/tmp
+set backupdir=~/.vim/tmp//
 
 " 备份文件扩展名
 set backupext=.vim_bak
@@ -285,9 +287,6 @@ set noswapfile
 
 " 禁用 undo文件
 set noundofile
-
-" 创建目录，并且忽略可能出现的警告
-silent! call mkdir(expand('~/.vim/tmp'), "p", 0755)
 
 
 "----------------------------------------------------------------------
@@ -382,6 +381,42 @@ set noet
 " 如果后面设置了 expandtab 那么展开 tab 为多少字符
 set softtabstop=4
 
+" 现代化编辑器设置
+" 鼠标支持 - 仅在兼容的环境中启用
+if has('mouse_sgr') || has('mouse_xterm')
+    set mouse=a                " 启用鼠标支持
+    set ttymouse=sgr           " 使用更好的鼠标协议
+elseif has('gui_running') || has('nvim')
+    set mouse=a                " GUI 或 neovim 中启用鼠标
+else
+    set mouse=                 " 终端中禁用鼠标，避免乱码
+endif
+
+" 剪贴板设置 - 根据环境选择
+if has('clipboard')
+    if has('unnamedplus')
+        set clipboard=unnamedplus    " Linux
+    else
+        set clipboard=unnamed        " macOS/Windows
+    endif
+endif
+
+set updatetime=100             " 更快的更新时间
+set timeoutlen=500             " 快捷键超时时间
+set scrolloff=8                " 滚动时保持光标距离
+set sidescrolloff=8            " 水平滚动时保持光标距离
+set pumheight=15               " 补全菜单最大高度
+set completeopt=menu,menuone   " 补全选项
+set shortmess+=c               " 避免显示补全消息
+
+" 现代化的光标行高亮
+set cursorline
+augroup CursorLine
+  au!
+  au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  au WinLeave * setlocal nocursorline
+augroup END
+
 
 augroup PythonTab
 	au!
@@ -413,6 +448,17 @@ set showtabline=2
 " 设置显示制表符等隐藏字符
 set list
 
+" 现代化的缩进线和空白字符显示
+if has('multi_byte')
+  " 使用 Unicode 字符显示更美观的缩进线
+  set listchars=tab:▸\ ,trail:·,extends:❯,precedes:❮,nbsp:±
+  " 或者使用更细腻的显示
+  " set listchars=tab:│\ ,trail:·,extends:❯,precedes:❮,nbsp:±
+else
+  " 兼容模式
+  set listchars=tab:\|\ ,trail:.,extends:>,precedes:<,nbsp:+
+endif
+
 " 右下角显示命令
 set showcmd
 
@@ -428,7 +474,7 @@ set splitright
 " 颜色主题：色彩文件位于 colors 目录中
 "----------------------------------------------------------------------
 
-" 设置黑色背景
+" 设置背景色（根据需要选择 dark 或 light）
 set background=dark
 
 " 允许 256 色
@@ -438,24 +484,152 @@ set t_Co=256
 "color night-owl
 colorscheme desert
 " colorscheme one
-set background=light
+" 如果需要浅色背景，取消下面注释并注释上面的 dark
+"set background=light
 "color 1989
 "----------------------------------------------------------------------
-" 状态栏设置
+" 现代化状态栏设置
 "----------------------------------------------------------------------
-set statusline=                                 " 清空状态了
-set statusline+=\ %F                            " 文件名
-set statusline+=\ [%1*%M%*%n%R%H]               " buffer 编号和状态
-set statusline+=%=                              " 向右对齐
-set statusline+=\ %y                            " 文件类型
 
-" 最右边显示文件编码和行号等信息，并且固定在一个 group 中，优先占位
-set statusline+=\ %0(%{&fileformat}\ [%{(&fenc==\"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]\ %v:%l/%L%)
+" 获取 Git 分支信息的函数
+function! GitBranch()
+  let branch = system("git branch --show-current 2>/dev/null | tr -d '\n'")
+  return strlen(branch) > 0 ? ' ' . branch . ' ' : ''
+endfunction
+
+" 获取文件大小的函数
+function! FileSize()
+  let bytes = getfsize(expand('%:p'))
+  if bytes <= 0
+    return ''
+  endif
+  if bytes < 1024
+    return bytes . 'B'
+  elseif bytes < 1048576
+    return (bytes / 1024) . 'KB'
+  else
+    return (bytes / 1048576) . 'MB'
+  endif
+endfunction
+
+" 获取当前时间
+function! CurrentTime()
+  return strftime('%H:%M')
+endfunction
+
+" 获取文件类型图标
+function! FileTypeIcon()
+  let icons = {
+        \ 'vim': '',
+        \ 'python': '',
+        \ 'javascript': '',
+        \ 'typescript': '',
+        \ 'html': '',
+        \ 'css': '',
+        \ 'scss': '',
+        \ 'json': '',
+        \ 'markdown': '',
+        \ 'yaml': '',
+        \ 'xml': '',
+        \ 'sh': '',
+        \ 'bash': '',
+        \ 'zsh': '',
+        \ 'c': '',
+        \ 'cpp': '',
+        \ 'h': '',
+        \ 'hpp': '',
+        \ 'java': '',
+        \ 'go': '',
+        \ 'rust': '',
+        \ 'php': '',
+        \ 'ruby': '',
+        \ 'lua': '',
+        \ 'sql': '',
+        \ 'dockerfile': '',
+        \ 'conf': '',
+        \ 'log': '',
+        \ 'txt': '',
+        \ 'gitignore': '',
+        \ 'gitconfig': '',
+        \ 'make': '',
+        \ 'cmake': ''
+        \ }
+  
+  let ext = expand('%:e')
+  let fname = expand('%:t')
+  
+  " 特殊文件名匹配
+  if fname =~? 'dockerfile'
+    return get(icons, 'dockerfile', '')
+  elseif fname =~? 'makefile'
+    return get(icons, 'make', '')
+  elseif fname =~? 'cmakelists.txt'
+    return get(icons, 'cmake', '')
+  elseif fname =~? '\.gitignore'
+    return get(icons, 'gitignore', '')
+  elseif fname =~? '\.gitconfig'
+    return get(icons, 'gitconfig', '')
+  endif
+  
+  " 根据扩展名匹配
+  return get(icons, ext, '')
+endfunction
+
+" 模式显示函数
+function! ModeString()
+  let mode_map = {
+        \ 'n': 'NORMAL',
+        \ 'i': 'INSERT', 
+        \ 'v': 'VISUAL',
+        \ 'V': 'V-LINE',
+        \ "\<C-V>": 'V-BLOCK',
+        \ 'c': 'COMMAND',
+        \ 'r': 'REPLACE',
+        \ 't': 'TERMINAL'
+        \ }
+  return get(mode_map, mode(), 'UNKNOWN')
+endfunction
+
+set statusline=
+" 左侧：模式
+set statusline+=%1*\ %{ModeString()}\ %*
+" 文件路径（相对路径）
+set statusline+=\ %f
+" Git 分支
+set statusline+=%2*%{GitBranch()}%*
+" 修改标识
+set statusline+=\ %1*%M%*
+" 只读标识
+set statusline+=%R
+" 帮助文件标识
+set statusline+=%H
+" 缓冲区编号
+set statusline+=\ [%n]
+
+" 右侧对齐
+set statusline+=%=
+
+" 文件类型图标和类型
+set statusline+=\ %{FileTypeIcon()}%y
+" 文件大小
+set statusline+=\ %{FileSize()}
+" 编码信息
+set statusline+=\ %{(&fenc==\"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}
+" 文件格式
+set statusline+=\ %{&fileformat}
+" 当前时间
+set statusline+=\ %{CurrentTime()}
+" 行列号和总行数
+set statusline+=\ %v:%l/%L\ (%p%%)
 
 
 "----------------------------------------------------------------------
-" 更改样式
+" 现代化样式和颜色配置
 "----------------------------------------------------------------------
+
+" 状态栏颜色配置
+hi User1 ctermfg=15 ctermbg=239 guifg=#ffffff guibg=#4e4e4e cterm=bold gui=bold
+hi User2 ctermfg=249 ctermbg=239 guifg=#b2b2b2 guibg=#4e4e4e
 
 " 更清晰的错误标注：默认一片红色背景，语法高亮都被搞没了
 " 只显示红色或者蓝色下划线或者波浪线
@@ -467,7 +641,7 @@ if has('gui_running')
 	hi! SpellBad gui=undercurl guisp=red
 	hi! SpellCap gui=undercurl guisp=blue
 	hi! SpellRare gui=undercurl guisp=magenta
-	hi! SpellRare gui=undercurl guisp=cyan
+	hi! SpellLocal gui=undercurl guisp=cyan
 else
 	hi! SpellBad term=standout ctermfg=1 term=underline cterm=underline
 	hi! SpellCap term=underline cterm=underline
@@ -478,13 +652,41 @@ endif
 " 去掉 sign column 的白色背景
 hi! SignColumn guibg=NONE ctermbg=NONE
 
-" 修改行号为浅灰色，默认主题的黄色行号很难看，换主题可以仿照修改
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE 
-	\ gui=NONE guifg=DarkGrey guibg=NONE
+" 现代化行号显示
+hi LineNr ctermfg=243 ctermbg=NONE guifg=#767676 guibg=NONE
+hi CursorLineNr ctermfg=11 ctermbg=NONE guifg=#ffff00 guibg=NONE cterm=bold gui=bold
 
-" 修正补全目录的色彩：默认太难看
-hi! Pmenu guibg=gray guifg=black ctermbg=gray ctermfg=black
-hi! PmenuSel guibg=gray guifg=brown ctermbg=brown ctermfg=gray
+" 现代化补全菜单
+hi! Pmenu ctermfg=15 ctermbg=240 guifg=#ffffff guibg=#585858
+hi! PmenuSel ctermfg=0 ctermbg=13 guifg=#000000 guibg=#ff00ff cterm=bold gui=bold
+hi! PmenuSbar ctermbg=248 guibg=#a8a8a8
+hi! PmenuThumb ctermbg=15 guibg=#ffffff
+
+" 搜索高亮现代化
+hi Search ctermfg=0 ctermbg=11 guifg=#000000 guibg=#ffff00
+hi IncSearch ctermfg=0 ctermbg=9 guifg=#000000 guibg=#ff0000
+
+" 现代化的 listchars 颜色
+hi SpecialKey ctermfg=241 ctermbg=NONE guifg=#626262 guibg=NONE
+hi NonText ctermfg=241 ctermbg=NONE guifg=#626262 guibg=NONE
+
+" 现代化的 Visual 选择
+hi Visual ctermfg=NONE ctermbg=238 guifg=NONE guibg=#444444
+
+" 现代化的折叠显示
+hi Folded ctermfg=246 ctermbg=NONE guifg=#949494 guibg=NONE
+hi FoldColumn ctermfg=246 ctermbg=NONE guifg=#949494 guibg=NONE
+
+" 匹配括号高亮
+hi MatchParen ctermfg=15 ctermbg=13 guifg=#ffffff guibg=#ff00ff cterm=bold gui=bold
+
+" 现代化标签栏颜色
+hi TabLine ctermfg=248 ctermbg=240 guifg=#a8a8a8 guibg=#585858
+hi TabLineSel ctermfg=15 ctermbg=237 guifg=#ffffff guibg=#3a3a3a cterm=bold gui=bold
+hi TabLineFill ctermfg=240 ctermbg=240 guifg=#585858 guibg=#585858
+
+" 现代化光标行高亮
+hi CursorLine ctermbg=237 guibg=#3a3a3a cterm=NONE gui=NONE
 
 
 "----------------------------------------------------------------------
@@ -553,41 +755,65 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" 需要显示到标签上的文件名
+" 获取标签上显示的文件名（带图标）
 "----------------------------------------------------------------------
 function! Vim_NeatBuffer(bufnr, fullname)
 	let l:name = bufname(a:bufnr)
+	let l:icon = ''
+	
+	" 获取文件图标
+	if l:name != ''
+		let l:ext = fnamemodify(l:name, ':e')
+		let l:fname = fnamemodify(l:name, ':t')
+		let icons = {
+			\ 'vim': ' ', 'py': ' ', 'js': ' ', 'ts': ' ',
+			\ 'html': ' ', 'css': ' ', 'json': ' ', 'md': ' ',
+			\ 'sh': ' ', 'c': ' ', 'cpp': ' ', 'h': ' ',
+			\ 'java': ' ', 'go': ' ', 'rs': ' ', 'php': ' ',
+			\ 'rb': ' ', 'lua': ' ', 'sql': ' ', 'yml': ' ',
+			\ 'yaml': ' ', 'xml': ' ', 'txt': ' '
+			\ }
+		
+		if l:fname =~? 'dockerfile'
+			let l:icon = ' '
+		elseif l:fname =~? 'makefile'
+			let l:icon = ' '
+		else
+			let l:icon = get(icons, l:ext, ' ')
+		endif
+	endif
+	
 	if getbufvar(a:bufnr, '&modifiable')
 		if l:name == ''
-			return '[No Name]'
+			return l:icon . '[No Name]'
 		else
 			if a:fullname 
-				return fnamemodify(l:name, ':p')
+				return l:icon . fnamemodify(l:name, ':p')
 			else
 				let aname = fnamemodify(l:name, ':p')
 				let sname = fnamemodify(aname, ':t')
 				if sname == ''
 					let test = fnamemodify(aname, ':h:t')
 					if test != ''
-						return '<'. test . '>'
+						return l:icon . '<'. test . '>'
 					endif
 				endif
-				return sname
+				return l:icon . sname
 			endif
 		endif
 	else
 		let l:buftype = getbufvar(a:bufnr, '&buftype')
 		if l:buftype == 'quickfix'
-			return '[Quickfix]'
+			return ' [Quickfix]'
 		elseif l:name != ''
 			if a:fullname 
-				return '-'.fnamemodify(l:name, ':p')
+				return l:icon . '-'.fnamemodify(l:name, ':p')
 			else
-				return '-'.fnamemodify(l:name, ':t')
+				return l:icon . '-'.fnamemodify(l:name, ':t')
 			endif
 		else
 		endif
-		return '[No Name]'
+		return l:icon . '[No Name]'
 	endif
 endfunc
 
@@ -1059,21 +1285,72 @@ noremap <silent><space>t<c-d> :set background=dark <cr>
 
 
 "----------------------------------------------------------------------
-" Doom 一样的窗口切换方法
+" 现代化窗口和缓冲区管理快捷键
 "----------------------------------------------------------------------
+
+" 窗口操作 (类似 Doom Emacs)
 noremap <silent><space>ws :<c-U>split<cr>
 noremap <silent><space>wv :<c-U>vsplit<cr>
 noremap <silent><space>wq <c-w>q
 noremap <space>wh <c-w>h
 noremap <space>wl <c-w>l
 noremap <space>wj <c-w>j
-noremap <space>wq <c-w>k
+noremap <space>wk <c-w>k
 noremap <space>w= <c-w>=
 noremap <space>w+ <c-w>+
 noremap <space>w- <c-w>-
 noremap <space>w< <c-w><
 noremap <space>w> <c-w>>
 noremap <space>wo <c-w>o
+
+" 现代化缓冲区管理
+noremap <silent><space>bb :ls<cr>:b<space>
+noremap <silent><space>bd :bd<cr>
+noremap <silent><space>bD :bd!<cr>
+noremap <silent><space>bn :bnext<cr>
+noremap <silent><space>bp :bprev<cr>
+noremap <silent><space>bk :bwipeout<cr>
+
+" 快速编辑配置文件
+noremap <silent><space>fed :e ~/.vimrc<cr>
+noremap <silent><space>feR :source ~/.vimrc<cr>
+
+" 搜索和替换增强
+noremap <silent><space>ss :set hlsearch!<cr>
+noremap <silent><space>sc :nohlsearch<cr>
+noremap <space>sr :%s/\<<C-r><C-w>\>//g<Left><Left>
+
+" 现代化的选择和操作
+vnoremap <silent><space>y "+y
+nnoremap <silent><space>p "+p
+vnoremap <silent><space>p "+p
+
+" 快速行操作
+nnoremap <silent><space>ld "_dd
+nnoremap <silent><space>lD "_D
+nnoremap <silent><space>ly yy
+nnoremap <silent><space>lp p
+
+" 折叠操作
+nnoremap <silent><space>zo zo
+nnoremap <silent><space>zc zc
+nnoremap <silent><space>za za
+nnoremap <silent><space>zR zR
+nnoremap <silent><space>zM zM
+
+" 鼠标切换功能
+function! ToggleMouse()
+    if &mouse == 'a'
+        set mouse=
+        echo "Mouse disabled"
+    else
+        set mouse=a
+        echo "Mouse enabled"
+    endif
+endfunction
+
+" 切换鼠标支持
+nnoremap <silent><space>tm :call ToggleMouse()<cr>
 
 "---------------------------------------------------------------------
 " Commetary 
