@@ -139,26 +139,47 @@ init_navigation() {
     if command -v zoxide >/dev/null 2>&1; then
         green_echo "🎯 使用 zoxide 作为主要导航工具"
         
-        # 初始化 zoxide
-        eval "$(zoxide init zsh)"
+        # 初始化 zoxide (避免与 zinit 的 zi 命令冲突)
+        eval "$(zoxide init zsh --no-cmd)"
         
-        # 确保 z 命令指向 zoxide
-        alias z="zoxide query -ls"
+        # 验证 zoxide 内部函数是否可用
+        if ! declare -f __zoxide_z >/dev/null 2>&1; then
+            echo "⚠️  zoxide 内部函数未正确加载，尝试重新初始化..."
+            eval "$(zoxide init zsh --no-cmd)"
+        fi
         
-        # 添加一些有用的别名
-        alias zi="zoxide query -i"  # 交互式选择
-        alias za="zoxide add"       # 手动添加路径
-        alias zr="zoxide remove"    # 移除路径
-        alias zq="zoxide query"     # 查询路径
+        # 手动设置命令别名以确保正确功能
+        if declare -f __zoxide_z >/dev/null 2>&1; then
+            alias z='__zoxide_z'          # 直接跳转到最匹配的目录
+            alias zx='__zoxide_zi'        # 交互式选择 (避免与 zinit zi 冲突)
+        else
+            echo "❌ zoxide 函数加载失败，回退到基本命令"
+            alias z='zoxide query --list'
+            alias zx='zoxide query --interactive'
+        fi
+        
+        # 通用别名 (不依赖内部函数)
+        alias za="zoxide add"         # 手动添加路径
+        alias zr="zoxide remove"      # 移除路径
+        alias zq="zoxide query"       # 查询路径 (不跳转)
+        alias zl="zoxide query -ls"   # 列出所有匹配路径
+        
+        # 设置 tab 补全 (只在函数可用时)
+        if command -v compdef >/dev/null 2>&1 && declare -f __zoxide_z_complete >/dev/null 2>&1; then
+            compdef __zoxide_z_complete z
+            compdef __zoxide_zi_complete zx
+        fi
         
         green_echo "✅ zoxide 初始化完成"
         
         # 显示使用提示
         echo "💡 zoxide 使用方法:"
         echo "   z <path>    - 跳转到匹配的目录"
-        echo "   zi          - 交互式选择目录"
+        echo "   zx          - 交互式选择目录 (避免与 zinit zi 冲突)"
         echo "   za <path>   - 手动添加目录"
         echo "   zr <path>   - 移除目录"
+        echo "   zq <path>   - 查询路径 (不跳转)"
+        echo "   zl <path>   - 列出所有匹配路径"
         
     elif [[ -f "$ZSH_CONF_DIR/z.lua" ]] && command -v lua >/dev/null 2>&1; then
         green_echo "🎯 zoxide 未找到，使用 z.lua 作为备选"
@@ -266,10 +287,11 @@ show_navigation_help() {
         echo "   z foo bar       - 跳转到同时包含 'foo' 和 'bar' 的目录"
         echo ""
         echo "🔧 高级功能:"
-        echo "   zi              - 交互式选择目录 (使用 fzf)"
+        echo "   zx              - 交互式选择目录 (使用 fzf, 避免与 zinit zi 冲突)"
         echo "   za /path        - 手动添加目录到数据库"
         echo "   zr pattern      - 移除匹配的目录"
         echo "   zq pattern      - 查询匹配的目录（不跳转）"
+        echo "   zl pattern      - 列出所有匹配路径"
         echo ""
         echo "📊 查看信息:"
         echo "   zoxide query --list           - 列出所有目录"
@@ -308,10 +330,87 @@ show_navigation_help() {
     echo "   • 自动学习你的使用习惯"
 }
 
+##
+# @brief Test zoxide integration and report any issues
+# @return 0 on success
+# @example test_zoxide_integration
+# @category diagnostic
+##
+test_zoxide_integration() {
+    echo "🧪 测试 zoxide 集成..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    local test_passed=true
+    
+    # 测试 1: zoxide 命令可用性
+    if command -v zoxide >/dev/null 2>&1; then
+        echo "✅ zoxide 命令: 可用 ($(zoxide --version))"
+    else
+        echo "❌ zoxide 命令: 不可用"
+        test_passed=false
+    fi
+    
+    # 测试 2: 内部函数
+    if declare -f __zoxide_z >/dev/null 2>&1; then
+        echo "✅ __zoxide_z 函数: 已加载"
+    else
+        echo "❌ __zoxide_z 函数: 未加载"
+        test_passed=false
+    fi
+    
+    if declare -f __zoxide_zi >/dev/null 2>&1; then
+        echo "✅ __zoxide_zi 函数: 已加载"
+    else
+        echo "❌ __zoxide_zi 函数: 未加载"
+        test_passed=false
+    fi
+    
+    # 测试 3: 别名检查
+    if alias z >/dev/null 2>&1; then
+        local z_target=$(alias z | sed "s/.*='\(.*\)'/\1/")
+        echo "✅ z 别名: $z_target"
+    else
+        echo "❌ z 别名: 未设置"
+        test_passed=false
+    fi
+    
+    # 测试 4: 冲突检查
+    if command -v zi >/dev/null 2>&1; then
+        local zi_type=$(type zi 2>/dev/null | head -1)
+        if [[ "$zi_type" == *"zinit"* ]]; then
+            echo "✅ zi 命令: 来自 zinit (无冲突)"
+        elif [[ "$zi_type" == *"zoxide"* ]]; then
+            echo "⚠️  zi 命令: 来自 zoxide (可能有冲突)"
+        else
+            echo "ℹ️  zi 命令: $zi_type"
+        fi
+    fi
+    
+    # 测试 5: 数据库状态
+    if command -v zoxide >/dev/null 2>&1; then
+        local db_entries=$(zoxide query --list 2>/dev/null | wc -l)
+        if [[ $db_entries -gt 0 ]]; then
+            echo "✅ zoxide 数据库: $db_entries 条记录"
+        else
+            echo "ℹ️  zoxide 数据库: 空 (需要使用一段时间后才有数据)"
+        fi
+    fi
+    
+    echo ""
+    if $test_passed; then
+        echo "🎉 所有测试通过！zoxide 集成正常"
+        echo "💡 现在你可以使用 'z <目录名>' 快速跳转目录了"
+    else
+        echo "⚠️  发现问题，请重新加载配置或运行 'install_zoxide'"
+        echo "💡 运行 'source ~/.zshrc' 重新加载配置"
+    fi
+}
+
 # 自动初始化导航系统
 init_navigation
 
 # 别名
 alias nav-status="check_navigation_status"
 alias nav-help="show_navigation_help"
+alias nav-test="test_zoxide_integration"
 alias install-zoxide="install_zoxide"

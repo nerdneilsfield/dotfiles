@@ -1,6 +1,10 @@
 
 export ZINIT_PATH="$HOME/.zinit/bin"
 
+# 避免与 zoxide 的 zi 命令冲突
+# 这里我们保持 zinit 的 zi 命令，因为我们已经将 zoxide 的交互式命令改为 zx
+# 如果需要完全禁用 zinit 别名，可以设置: export ZINIT[NO_ALIASES]=1
+
 
 
 # ==================================================================

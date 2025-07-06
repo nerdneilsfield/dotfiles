@@ -65,6 +65,37 @@ install_fnm() {
     fi
 }
 
+install_nvm(){
+    echo "============Install Nvim================"
+    if [ -d "$HOME/.nvm" ]; then
+        echo "Nvm already installed"
+        cd $HOME/.nvm
+        git pull
+        . $HOME/.nvm/nvm.sh
+        nvm install --lts
+        nvm use --lts
+        nvm alias default --lts
+        nvm ls
+    else
+        git clone https://github.com/nvm-sh/nvm.git $HOME/.nvm
+        cd $HOME/.nvm
+        git checkout v0.40.3
+        . $HOME/.nvm/nvm.sh
+        nvm install --lts
+        nvm use --lts
+        nvm alias default --lts
+        nvm ls
+    fi
+}
+
+# if [ -d "$HOME/.nvm" ]; then
+#     export NVM_DIR="$HOME/.nvm"
+#     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+#     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+#     default_version=$(cat "$NVM_DIR/alias/default")
+#     export PATH="$NVM_DIR/versions/$default_version/bin:$PATH"
+# fi
+
 # @brief Install LTS Node.js version using fnm
 # @return 0 on success
 # @example install_node
@@ -136,3 +167,13 @@ export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
 export NVMW_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
 export NVMW_NPM_MIRROR=https://npm.taobao.org/mirrors/npm
 # End of mirror-config-china
+
+# if exist npm config set prefix '~/.npm-global', add it to PATH
+if [ -d "$HOME/.npm-global/bin" ]; then
+    export PATH="$HOME/.npm-global/bin:$PATH"
+fi
+
+# if exist npm config set prefix '~/.npm-global', add it to NODE_PATH
+if [ -d "$HOME/.npm-global/lib/node_modules" ]; then
+    export NODE_PATH="$HOME/.npm-global/lib/node_modules:$NODE_PATH"
+fi
