@@ -587,3 +587,56 @@ function GetLatestReleaseWithRetryProxy() {
 function GetLatestReleaseWithRetryDirect() {
     GetLatestReleaseWithRetry GetLatestRelease "$1"
 }
+
+function get_wan_ip_china() {
+	echo "=====cip.cc======"
+	echo ""
+	curl -s cip.cc
+	echo ""
+	# echo "=====ip.cn======"
+	# echo ""
+	# curl -s ip.cn
+	# echo ""
+	echo "=====ip.sb======"
+	echo ""
+	curl -s ip.sb
+	echo ""
+	# echo "=====myip.ipip.net======"
+	# echo ""
+	# curl -s myip.ipip.net
+	# echo ""
+	echo "=====ipx.sh======="
+	echo ""
+	curl -s ipx.sh
+	echo ""
+	echo "=====members.3322.org======"
+	echo ""
+	curl -s members.3322.org/dyndns/getip
+	echo ""
+	echo "=====pubyun.com/dyndns/getip======"
+	echo ""
+	curl -s pubyun.com/dyndns/getip
+}
+
+function get_wan_ip() {
+	echo "=====ifconfig.me======"
+	curl -s ifconfig.me
+	echo ""
+	echo "=====icanhazip.com======"
+	curl -s icanhazip.com
+	echo ""
+	echo "=====api.ipify.org======"
+	curl -s api.ipify.org
+	echo ""
+	echo "=====ipinfo.io/ip======"
+	curl -s ipinfo.io/ip
+	echo ""
+	echo "=====ipecho.net/plain======"
+	curl -s ipecho.net/plain
+	echo ""
+	echo "=====ip.nf======"
+	curl -s ip.nf
+	echo ""
+	echo "=====ident.me======"
+	curl -s ident.me
+}
