@@ -115,3 +115,31 @@ get_debian_codename(){
         11) echo "bullseye";;
     esac
 }
+
+install_brew(){
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+}
+
+# test if brew directory exists
+test_brew_directory(){
+    if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+test_brew_command(){
+    if command -v brew &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+if test_brew_directory; then
+    echo "Brew directory exists"
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+else
+    echo "Brew directory does not exist, install brew with install_brew"
+fi

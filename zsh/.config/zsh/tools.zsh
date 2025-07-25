@@ -266,6 +266,10 @@ install_fastfetch() {
   green_echo "======================================"
   green_echo "=========Install fastfetch========"
   green_echo "======================================"
+  if test_brew_command; then
+    brew install fastfetch
+    return 0
+  fi
   local _fastfetch_dir="$HOME/Source/app/fastfetch"
   local _fastfetch_url="https://github.com/fastfetch-cli/fastfetch.git"
   mkdir -p $HOME/Source/app 
@@ -294,6 +298,10 @@ install_fastfetch() {
 # @category tools
 install_gh(){
     echo "🚀 智能安装 GitHub CLI..."
+    if test_brew_command; then
+        brew install gh
+        return 0
+    fi
     local example_url="https://github.com/cli/cli/releases/download/v2.73.0/gh_2.73.0_linux_amd64.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -316,6 +324,10 @@ install_gh(){
 # @category tools
 install_zellij(){
     echo "🚀 智能安装 zellij..."
+    if test_brew_command; then
+        brew install zellij
+        return 0
+    fi
     local example_url="https://github.com/zellij-org/zellij/releases/download/v0.42.2/zellij-x86_64-unknown-linux-musl.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -338,6 +350,10 @@ install_zellij(){
 # @category tools
 install_fzf(){
     echo "🚀 智能安装 fzf..."
+    if test_brew_command; then
+        brew install fzf
+        return 0
+    fi
     local example_url="https://github.com/junegunn/fzf/releases/download/v0.62.0/fzf-0.62.0-linux_amd64.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -363,6 +379,10 @@ install_fzf(){
 # @category tools
 install_eza(){
     echo "🚀 智能安装 eza..."
+    if test_brew_command; then
+        brew install eza
+        return 0
+    fi
     local example_url="https://github.com/eza-community/eza/releases/download/v0.21.3/eza_x86_64-unknown-linux-gnu.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -381,6 +401,10 @@ install_eza(){
 # @category tools
 install_lazygit(){
     echo "🚀 智能安装 lazygit..."
+    if test_brew_command; then
+        brew install lazygit
+        return 0
+    fi
     local example_url="https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -399,6 +423,10 @@ install_lazygit(){
 # @category tools
 install_lazydocker(){
     echo "🚀 智能安装 lazydocker..."
+    if test_brew_command; then
+        brew install lazydocker
+        return 0
+    fi
     # 注意: 下面的 URL 是基于常见模式推测的，如果 lazydocker 的发布资源命名不同，可能需要调整。
     # 或者，确保此工具包含在 install_modern_tools_by_download 的 URL 列表中以获得更准确的模式学习。
     local example_url="https://github.com/jesseduffield/lazydocker/releases/download/v0.23.1/lazydocker_0.23.1_Linux_x86_64.tar.gz" # 推测的示例 URL
@@ -419,6 +447,10 @@ install_lazydocker(){
 # @category tools
 install_duf(){
     echo "🚀 智能安装 duf..."
+    if test_brew_command; then
+        brew install duf
+        return 0
+    fi
     local example_url="https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -437,6 +469,10 @@ install_duf(){
 # @category tools
 install_gdu(){
     echo "🚀 智能安装 gdu..."
+    if test_brew_command; then
+        brew install gdu
+        return 0
+    fi
     local example_url="https://github.com/dundee/gdu/releases/download/v5.30.1/gdu_linux_amd64.tgz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -455,6 +491,10 @@ install_gdu(){
 # @category tools
 install_ripgrep(){
     echo "🚀 智能安装 ripgrep..."
+    if test_brew_command; then
+        brew install ripgrep
+        return 0
+    fi
     local example_url="https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -473,6 +513,10 @@ install_ripgrep(){
 # @category tools
 install_fd(){
     echo "🚀 智能安装 fd..."
+    if test_brew_command; then
+        brew install fd
+        return 0
+    fi
     local example_url="https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz" # 从 install_modern_tools_by_download 列表获取
     local install_prefix="$HOME/.local"
 
@@ -491,6 +535,10 @@ install_fd(){
 # @category tools
 install_mise(){
     echo "🚀 智能安装 mise..."
+    if test_brew_command; then
+        brew install mise
+        return 0
+    fi
     # 根据其传统安装逻辑，推测的示例 URL。musl 版本，架构为 x64/arm64。
     local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz" 
     local install_prefix="$HOME/.local" # mise 通常期望安装到特定目录，然后符号链接，但 smart_install 会处理到 $HOME/.local/bin
@@ -523,6 +571,10 @@ install_asdf(){
   green_echo "======================================"
   green_echo "=========Install asdf========"
   green_echo "======================================"
+  if test_brew_command; then
+    brew install asdf
+    return 0
+  fi
   if [[ -d $ASDF_DIR ]]; then
     green_echo "=========asdf already installed, updating======"
     cd $ASDF_DIR
@@ -541,6 +593,10 @@ install_asdf(){
 # @category tools
 install_xray(){
     echo "🚀 智能安装 Xray..."
+    if test_brew_command; then
+        brew install xray
+        return 0
+    fi
     # Xray-core 的资源名通常是 Xray-linux-64.zip 或 Xray-linux-arm64-v8a.zip
     local example_url="https://github.com/XTLS/Xray-core/releases/download/v1.8.10/Xray-linux-64.zip"
     local install_prefix="$HOME/.local"
@@ -568,6 +624,10 @@ install_xray(){
 # @category tools
 install_sing_box(){
     echo "🚀 智能安装 sing-box..."
+    if test_brew_command; then
+        brew install sing-box
+        return 0
+    fi
     local example_url="https://github.com/SagerNet/sing-box/releases/download/v1.9.0/sing-box-1.9.0-linux-amd64.tar.gz" # 推测的示例 URL
     local install_prefix="$HOME/.local"
 
@@ -593,6 +653,10 @@ install_sing_box(){
 # @category tools
 install_mihomo(){
     echo "🚀 智能安装 mihomo (Clash Meta)..."
+    if test_brew_command; then
+        brew install mihomo
+        return 0
+    fi
     # mihomo 的资源名通常是 mihomo-linux-amd64-vX.Y.Z.gz
     local example_url="https://github.com/MetaCubeX/mihomo/releases/download/v1.18.4/mihomo-linux-amd64-v1.18.4.gz"
     local install_prefix="$HOME/.local"
@@ -915,6 +979,13 @@ install_jq_from_source() {
     make install
     
     green_echo "✅ jq 安装完成"
+}
+
+install_modern_tools_brew(){
+  brew install fastfetch gh zellij fzf eza \
+   lazygit lazydocker duf gdu ripgrep fd \
+   rclone bat hyperfine delta tealdeer zoxide starship \
+   jq bottom procs tokei ripgrep-all sd dust git
 }
 
 # 向后兼容别名
