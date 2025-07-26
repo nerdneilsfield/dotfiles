@@ -12,13 +12,13 @@ export GOPATH=$HOME/Source/Go
 export GO111MODULE=on
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 
-if check_in_china; then
-  echo "set go proxy to goproxy.cn"
-  export GOPROXY=https://goproxy.cn
-else
-  echo "set go proxy to default"
-  export GOPROXY=https://goproxy.io
-fi
+# if check_in_china; then
+#   echo "set go proxy to goproxy.cn"
+#   export GOPROXY=https://goproxy.cn
+# else
+#   echo "set go proxy to default"
+#   export GOPROXY=https://goproxy.io
+# fi
 
 # macOS config
 # export GOROOT=/usr/local/go

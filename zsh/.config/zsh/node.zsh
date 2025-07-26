@@ -157,15 +157,15 @@ if command -v fnm >/dev/null 2>&1 || [[ -f "$HOME/.cargo/bin/fnm" ]]; then
 fi
  
 # Created by mirror-config-china
-export IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
-export NODIST_IOJS_MIRROR=https://npm.taobao.org/mirrors/iojs
-export NVM_IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
-export NVMW_IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
-export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
-export NODIST_NODE_MIRROR=https://npm.taobao.org/mirrors/node
-export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
-export NVMW_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
-export NVMW_NPM_MIRROR=https://npm.taobao.org/mirrors/npm
+# export IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
+# export NODIST_IOJS_MIRROR=https://npm.taobao.org/mirrors/iojs
+# export NVM_IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
+# export NVMW_IOJS_ORG_MIRROR=https://npm.taobao.org/mirrors/iojs
+# export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+# export NODIST_NODE_MIRROR=https://npm.taobao.org/mirrors/node
+# export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+# export NVMW_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+# export NVMW_NPM_MIRROR=https://npm.taobao.org/mirrors/npm
 # End of mirror-config-china
 
 # if exist npm config set prefix '~/.npm-global', add it to PATH
