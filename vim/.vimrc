@@ -1,9 +1,13 @@
 " 防止重复加载
+set encoding=utf-8
+scriptencoding utf-8
+
 if get(s:, 'loaded', 0) != 0
 	finish
 else
 	let s:loaded = 1
 endif
+set nocompatible
 
 " 取得本文件所在的目录
 let s:home = fnamemodify(resolve(expand('<sfile>:p')), ':h')
@@ -385,7 +389,9 @@ set softtabstop=4
 " 鼠标支持 - 仅在兼容的环境中启用
 if has('mouse_sgr') || has('mouse_xterm')
     set mouse=a                " 启用鼠标支持
-    set ttymouse=sgr           " 使用更好的鼠标协议
+if exists('&ttymouse')
+if exists("&ttymouse") | set ttymouse=sgr | endif
+endif
 elseif has('gui_running') || has('nvim')
     set mouse=a                " GUI 或 neovim 中启用鼠标
 else
@@ -395,7 +401,7 @@ endif
 " 剪贴板设置 - 根据环境选择
 if has('clipboard')
     if has('unnamedplus')
-        set clipboard=unnamedplus    " Linux
+if has("clipboard") | set clipboard^=unnamed,unnamedplus | endif
     else
         set clipboard=unnamed        " macOS/Windows
     endif
@@ -478,7 +484,7 @@ set splitright
 set background=dark
 
 " 允许 256 色
-set t_Co=256
+if exists('&termguicolors') | set termguicolors | endif
 
 " 设置颜色主题，会在所有 runtimepaths 的 colors 目录寻找同名配置
 "color night-owl
@@ -1469,3 +1475,35 @@ if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
   nmap gcc <Plug>CommentaryLine
   nmap gcu <Plug>Commentary<Plug>Commentary
 endif
+
+if exists("&shada") | set shada='100,<50,s10,h | elseif exists("&viminfo") | set viminfo='100,<50,s10,h | endif
+
+
+if exists('&diffopt') | set diffopt+=internal | silent! set diffopt+=indent-heuristic | silent! set diffopt+=linematch:60 | endif
+
+
+if exists("&inccommand") | set inccommand=nosplit | endif
+
+
+augroup BigFile
+  autocmd!
+  autocmd BufReadPre * if getfsize(expand('%')) > 2*1024*1024 | let b:bigfile=1 | endif
+  autocmd BufReadPost * if exists('b:bigfile') |
+        \ setlocal foldmethod=manual noundofile nocursorline nospell |
+        \ setlocal synmaxcol=180 |
+        \ syntax clear |
+        \ endif
+augroup END
+
+
+augroup TrimWS
+  autocmd!
+  autocmd BufWritePre * if &modifiable && !&binary | silent! %s/\s\+$//e | endif
+augroup END
+
+
+augroup RestoreCursor
+  autocmd!
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g`\"" | endif
+augroup END
+
