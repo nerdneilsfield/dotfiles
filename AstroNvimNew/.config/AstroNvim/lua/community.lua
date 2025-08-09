@@ -52,7 +52,7 @@ return {
   { import = "astrocommunity.markdown-and-latex.vimtex" },
   { import = "astrocommunity.markdown-and-latex.glow-nvim" },
   -- pack
-  { import = "astrocommunity.pack.lua" },
+  -- { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.docker" },
   { import = "astrocommunity.pack.cpp" },
   { import = "astrocommunity.pack.rust" },
