@@ -193,7 +193,7 @@ setpx_with_dns(){
 		echo "Please provide a url to get proxy"
 		return 1
 	fi
-	
+
 	# URL 安全验证
 	local _url="$1"
 	if [[ ! "$_url" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$ ]]; then
@@ -217,7 +217,7 @@ setpx_with_dns(){
 		return
 	fi
 	echo "Get Proxy: ${_dns}"
-	
+
 	# 两种: http://1.1.1.1:8080  socks5://1.1.1.1:1080 没有密码
 	# 另外一种需要提供用户名密码 socks5://@1.1.1.1:1080 http://@1.1.1.1:8080 这种需要读取输入的账户密码
 
@@ -225,30 +225,30 @@ setpx_with_dns(){
 	if [[ $_dns == *"@"* ]]; then
 		echo "Please input username and password for $_dns"
 		read -p "Username: " _username
-		
+
 		# 安全的密码输入 - 隐藏输入内容
 		echo -n "Password: "
 		read -s _password
 		echo  # 换行
-		
+
 		# 输入验证
 		if [[ -z "$_username" || -z "$_password" ]]; then
 			echo "Error: Username and password are required" >&2
 			return 1
 		fi
-		
+
 		# 提取协议和地址部分
 		_protocol=$(echo $_dns | cut -d: -f1)
 		_address=$(echo $_dns | sed 's/.*@//')
-		
+
 		# 验证协议
 		if [[ ! "$_protocol" =~ ^(http|https|socks5)$ ]]; then
 			echo "Error: Unsupported protocol '$_protocol'" >&2
 			return 1
 		fi
-		
+
 		proxy_enable "${_protocol}://${_username}:${_password}@${_address}"
-		
+
 		# 清理密码变量
 		unset _password
 	else
@@ -281,7 +281,7 @@ write_hostips() {
 	# use tee to write hostips to /usr/local/bin/hostips
 	cat <<EOF >>$HOME/.local/bin/hostips
 #!/usr/bin/bash
-	
+
 ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}' | head -n 1
 EOF
 
@@ -328,15 +328,15 @@ EOF
 check_in_china() {
 	local _cache_file="$HOME/.cache/zsh_location"
 	local _cache_ttl=86400  # 24小时缓存
-	
+
 	# 确保缓存目录存在
 	mkdir -p "$(dirname "$_cache_file")"
-	
+
 	# 检查缓存是否存在且未过期
 	if [[ -f "$_cache_file" ]]; then
 		local _cache_time=$(stat -f %m "$_cache_file" 2>/dev/null || stat -c %Y "$_cache_file" 2>/dev/null)
 		local _current_time=$(date +%s)
-		
+
 		# 确保时间变量不为空且为数字
 		if [[ -n "$_cache_time" && -n "$_current_time" && "$_cache_time" =~ ^[0-9]+$ && "$_current_time" =~ ^[0-9]+$ && $((_current_time - _cache_time)) -lt $_cache_ttl ]]; then
 			# 缓存有效，直接读取
@@ -344,7 +344,7 @@ check_in_china() {
 			[[ $_cached_country == "CN" ]] && return 0 || return 1
 		fi
 	fi
-	
+
 	# 缓存过期或不存在，进行网络检查
 	# 安全的网络请求 - 使用HTTPS，严格SSL验证，设置User-Agent
 	local _country=$(curl -s \
@@ -356,15 +356,15 @@ check_in_china() {
 		--tlsv1.2 \
 		--user-agent "zsh-config/1.0" \
 		"https://ipinfo.io/country" 2>/dev/null)
-	
+
 	# 如果网络请求失败，使用默认值（非中国）
 	if [[ -z "$_country" ]]; then
 		_country="US"
 	fi
-	
+
 	# 保存到缓存
 	echo "$_country" > "$_cache_file"
-	
+
 	[[ $_country == "CN" ]] && return 0 || return 1
 }
 
@@ -450,34 +450,34 @@ function GetLatestReleaseWithRetry() {
     local max_retries=3
     local retry_count=0
     local version=""
-    
+
     if [[ -z "$func_name" || -z "$repo" ]]; then
         echo "错误: 函数名和仓库名不能为空" >&2
         return 1
     fi
-    
+
     while [[ $retry_count -lt $max_retries ]]; do
         retry_count=$((retry_count + 1))
         echo "尝试获取 $repo 的版本信息 (第 $retry_count 次)..." >&2
-        
+
         # 调用指定的函数
         version=$($func_name "$repo" 2>/dev/null)
-        
+
         # 验证版本号是否有效（非空且包含版本号格式）
         if [[ -n "$version" && "$version" =~ ^[0-9]+(\.[0-9]+)*(-.*)?$ ]]; then
             echo "成功获取版本: $version" >&2
             echo "$version"
             return 0
         fi
-        
+
         echo "获取版本失败，版本信息为空或格式无效: '$version'" >&2
-        
+
         if [[ $retry_count -lt $max_retries ]]; then
             echo "等待 2 秒后重试..." >&2
             sleep 2
         fi
     done
-    
+
     echo "错误: 重试 $max_retries 次后仍无法获取 $repo 的版本信息" >&2
     return 1
 }
@@ -490,12 +490,12 @@ function GetLatestReleaseWithRetry() {
 function GetLatestRelease() {
 	local repo="$1"
 	local result=""
-	
+
 	if [[ -z "$repo" ]]; then
 		echo "错误: 仓库名不能为空" >&2
 		return 1
 	fi
-	
+
 	# if GH_TOKEN is not empty, then
 	# curl will use the token to get more requests
 	# see https://developer.github.com/v3/#rate-limiting
@@ -509,7 +509,7 @@ function GetLatestRelease() {
 			grep '"tag_name":' |                                             # Get tag line
 			sed -E 's/.*"v?([^"]+)".*/\1/')
 	fi
-	
+
 	if [[ -n "$result" ]]; then
 		echo "$result"
 	else
@@ -527,7 +527,7 @@ function GetLatestReleaseWithRetryProxy() {
 }
 
 # @brief Get latest release with retry (direct GitHub API)
-# @param $1 Repository name in format 'owner/repo' 
+# @param $1 Repository name in format 'owner/repo'
 # @return Latest version tag with retry logic
 # @example GetLatestReleaseWithRetryDirect "microsoft/vscode"
 # @category github
@@ -543,12 +543,12 @@ function GetLatestReleaseWithRetryDirect() {
 function GetLatestReleaseProxy() {
 	local repo="$1"
 	local result=""
-	
+
 	if [[ -z "$repo" ]]; then
 		echo "错误: 仓库名不能为空" >&2
 		return 1
 	fi
-	
+
 	# if GH_TOKEN is not empty, then
 	# curl will use the token to get more requests
 	# see https://developer.github.com/v3/#rate-limiting
@@ -562,7 +562,7 @@ function GetLatestReleaseProxy() {
 			grep '"tag_name":' |                                                   # Get tag line
 			sed -E 's/.*"v?([^"]+)".*/\1/')
 	fi
-	
+
 	if [[ -n "$result" ]]; then
 		echo "$result"
 	else
@@ -580,7 +580,7 @@ function GetLatestReleaseWithRetryProxy() {
 }
 
 # @brief Get latest release with retry (direct GitHub API)
-# @param $1 Repository name in format 'owner/repo' 
+# @param $1 Repository name in format 'owner/repo'
 # @return Latest version tag with retry logic
 # @example GetLatestReleaseWithRetryDirect "microsoft/vscode"
 # @category github
@@ -639,4 +639,138 @@ function get_wan_ip() {
 	echo ""
 	echo "=====ident.me======"
 	curl -s ident.me
+}
+
+
+# 基础版本 - 测试单个端口
+check_port() {
+    local host=$1
+    local port=$2
+    local timeout=${3:-3}  # 默认超时3秒
+
+    if [[ -z "$host" || -z "$port" ]]; then
+        echo "用法: check_port <主机> <端口> [超时秒数]"
+        echo "示例: check_port google.com 80"
+        return 1
+    fi
+
+    if nc -z -w$timeout "$host" "$port" 2>/dev/null; then
+        echo "✓ $host:$port 端口开放"
+        return 0
+    else
+        echo "✗ $host:$port 端口关闭或不可达"
+        return 1
+    fi
+}
+
+# 增强版本 - 测试多个端口
+check_ports() {
+    local host=$1
+    local timeout=${2:-3}
+    shift 2
+    local ports=("$@")
+
+    if [[ -z "$host" || ${#ports[@]} -eq 0 ]]; then
+        echo "用法: check_ports <主机> [超时秒数] <端口1> <端口2> ..."
+        echo "示例: check_ports google.com 3 80 443 22"
+        return 1
+    fi
+
+    echo "测试 $host 的端口连接性..."
+    echo "----------------------------------------"
+
+    local open_count=0
+    local total_count=${#ports[@]}
+
+    for port in "${ports[@]}"; do
+        if nc -z -w$timeout "$host" "$port" 2>/dev/null; then
+            echo "✓ 端口 $port: 开放"
+            ((open_count++))
+        else
+            echo "✗ 端口 $port: 关闭"
+        fi
+    done
+
+    echo "----------------------------------------"
+    echo "结果: $open_count/$total_count 个端口开放"
+}
+
+# 端口范围测试版本
+check_port_range() {
+    local host=$1
+    local start_port=$2
+    local end_port=$3
+    local timeout=${4:-2}
+
+    if [[ -z "$host" || -z "$start_port" || -z "$end_port" ]]; then
+        echo "用法: check_port_range <主机> <起始端口> <结束端口> [超时秒数]"
+        echo "示例: check_port_range 192.168.1.1 20 25"
+        return 1
+    fi
+
+    echo "扫描 $host 端口范围 $start_port-$end_port..."
+    echo "----------------------------------------"
+
+    local open_ports=()
+
+    for ((port=start_port; port<=end_port; port++)); do
+        if nc -z -w$timeout "$host" "$port" 2>/dev/null; then
+            echo "✓ 端口 $port: 开放"
+            open_ports+=($port)
+        fi
+    done
+
+    echo "----------------------------------------"
+    if [[ ${#open_ports[@]} -gt 0 ]]; then
+        echo "开放的端口: ${open_ports[*]}"
+    else
+        echo "没有发现开放的端口"
+    fi
+}
+
+# 快速常用端口检测
+quick_check() {
+    local host=$1
+    local timeout=${2:-3}
+
+    if [[ -z "$host" ]]; then
+        echo "用法: quick_check <主机> [超时秒数]"
+        echo "示例: quick_check google.com"
+        return 1
+    fi
+
+    # 常用端口列表
+    local common_ports=(21 22 23 25 53 80 110 143 443 993 995)
+
+    echo "快速检测 $host 的常用端口..."
+    check_ports "$host" "$timeout" "${common_ports[@]}"
+}
+
+# 带颜色输出的版本
+check_port_color() {
+    local host=$1
+    local port=$2
+    local timeout=${3:-3}
+
+    # 颜色定义
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local NC='\033[0m' # No Color
+
+    if [[ -z "$host" || -z "$port" ]]; then
+        echo -e "${YELLOW}用法: check_port_color <主机> <端口> [超时秒数]${NC}"
+        echo -e "${YELLOW}示例: check_port_color google.com 80${NC}"
+        return 1
+    fi
+
+    echo -e "${YELLOW}测试 $host:$port ...${NC}"
+
+    if nc -z -w$timeout "$host" "$port" 2>/dev/null; then
+        echo -e "${GREEN}✓ $host:$port 端口开放${NC}"
+        return 0
+    else
+        echo -e "${RED}✗ $host:$port 端口关闭或不可达${NC}"
+        return 1
+    fi
 }
