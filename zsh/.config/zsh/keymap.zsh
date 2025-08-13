@@ -1,5 +1,5 @@
-# 强制使用 vi 模式，防止意外进入 emacs 模式
-bindkey -v
+# # 强制使用 vi 模式，防止意外进入 emacs 模式
+# bindkey -v
 
 # 设置 vi 模式的键超时
 export KEYTIMEOUT=1
