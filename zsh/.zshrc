@@ -25,13 +25,11 @@ autoload -Uz _zinit
 autoload -U compinit && compinit
 
 
-## set keybinding after plugins
-source "$ZSH_CONF_DIR/keymap.zsh"
 
 # system specified configuration
 # if [ "$(uname 2> /dev/null)" = "Linux" ]; then
 # 	source "$ZSH_CONF_DIR/config.linux.zsh"
-# 	if [ $"uname -r | grep -q 'Microsoft'" ]; # if in wsl 
+# 	if [ $"uname -r | grep -q 'Microsoft'" ]; # if in wsl
 # 	then
 # 		source "$ZSH_CONF_DIR/config.wsl.zsh"
 # 	fi
@@ -73,3 +71,6 @@ if [ -f "$HOME/.zsh_self" ]; then
 else
 	echo "~/.zsh_self not found, skipping"
 fi
+
+## set keybinding after plugins
+source "$ZSH_CONF_DIR/keymap.zsh"

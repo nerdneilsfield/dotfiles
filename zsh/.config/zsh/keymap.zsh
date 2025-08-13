@@ -2,7 +2,7 @@
 bindkey -e
 
 # 设置 vi 模式的键超时
-export KEYTIMEOUT=1
+# export KEYTIMEOUT=1
 
 # edit in vim
 # autoload -U edit-command-line
@@ -42,10 +42,11 @@ export KEYTIMEOUT=1
 
 
 # auto suggestion
-autoload -U autosuggest-excute
-# bindkey '^\' autosuggest-excute -N
-# bindkey '^n' autosuggest-accept
+autoload -U autosuggest-execute
+bindkey '^\' autosuggest-execute
+bindkey '^n' autosuggest-accept
 
+export EDITOR=nano
 # bindkey '\ev' deer
 # bindkey -s '\eu' 'ranger_cd\n'
 # bindkey -s '\eOS' 'vim '
