@@ -1384,6 +1384,144 @@ except Exception as e:
     return 0
 }
 
+# find-ssh-item: 给定 Host 别名，输出匹配 stanza 的 "Hostname Port"（每行一个，去重）
+# - 同时检查 ~/.ssh/config 与 ~/.ssh/config.d 下的文件（普通文件或符号链接）
+# - 支持 Host 的 glob 和 !negation
+# - 默认端口为 22（当 stanza 没写 Port 时）
+find-ssh-item() {
+  emulate -L zsh
+  local query=$1
+  [[ -n $query ]] || return 2
+
+  local cfg_dir="${HOME}/.ssh/config.d"
+  local -a files
+  [[ -f "${HOME}/.ssh/config" ]] && files+=("${HOME}/.ssh/config")
+  if [[ -d $cfg_dir ]]; then
+    for entry in "$cfg_dir"/*; do
+      [[ -e $entry ]] || continue
+      [[ -f $entry || -L $entry ]] || continue
+      files+=("$entry")
+    done
+  fi
+
+  (( ${#files[@]} )) || return 3
+
+  local -A seen         # 去重键："<hostname> <port>"
+  local file line key rest key_l
+  local -a host_tokens
+  local matched         # 1=匹配, -1=被否定, 0=未判定
+  local curr_hostname curr_port
+
+  for file in "${files[@]}"; do
+    matched=0
+    host_tokens=()
+    curr_hostname=""
+    curr_port=""
+    while IFS= read -r line || [[ -n $line ]]; do
+      line=${line%%$'\r'}                           # remove CR
+      # trim 两端空白
+      line="${line#"${line%%[![:space:]]*}"}"
+      line="${line%"${line##*[![:space:]]}"}"
+      [[ -z $line ]] && continue
+      [[ ${line} == \#* ]] && continue
+      # 简单去行内注释（常见场景）
+      [[ $line == *'#'* ]] && line="${line%%\#*}" && line="${line%"${line##*[![:space:]]}"}" && [[ -z $line ]] && continue
+
+      key=${line%%[[:space:]]*}
+      rest=${line#${key}}
+      rest="${rest#"${rest%%[![:space:]]*}"}"
+      rest="${rest%"${rest##*[![:space:]]}"}"
+      key_l=${(L)key}
+
+      if [[ $key_l == host ]]; then
+        # 若上一个 stanza 已匹配且有 hostname，则记录
+        if [[ $matched -eq 1 && -n $curr_hostname ]]; then
+          local port_out=${curr_port:-22}
+          seen["$curr_hostname $port_out"]=1
+        fi
+        # 新的 Host stanza，重置状态
+        host_tokens=()
+        matched=0
+        curr_hostname=""
+        curr_port=""
+        for tok in ${(z)rest}; do
+          tok=${tok#\"}; tok=${tok%\"}
+          tok=${tok#\'}; tok=${tok%\'}
+          host_tokens+=("$tok")
+        done
+        # 立刻判定是否匹配 query（支持 glob 与 !negation）
+        for tok in "${host_tokens[@]}"; do
+          if [[ $tok == '!'* ]]; then
+            local neg=${tok#'!'}
+            if [[ $query == $neg ]]; then
+              matched=-1
+              break
+            else
+              continue
+            fi
+          fi
+          if [[ $query == $tok ]]; then
+            matched=1
+            # 不 break：允许后续 token 继续检验是否存在否定等情况
+          fi
+        done
+        continue
+      fi
+
+      # 若当前 stanza 已判定为匹配，则收集 HostName / Port
+      if [[ $matched -eq 1 ]]; then
+        if [[ $key_l == hostname ]]; then
+          curr_hostname=${rest#\"}; curr_hostname=${curr_hostname%\"}
+          curr_hostname=${curr_hostname#\'}; curr_hostname=${curr_hostname%\'}
+          curr_hostname="${curr_hostname#"${curr_hostname%%[![:space:]]*}"}"
+          curr_hostname="${curr_hostname%"${curr_hostname##*[![:space:]]}"}"
+        elif [[ $key_l == port ]]; then
+          curr_port=${rest#\"}; curr_port=${curr_port%\"}
+          curr_port=${curr_port#\'}; curr_port=${curr_port%\'}
+          curr_port="${curr_port#"${curr_port%%[![:space:]]*}"}"
+          curr_port="${curr_port%"${curr_port##*[![:space:]]}"}"
+        fi
+      fi
+    done < "$file"
+
+    # 文件结束后收尾一次
+    if [[ $matched -eq 1 && -n $curr_hostname ]]; then
+      local port_out=${curr_port:-22}
+      seen["$curr_hostname $port_out"]=1
+    fi
+  done
+
+  # 输出结果（如果没有匹配，则不输出，返回码为 1）
+  if (( ${#seen[@]} )); then
+    for k in ${(k)seen}; do
+    #   printf '%s\n' "$k"
+    # remove leading and trailing "
+        local clean=${k#\"}      # 去掉开头的 "
+        clean=${clean%\"}  # 去掉结尾的 "
+        echo "$clean"
+    done
+    return 0
+  else
+    return 1
+  fi
+}
+
+find-ssh-host(){
+    find-ssh-item $1 | cut -d ' ' -f 1
+}
+
+find-ssh-ip(){
+    local host
+    host=$(find-ssh-host $1)
+    # if host is ip, return it
+    [[ $host =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && echo $host && return
+    nslookup $host | awk '/^Address: / {print $2}' | head -n 1
+}
+
+find-ssh-port(){
+    find-ssh-item $1 | cut -d ' ' -f 2
+}
+
 # 别名
 alias zsh-bench="benchmark_zsh"
 alias zsh-cache="show_zsh_cache"
