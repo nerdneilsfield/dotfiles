@@ -92,3 +92,13 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# bun
+# bun completions
+[ -s "${HOME}/.bun/_bun" ] && source "/home/dengqi/.bun/_bun"
+
+# bun
+if [ -d "${HOME}/.bun" ]; then
+	export BUN_INSTALL="$HOME/.bun"
+	export PATH="$BUN_INSTALL/bin:$PATH"
+fi
