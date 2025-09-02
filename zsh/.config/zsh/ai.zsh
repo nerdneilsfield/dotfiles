@@ -16,6 +16,34 @@ install_claude_code() {
   fi
 }
 
+install_gemini_cli(){
+  if command -v npm &>/dev/null; then
+    npm install -g @google/gemini-cli
+  else
+    echo "npm is not installed"
+  fi
+}
+
+install_qwen_code(){
+  if command -v npm &>/dev/null; then
+    npm install -g @qwen-code/qwen-code
+  else
+    echo "npm is not installed"
+  fi
+}
+
+update_ai_tools(){
+  npm update -g @openai/codex
+  npm update -g @anthropic-ai/claude-code
+  npm update -g @google/gemini-cli
+  npm update -g @qwen-code/qwen-code
+}
+
+reinstall_ai_tools(){
+  npm uninstall -g @openai/codex @anthropic-ai/claude-code @google/gemini-cli @qwen-code/qwen-code
+  update_ai_tools
+}
+
 # @description install aichat
 # @param $1 install_prefix[optional, default: $HOME/.local]
 # @return 0 on success
