@@ -72,6 +72,12 @@ else
 	echo "~/.zsh_self not found, skipping"
 fi
 
+if [ -f "$HOME/.zsh_local" ]; then
+	echo "~/.zsh_local found, sourcing it"
+	source "$HOME/.zsh_local"
+else
+	echo "~/.zsh_local not found, skipping"
+fi
+
 ## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
-
