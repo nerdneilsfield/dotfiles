@@ -193,7 +193,7 @@ alias rgf='rg --files-with-matches --no-messages | fzf --preview "rg --context 3
 alias fdf='fd --type d | fzf --preview "eza --tree --level=2 --color=always {}" | xargs -r cd'
 alias rgp='rg --line-number --no-heading --color=always . | fzf --delimiter : --preview "bat --color=always --highlight-line {2} {1}" --preview-window +{2}-/2'
 
-# Tool upgrade aliases  
+# Tool upgrade aliases
 alias upgrade-tools='bash ~/Source/configs/dotfiles/init/init_ubuntu_root.sh UpgradeAllTools'
 alias check-versions='for tool in fzf rg fd bat starship lazygit nvim; do echo -n "$tool: "; $tool --version 2>/dev/null | head -n1 || echo "未安装"; done'
 
@@ -258,6 +258,87 @@ install_neofetch() {
   chmod +x ~/.local/bin/neofetch
 }
 
+
+# @brief Install eget for install package from github
+# @return 0 on success
+# @example install_eget
+# @category tools
+install_eget() {
+    local EGET_REPO="zyedidia/eget"
+   	local EGET_RELEASE=$(GetLatestRelease $EGET_REPO)
+	echo "EGET_RELEASE: $NVIM_RELEASE"
+
+	# get the cpu arch
+	local CPU_ARCH=$(uname -m)
+	local ARCH
+	echo "CPU_ARCH: $CPU_ARCH"
+
+	    # 使用关联数组映射架构
+    local -A ARCH_MAP=(
+        ["x86_64"]="amd64"
+        ["x86"]="386"
+        ["arm64"]="arm64"
+        ["armv7l"]="arm"
+        ["armv6l"]="arm"
+    )
+
+    # 获取映射后的架构
+    ARCH=${ARCH_MAP[$CPU_ARCH]:-amd64}  # 如果键不存在，使用默认值amd64
+
+	# download the binary
+	local EGET_URL="https://github.com/zyedidia/eget/releases/download/v$EGET_RELEASE/eget-$EGET_RELEASE-linux_$ARCH.tar.gz"
+	mkdir -p /tmp/install
+	echo "download... $EGET_URL"
+	wget -O /tmp/install/eget.tar.gz $EGET_URL
+	echo "extracting... eget.tar.gz"
+	tar -xzf /tmp/install/eget.tar.gz -C /tmp/install
+	cd "/tmp/install/eget-$EGET_RELEASE-linux_$ARCH"
+	sudo cp eget /usr/local/bin/eget
+	sudo chmod +x /usr/local/bin/eget
+	sudo cp eget.1 /usr/local/share/man/man1/eget.1
+}
+
+
+# @brief Install eget for install package from github
+# @return 0 on success
+# @example install_eget
+# @category tools
+install_eget_proxy() {
+    local EGET_REPO="zyedidia/eget"
+   	local EGET_RELEASE=$(GetLatestReleaseWithRetryProxy $EGET_REPO)
+	echo "EGET_RELEASE: $NVIM_RELEASE"
+
+	# get the cpu arch
+	local CPU_ARCH=$(uname -m)
+	local ARCH
+	echo "CPU_ARCH: $CPU_ARCH"
+
+	    # 使用关联数组映射架构
+    local -A ARCH_MAP=(
+        ["x86_64"]="amd64"
+        ["x86"]="386"
+        ["arm64"]="arm64"
+        ["armv7l"]="arm"
+        ["armv6l"]="arm"
+    )
+
+    # 获取映射后的架构
+    ARCH=${ARCH_MAP[$CPU_ARCH]:-amd64}  # 如果键不存在，使用默认值amd64
+
+	# download the binary
+	local EGET_URL="https://ghproxy.dengqi.org/https://github.com/zyedidia/eget/releases/download/v$EGET_RELEASE/eget-$EGET_RELEASE-linux_$ARCH.tar.gz"
+	mkdir -p /tmp/install
+	echo "download... $EGET_URL"
+	wget -O /tmp/install/eget.tar.gz $EGET_URL
+	echo "extracting... eget.tar.gz"
+	tar -xzf /tmp/install/eget.tar.gz -C /tmp/install
+	cd "/tmp/install/eget-$EGET_RELEASE-linux_$ARCH"
+	sudo cp eget /usr/local/bin/eget
+	sudo chmod +x /usr/local/bin/eget
+	sudo cp eget.1 /usr/local/share/man/man1/eget.1
+}
+
+
 # @brief Install fastfetch system information tool from source
 # @return 0 on success
 # @example install_fastfetch
@@ -272,7 +353,7 @@ install_fastfetch() {
   fi
   local _fastfetch_dir="$HOME/Source/app/fastfetch"
   local _fastfetch_url="https://github.com/fastfetch-cli/fastfetch.git"
-  mkdir -p $HOME/Source/app 
+  mkdir -p $HOME/Source/app
   if [[ -d $_fastfetch_dir ]]; then
     green_echo "=========fastfetch already installed, updating======"
     cd $_fastfetch_dir
@@ -359,7 +440,7 @@ install_fzf(){
 
     if command -v batch_smart_download_tools >/dev/null 2>&1; then
         batch_smart_download_tools "$example_url" "$install_prefix"
-        # fzf also needs its shell integrations installed. 
+        # fzf also needs its shell integrations installed.
         # The smart_install_downloaded function might handle some of this if completions/scripts are in standard locations.
         # However, fzf often requires sourcing specific files or running an install script found within its extracted contents.
         # This part might need additional logic after batch_smart_download_tools if the generic install isn't enough.
@@ -540,7 +621,7 @@ install_mise(){
         return 0
     fi
     # 根据其传统安装逻辑，推测的示例 URL。musl 版本，架构为 x64/arm64。
-    local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz" 
+    local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz"
     local install_prefix="$HOME/.local" # mise 通常期望安装到特定目录，然后符号链接，但 smart_install 会处理到 $HOME/.local/bin
 
     if command -v batch_smart_download_tools >/dev/null 2>&1; then
@@ -686,11 +767,11 @@ install_mihomo(){
 ##
 install_batch_modern(){
     echo "🚀 智能批量安装现代命令行工具..."
-    
+
     local modern_tools=(
         "fzf"
         "ripgrep"
-        "fd" 
+        "fd"
         "bat"
         "eza"
         "lazygit"
@@ -698,7 +779,7 @@ install_batch_modern(){
         "yazi"
         "bottom"
     )
-    
+
     for tool in "${modern_tools[@]}"; do
         echo ""
         echo "📦 安装 $tool..."
@@ -717,7 +798,7 @@ install_batch_modern(){
             esac
         fi
     done
-    
+
     echo ""
     echo "✅ 现代工具安装完成！"
 }
@@ -745,7 +826,7 @@ install_batch_release(){
 # @category tools
 install_modern_tools_rust() {
     echo "🦀 安装现代 Rust 工具..."
-    
+
     local rust_tools=(
         "bat"
         "ripgrep"
@@ -762,7 +843,7 @@ install_modern_tools_rust() {
         "zoxide"
         "starship"
     )
-    
+
     for tool in "${rust_tools[@]}"; do
         echo "📦 安装 $tool..."
         if command -v install_smart_tool >/dev/null 2>&1; then
@@ -771,7 +852,7 @@ install_modern_tools_rust() {
             cargo install "$tool" 2>/dev/null || echo "❌ 无法通过 Cargo 安装 $tool"
         fi
     done
-    
+
     echo "✅ Rust 工具安装完成！"
 }
 
@@ -781,7 +862,7 @@ install_modern_tools_rust() {
 # @category tools
 install_dev_tools() {
     echo "🛠️ 安装开发工具集..."
-    
+
     local dev_tools=(
         "git"
         "curl"
@@ -793,7 +874,7 @@ install_dev_tools() {
         "vim"
         "rsync"
     )
-    
+
     for tool in "${dev_tools[@]}"; do
         echo "📦 安装 $tool..."
         if command -v install_smart_tool >/dev/null 2>&1; then
@@ -802,7 +883,7 @@ install_dev_tools() {
             echo "⚠️ 请手动安装 $tool"
         fi
     done
-    
+
     echo "✅ 开发工具安装完成！"
 }
 
@@ -901,7 +982,7 @@ install_modern_tools_local() {
 install_modern_tools_by_download(){
     local requested_install_prefix="${1:-$HOME/.local}"
     echo "📞 调用批量智能下载安装现代工具 (URL 学习模式) 到 '$requested_install_prefix'..." >&2
-    
+
     # 定义工具的示例 GitHub Release 下载 URL 列表
     local -a example_tool_urls=(
         "https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz"
@@ -944,40 +1025,40 @@ alias install_modertools_local_by_download="install_modern_tools_by_download"
 # @category tools
 install_jq_from_source() {
     echo "🚀 智能安装 jq..."
-    
+
     # 使用智能安装系统
     if command -v install_smart_tool >/dev/null 2>&1; then
         install_smart_tool jq
         return $?
     fi
-    
+
     # 回退到源码编译
     echo "⚠️  智能安装系统未加载，从源码编译..."
     local jq_dir="${HOME}/Source/app/jq"
     mkdir -p "$jq_dir"
-    
+
     if [ ! -d "$jq_dir/.git" ]; then
         git clone --depth 1 --recursive https://github.com/jqlang/jq.git "$jq_dir"
     fi
-    
+
     cd "$jq_dir"
     git pull origin main 2>/dev/null || git pull origin master
-    
+
     # 清理和构建
     make clean 2>/dev/null || true
     make distclean 2>/dev/null || true
-    
+
     # 检查依赖
     if ! command -v autoreconf >/dev/null 2>&1; then
         echo "❌ 请先安装 autotools: sudo apt install autotools-dev autoconf"
         return 1
     fi
-    
+
     autoreconf -i
     ./configure --prefix="${HOME}/.local" --disable-maintainer-mode
     make -j $(nproc)
     make install
-    
+
     green_echo "✅ jq 安装完成"
 }
 
@@ -1034,4 +1115,3 @@ fi
 if [[ -d $HOME/.config/broot/launcher/bash ]] then
  source $HOME/.config/broot/launcher/bash/br
 fi
-
