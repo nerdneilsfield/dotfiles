@@ -5,11 +5,10 @@ bindkey -e
 # export KEYTIMEOUT=1
 
 # edit in vim
-# autoload -U edit-command-line
-# zle -N edit-command-line
-# bindkey '^x^e' edit-command-line
-# bindkey '\ei' edit-command-line
-# bindkey -M vicmd v edit-command-line
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '^x^e' edit-command-line
+bindkey '\ev' edit-command-line
 
 
 
@@ -46,7 +45,7 @@ autoload -U autosuggest-execute
 bindkey '^\' autosuggest-execute
 bindkey '^n' autosuggest-accept
 
-export EDITOR=nano
+export EDITOR=vim
 # bindkey '\ev' deer
 # bindkey -s '\eu' 'ranger_cd\n'
 # bindkey -s '\eOS' 'vim '
