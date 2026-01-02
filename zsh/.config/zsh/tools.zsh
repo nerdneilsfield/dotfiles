@@ -259,44 +259,6 @@ install_neofetch() {
 }
 
 
-# @brief Install eget for install package from github
-# @return 0 on success
-# @example install_eget
-# @category tools
-install_eget() {
-    local EGET_REPO="zyedidia/eget"
-   	local EGET_RELEASE=$(GetLatestRelease $EGET_REPO)
-	echo "EGET_RELEASE: $NVIM_RELEASE"
-
-	# get the cpu arch
-	local CPU_ARCH=$(uname -m)
-	local ARCH
-	echo "CPU_ARCH: $CPU_ARCH"
-
-	    # 使用关联数组映射架构
-    local -A ARCH_MAP=(
-        ["x86_64"]="amd64"
-        ["x86"]="386"
-        ["arm64"]="arm64"
-        ["armv7l"]="arm"
-        ["armv6l"]="arm"
-    )
-
-    # 获取映射后的架构
-    ARCH=${ARCH_MAP[$CPU_ARCH]:-amd64}  # 如果键不存在，使用默认值amd64
-
-	# download the binary
-	local EGET_URL="https://github.com/zyedidia/eget/releases/download/v$EGET_RELEASE/eget-$EGET_RELEASE-linux_$ARCH.tar.gz"
-	mkdir -p /tmp/install
-	echo "download... $EGET_URL"
-	wget -O /tmp/install/eget.tar.gz $EGET_URL
-	echo "extracting... eget.tar.gz"
-	tar -xzf /tmp/install/eget.tar.gz -C /tmp/install
-	cd "/tmp/install/eget-$EGET_RELEASE-linux_$ARCH"
-	sudo cp eget /usr/local/bin/eget
-	sudo chmod +x /usr/local/bin/eget
-	sudo cp eget.1 /usr/local/share/man/man1/eget.1
-}
 
 
 # @brief Install eget for install package from github
@@ -305,8 +267,8 @@ install_eget() {
 # @category tools
 install_eget_proxy() {
     local EGET_REPO="zyedidia/eget"
-   	local EGET_RELEASE=$(GetLatestReleaseWithRetryProxy $EGET_REPO)
-	echo "EGET_RELEASE: $NVIM_RELEASE"
+	local EGET_RELEASE=$(GetLatestReleaseWithRetryProxy $EGET_REPO)
+	echo "EGET_RELEASE: $EGET_RELEASE"
 
 	# get the cpu arch
 	local CPU_ARCH=$(uname -m)
@@ -318,6 +280,7 @@ install_eget_proxy() {
         ["x86_64"]="amd64"
         ["x86"]="386"
         ["arm64"]="arm64"
+        ["aarch64"]="arm64"
         ["armv7l"]="arm"
         ["armv6l"]="arm"
     )
