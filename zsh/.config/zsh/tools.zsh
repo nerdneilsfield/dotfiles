@@ -1010,7 +1010,17 @@ install_modern_tools_by_eget(){
     fi
 
     local eget_bin="${install_prefix}/bin"
-    mkdir -p "$eget_bin"
+    local use_sudo=0
+
+    if [[ "$install_prefix" == "/usr/local" || "$install_prefix" == "/usr" ]]; then
+        use_sudo=1
+    fi
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo mkdir -p "$eget_bin"
+    else
+        mkdir -p "$eget_bin"
+    fi
 
     # 需要安装的工具列表（GitHub repo）
     local -a eget_tools=(
@@ -1049,7 +1059,11 @@ install_modern_tools_by_eget(){
 
     for tool in "${eget_tools[@]}"; do
         echo "➡️  eget $tool" >&2
-        EGET_BIN="$eget_bin" eget "$tool"
+        if [[ "$use_sudo" -eq 1 ]]; then
+            sudo env EGET_BIN="$eget_bin" eget "$tool"
+        else
+            EGET_BIN="$eget_bin" eget "$tool"
+        fi
     done
 }
 
