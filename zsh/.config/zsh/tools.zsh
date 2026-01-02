@@ -1033,6 +1033,17 @@ install_modern_tools_by_eget(){
         "dandavison/delta"
         "dbrgn/tealdeer"
         "zellij-org/zellij"
+        "ajeetdsouza/zoxide"
+        "sigoden/aichat"
+        "starship/starship"
+        "ducaale/xh"
+        "ClementTsang/bottom"
+        "rs/curlie"
+        "sxyazi/yazi"
+        "tw93/Mole"
+        "jarun/nnn"
+        "bcicen/ctop"
+        "denisidoro/navi"
         # Add more repos here
     )
 
