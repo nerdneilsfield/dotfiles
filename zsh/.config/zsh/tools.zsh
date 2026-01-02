@@ -985,6 +985,66 @@ install_modern_tools_by_download(){
 # 向后兼容别名
 alias install_modertools_local_by_download="install_modern_tools_by_download"
 
+# @brief Install modern tools via eget (GitHub releases)
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @return 0 on success
+# @example install_modern_tools_by_eget
+# @example install_modern_tools_by_eget global
+# @example install_modern_tools_by_eget /usr/local
+# @category tools
+install_modern_tools_by_eget(){
+    local requested_install_prefix="${1:-local}"
+    local install_prefix
+
+    case "$requested_install_prefix" in
+        global) install_prefix="/usr/local" ;;
+        local) install_prefix="$HOME/.local" ;;
+        *) install_prefix="$requested_install_prefix" ;;
+    esac
+
+    echo "📦 使用 eget 安装现代工具到 '$install_prefix'..." >&2
+
+    if ! command -v eget >/dev/null 2>&1; then
+        echo "❌ install_modern_tools_by_eget: eget 未找到。请先安装 eget。" >&2
+        return 1
+    fi
+
+    local eget_bin="${install_prefix}/bin"
+    mkdir -p "$eget_bin"
+
+    # 需要安装的工具列表（GitHub repo）
+    local -a eget_tools=(
+        "BurntSushi/ripgrep"
+        "sharkdp/fd"
+        "eza-community/eza"
+        "sharkdp/bat"
+        "charmbracelet/glow"
+        "casey/just"
+        "sinelaw/fresh"
+        "junegunn/fzf"
+        "jesseduffield/lazygit"
+        "cli/cli"
+        "muesli/duf"
+        "bootandy/dust"
+        "dundee/gdu"
+        "dalance/procs"
+        "chmln/sd"
+        "sharkdp/hyperfine"
+        "dandavison/delta"
+        "dbrgn/tealdeer"
+        "zellij-org/zellij"
+        # Add more repos here
+    )
+
+    for tool in "${eget_tools[@]}"; do
+        echo "➡️  eget $tool" >&2
+        EGET_BIN="$eget_bin" eget "$tool"
+    done
+}
+
+# 向后兼容别名
+alias install_modertools_local_by_eget="install_modern_tools_by_eget"
+
 # @brief Install jq JSON processor from source
 # @return 0 on success
 # @example install_jq_from_source
