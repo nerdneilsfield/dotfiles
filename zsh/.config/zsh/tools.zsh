@@ -1218,14 +1218,17 @@ install_lazygit_by_eget(){
     _install_tool_by_eget "jesseduffield/lazygit" "${1:-local}"
 }
 
-# @brief Install cli via eget
+# @brief Install gh (GitHub CLI) via eget
 # @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
-# @example install_cli_by_eget
-# @example install_cli_by_eget global
+# @example install_gh_by_eget
+# @example install_gh_by_eget global
 # @category tools
-install_cli_by_eget(){
+install_gh_by_eget(){
     _install_tool_by_eget "cli/cli" "${1:-local}"
 }
+
+# backward compatible alias
+alias install_cli_by_eget="install_gh_by_eget"
 
 # @brief Install duf via eget
 # @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
