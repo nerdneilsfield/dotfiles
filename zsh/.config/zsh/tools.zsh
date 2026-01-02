@@ -1061,12 +1061,323 @@ install_modern_tools_by_eget(){
 
     for tool in "${eget_tools[@]}"; do
         echo "➡️  eget $tool" >&2
-        if [[ "$use_sudo" -eq 1 ]]; then
-            sudo -E eget "$tool"
-        else
-            eget "$tool"
-        fi
+        _install_tool_by_eget "$tool" "$install_prefix"
     done
+}
+
+# @brief Install a single tool via eget
+# @param $1 GitHub repo (e.g., owner/repo)
+# @param $2 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @return 0 on success
+# @example _install_tool_by_eget BurntSushi/ripgrep global
+# @category tools
+_install_tool_by_eget(){
+    local tool="$1"
+    local requested_install_prefix="${2:-local}"
+    local install_prefix
+    local eget_bin
+    local use_sudo=0
+
+    if [[ -z "$tool" ]]; then
+        echo "Usage: _install_tool_by_eget <owner/repo> [global|local|/prefix]" >&2
+        return 1
+    fi
+
+    case "$requested_install_prefix" in
+        global) install_prefix="/usr/local" ;;
+        local) install_prefix="$HOME/.local" ;;
+        *) install_prefix="$requested_install_prefix" ;;
+    esac
+
+    eget_bin="${install_prefix}/bin"
+    if [[ "$install_prefix" == "/usr/local" || "$install_prefix" == "/usr" ]]; then
+        use_sudo=1
+    fi
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -v || return 1
+        sudo mkdir -p "$eget_bin"
+    else
+        mkdir -p "$eget_bin"
+    fi
+
+    export EGET_BIN="$eget_bin"
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -E eget "$tool"
+    else
+        eget "$tool"
+    fi
+}
+
+# @brief Install ctop via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_ctop_by_eget
+# @example install_ctop_by_eget global
+# @category tools
+install_ctop_by_eget(){
+    _install_tool_by_eget "bcicen/ctop" "${1:-local}"
+}
+
+# @brief Install procs via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_procs_by_eget
+# @example install_procs_by_eget global
+# @category tools
+install_procs_by_eget(){
+    _install_tool_by_eget "dalance/procs" "${1:-local}"
+}
+
+# @brief Install tealdeer (tldr) via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_tealdeer_by_eget
+# @example install_tealdeer_by_eget global
+# @category tools
+install_tealdeer_by_eget(){
+    _install_tool_by_eget "dbrgn/tealdeer" "${1:-local}"
+}
+
+# @brief Install ripgrep via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_ripgrep_by_eget
+# @example install_ripgrep_by_eget global
+# @category tools
+install_ripgrep_by_eget(){
+    _install_tool_by_eget "BurntSushi/ripgrep" "${1:-local}"
+}
+
+# @brief Install fd via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_fd_by_eget
+# @example install_fd_by_eget global
+# @category tools
+install_fd_by_eget(){
+    _install_tool_by_eget "sharkdp/fd" "${1:-local}"
+}
+
+# @brief Install eza via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_eza_by_eget
+# @example install_eza_by_eget global
+# @category tools
+install_eza_by_eget(){
+    _install_tool_by_eget "eza-community/eza" "${1:-local}"
+}
+
+# @brief Install bat via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_bat_by_eget
+# @example install_bat_by_eget global
+# @category tools
+install_bat_by_eget(){
+    _install_tool_by_eget "sharkdp/bat" "${1:-local}"
+}
+
+# @brief Install glow via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_glow_by_eget
+# @example install_glow_by_eget global
+# @category tools
+install_glow_by_eget(){
+    _install_tool_by_eget "charmbracelet/glow" "${1:-local}"
+}
+
+# @brief Install just via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_just_by_eget
+# @example install_just_by_eget global
+# @category tools
+install_just_by_eget(){
+    _install_tool_by_eget "casey/just" "${1:-local}"
+}
+
+# @brief Install fresh via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_fresh_by_eget
+# @example install_fresh_by_eget global
+# @category tools
+install_fresh_by_eget(){
+    _install_tool_by_eget "sinelaw/fresh" "${1:-local}"
+}
+
+# @brief Install fzf via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_fzf_by_eget
+# @example install_fzf_by_eget global
+# @category tools
+install_fzf_by_eget(){
+    _install_tool_by_eget "junegunn/fzf" "${1:-local}"
+}
+
+# @brief Install lazygit via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_lazygit_by_eget
+# @example install_lazygit_by_eget global
+# @category tools
+install_lazygit_by_eget(){
+    _install_tool_by_eget "jesseduffield/lazygit" "${1:-local}"
+}
+
+# @brief Install cli via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_cli_by_eget
+# @example install_cli_by_eget global
+# @category tools
+install_cli_by_eget(){
+    _install_tool_by_eget "cli/cli" "${1:-local}"
+}
+
+# @brief Install duf via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_duf_by_eget
+# @example install_duf_by_eget global
+# @category tools
+install_duf_by_eget(){
+    _install_tool_by_eget "muesli/duf" "${1:-local}"
+}
+
+# @brief Install dust via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_dust_by_eget
+# @example install_dust_by_eget global
+# @category tools
+install_dust_by_eget(){
+    _install_tool_by_eget "bootandy/dust" "${1:-local}"
+}
+
+# @brief Install gdu via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_gdu_by_eget
+# @example install_gdu_by_eget global
+# @category tools
+install_gdu_by_eget(){
+    _install_tool_by_eget "dundee/gdu" "${1:-local}"
+}
+
+# @brief Install sd via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_sd_by_eget
+# @example install_sd_by_eget global
+# @category tools
+install_sd_by_eget(){
+    _install_tool_by_eget "chmln/sd" "${1:-local}"
+}
+
+# @brief Install hyperfine via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_hyperfine_by_eget
+# @example install_hyperfine_by_eget global
+# @category tools
+install_hyperfine_by_eget(){
+    _install_tool_by_eget "sharkdp/hyperfine" "${1:-local}"
+}
+
+# @brief Install delta via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_delta_by_eget
+# @example install_delta_by_eget global
+# @category tools
+install_delta_by_eget(){
+    _install_tool_by_eget "dandavison/delta" "${1:-local}"
+}
+
+# @brief Install zellij via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_zellij_by_eget
+# @example install_zellij_by_eget global
+# @category tools
+install_zellij_by_eget(){
+    _install_tool_by_eget "zellij-org/zellij" "${1:-local}"
+}
+
+# @brief Install zoxide via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_zoxide_by_eget
+# @example install_zoxide_by_eget global
+# @category tools
+install_zoxide_by_eget(){
+    _install_tool_by_eget "ajeetdsouza/zoxide" "${1:-local}"
+}
+
+# @brief Install aichat via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_aichat_by_eget
+# @example install_aichat_by_eget global
+# @category tools
+install_aichat_by_eget(){
+    _install_tool_by_eget "sigoden/aichat" "${1:-local}"
+}
+
+# @brief Install starship via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_starship_by_eget
+# @example install_starship_by_eget global
+# @category tools
+install_starship_by_eget(){
+    _install_tool_by_eget "starship/starship" "${1:-local}"
+}
+
+# @brief Install xh via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_xh_by_eget
+# @example install_xh_by_eget global
+# @category tools
+install_xh_by_eget(){
+    _install_tool_by_eget "ducaale/xh" "${1:-local}"
+}
+
+# @brief Install bottom via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_bottom_by_eget
+# @example install_bottom_by_eget global
+# @category tools
+install_bottom_by_eget(){
+    _install_tool_by_eget "ClementTsang/bottom" "${1:-local}"
+}
+
+# @brief Install curlie via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_curlie_by_eget
+# @example install_curlie_by_eget global
+# @category tools
+install_curlie_by_eget(){
+    _install_tool_by_eget "rs/curlie" "${1:-local}"
+}
+
+# @brief Install yazi via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_yazi_by_eget
+# @example install_yazi_by_eget global
+# @category tools
+install_yazi_by_eget(){
+    _install_tool_by_eget "sxyazi/yazi" "${1:-local}"
+}
+
+# @brief Install mole via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_mole_by_eget
+# @example install_mole_by_eget global
+# @category tools
+install_mole_by_eget(){
+    _install_tool_by_eget "tw93/Mole" "${1:-local}"
+}
+
+# @brief Install nnn via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_nnn_by_eget
+# @example install_nnn_by_eget global
+# @category tools
+install_nnn_by_eget(){
+    _install_tool_by_eget "jarun/nnn" "${1:-local}"
+}
+
+# @brief Install navi via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_navi_by_eget
+# @example install_navi_by_eget global
+# @category tools
+install_navi_by_eget(){
+    _install_tool_by_eget "denisidoro/navi" "${1:-local}"
 }
 
 # 向后兼容别名
