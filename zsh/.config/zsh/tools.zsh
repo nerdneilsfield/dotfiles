@@ -1017,10 +1017,12 @@ install_modern_tools_by_eget(){
     fi
 
     if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -v || return 1
         sudo mkdir -p "$eget_bin"
     else
         mkdir -p "$eget_bin"
     fi
+    export EGET_BIN="$eget_bin"
 
     # 需要安装的工具列表（GitHub repo）
     local -a eget_tools=(
@@ -1060,9 +1062,9 @@ install_modern_tools_by_eget(){
     for tool in "${eget_tools[@]}"; do
         echo "➡️  eget $tool" >&2
         if [[ "$use_sudo" -eq 1 ]]; then
-            sudo env EGET_BIN="$eget_bin" eget "$tool"
+            sudo -E eget "$tool"
         else
-            EGET_BIN="$eget_bin" eget "$tool"
+            eget "$tool"
         fi
     done
 }
