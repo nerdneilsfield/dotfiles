@@ -28,6 +28,7 @@
 ## 终端体验
 
 - `zellij` - 终端复用器
+- `tmux` - 终端复用器
 - `zoxide init zsh` - 初始化 (通常写入 rc)
 - `z <dir>` - 快速跳转 (需要初始化)
 - `starship init zsh` - 初始化 (通常写入 rc)
