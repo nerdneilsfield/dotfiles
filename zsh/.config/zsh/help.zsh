@@ -1,13 +1,13 @@
 function show-help() {
-    if command -v mdcat &>/dev/null; then
+    if command -v glow &>/dev/null; then
         local file
-        file=$(find "${ZSH_CONF_DIR}/help" -name '*.md' -type f | sed 's|.*/||;s|\.md$||' | fzf --prompt="Select help file: " --preview='mdcat "${ZSH_CONF_DIR}"/help/{}.md')
+        file=$(find "${ZSH_CONF_DIR}/help" -name '*.md' -type f | sed 's|.*/||;s|\.md$||' | fzf --prompt="Select help file: " --preview='glow "${ZSH_CONF_DIR}"/help/{}.md')
         if [[ -n "$file" ]]; then
-            mdcat "${ZSH_CONF_DIR}/help/${file}.md"
+            glow "${ZSH_CONF_DIR}/help/${file}.md"
         fi
     else
-        yellow_echo "mdcat is not installed. Installing mdcat."
-        cins mdcat
+        yellow_echo "glow is not installed. Installing glow."
+        cins glow
     fi
 }
 
