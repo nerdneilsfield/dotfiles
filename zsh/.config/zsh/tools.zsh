@@ -279,8 +279,11 @@ install_eget_proxy() {
     local -A ARCH_MAP=(
         ["x86_64"]="amd64"
         ["x86"]="386"
+        ["i386"]="386"
+        ["i686"]="386"
         ["arm64"]="arm64"
         ["aarch64"]="arm64"
+        ["armv8l"]="arm"
         ["armv7l"]="arm"
         ["armv6l"]="arm"
     )
