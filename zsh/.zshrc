@@ -88,3 +88,4 @@ fi
 
 ## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
+
