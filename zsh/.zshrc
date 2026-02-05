@@ -1,3 +1,10 @@
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+fpath=("/home/dengqi/.zsh/completions" $fpath)
+autoload -Uz compinit
+compinit
+# OPENSPEC:END
+
 export ZSH_CONF_DIR="$HOME/.config/zsh"
 export ZSH_PRIVATE_CONF_DIR="$HOME/.config/zsh_private"
 
@@ -70,6 +77,13 @@ if [ -f "$HOME/.zsh_self" ]; then
 	source "$HOME/.zsh_self"
 else
 	echo "~/.zsh_self not found, skipping"
+fi
+
+if [ -f "$HOME/.zsh_local" ]; then
+	echo "~/.zsh_local found, sourcing it"
+	source "$HOME/.zsh_local"
+else
+	echo "~/.zsh_local not found, skipping"
 fi
 
 ## set keybinding after plugins

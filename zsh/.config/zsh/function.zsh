@@ -42,9 +42,9 @@ hostip() {
 # @example get_wan_ip
 # @category network
 ##
-get_wan_ip() {
-	curl -4 icanhazip.com
-}
+# get_wan_ip() {
+# 	curl -4 icanhazip.com
+# }
 
 ##
 # @brief 启用代理设置

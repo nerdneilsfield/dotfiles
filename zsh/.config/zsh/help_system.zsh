@@ -12,25 +12,25 @@
 show_functions() {
     local category_filter="$1"
     local config_dir="${ZSH_CONF_DIR:-$HOME/.config/zsh}"
-    
+
     echo "📚 ZSH 配置函数文档"
     echo "=================="
-    
+
     if [[ -n "$category_filter" ]]; then
         echo "🏷️  分类: $category_filter"
         echo ""
     fi
-    
+
     # 临时文件存储解析结果
     local temp_file=$(mktemp)
-    
+
     # 解析所有 .zsh 文件中的函数文档
     for file in "$config_dir"/*.zsh; do
         if [[ -f "$file" ]]; then
             _parse_function_docs "$file" "$category_filter" >> "$temp_file"
         fi
     done
-    
+
     # 按分类排序并显示
     if [[ -s "$temp_file" ]]; then
         sort "$temp_file" | _format_function_docs
@@ -40,7 +40,7 @@ show_functions() {
             echo "💡 可用分类: install, config, check, network, tool, security, cache"
         fi
     fi
-    
+
     rm -f "$temp_file"
 }
 
@@ -54,7 +54,7 @@ _parse_function_docs() {
     local file="$1"
     local category_filter="$2"
     local filename=$(basename "$file")
-    
+
     # 使用 awk 解析函数文档
     awk -v cat_filter="$category_filter" -v fname="$filename" '
     BEGIN {
@@ -67,57 +67,57 @@ _parse_function_docs() {
         category = ""
         func_name = ""
     }
-    
+
     # 检测文档开始
     /^##$/ && !in_doc {
         in_doc = 1
         next
     }
-    
+
     # 检测文档结束
     /^##$/ && in_doc {
         in_doc = 0
         next
     }
-    
+
     # 解析文档标签
     in_doc && /^# @brief/ {
         brief = substr($0, 9)
         next
     }
-    
+
     in_doc && /^# @description/ {
         description = substr($0, 15)
         next
     }
-    
+
     in_doc && /^# @param/ {
         param = substr($0, 9)
         if (params == "") params = param
         else params = params "\n                   " param
         next
     }
-    
+
     in_doc && /^# @return/ {
         return_val = substr($0, 10)
         next
     }
-    
+
     in_doc && /^# @example/ {
         example = substr($0, 11)
         next
     }
-    
+
     in_doc && /^# @category/ {
         category = substr($0, 12)
         next
     }
-    
+
     # 检测函数定义
     !in_doc && /^[a-zA-Z_][a-zA-Z0-9_]*\(\)/ {
         match($0, /^[a-zA-Z_][a-zA-Z0-9_]*/)
         func_name = substr($0, RSTART, RLENGTH)
-        
+
         # 如果有分类过滤器，检查是否匹配
         if (cat_filter != "" && category != cat_filter) {
             # 重置变量
@@ -130,13 +130,13 @@ _parse_function_docs() {
             func_name = ""
             next
         }
-        
+
         # 输出解析结果
         if (brief != "") {
-            printf "%s|%s|%s|%s|%s|%s|%s|%s\n", 
+            printf "%s|%s|%s|%s|%s|%s|%s|%s\n",
                    category, func_name, brief, description, params, return_val, example, fname
         }
-        
+
         # 重置变量
         brief = ""
         description = ""
@@ -155,14 +155,14 @@ _parse_function_docs() {
 ##
 _format_function_docs() {
     local current_category=""
-    
+
     while IFS='|' read -r category func_name brief description params return_val example filename; do
         # 如果是新分类，显示分类标题
         if [[ "$category" != "$current_category" ]]; then
             if [[ -n "$current_category" ]]; then
                 echo ""
             fi
-            
+
             case "$category" in
                 "install") echo "🔧 安装相关函数" ;;
                 "config") echo "⚙️  配置相关函数" ;;
@@ -176,30 +176,30 @@ _format_function_docs() {
             echo "$(printf '%*s' 50 '' | tr ' ' '-')"
             current_category="$category"
         fi
-        
+
         # 显示函数信息
         echo "📍 $func_name"
         echo "   💬 $brief"
-        
+
         if [[ -n "$description" ]]; then
             echo "   📝 $description"
         fi
-        
+
         if [[ -n "$params" ]]; then
             echo "   📥 参数: $params"
         fi
-        
+
         if [[ -n "$return_val" ]]; then
             echo "   📤 返回: $return_val"
         fi
-        
+
         if [[ -n "$example" ]]; then
             echo "   💡 示例: $example"
         fi
-        
+
         echo "   📄 文件: $filename"
         echo ""
-        
+
     done
 }
 
@@ -212,23 +212,23 @@ _format_function_docs() {
 ##
 search_functions() {
     local keyword="$1"
-    
+
     if [[ -z "$keyword" ]]; then
         echo "Usage: search_functions <keyword>"
         return 1
     fi
-    
+
     echo "🔍 搜索函数: '$keyword'"
     echo "========================"
-    
+
     local config_dir="${ZSH_CONF_DIR:-$HOME/.config/zsh}"
     local found=0
-    
+
     for file in "$config_dir"/*.zsh; do
         if [[ -f "$file" ]]; then
             # 搜索函数名和注释
             local results=$(grep -n -A 10 -B 2 "$keyword" "$file" | grep -E "(^[0-9]+:##|^[0-9]+:# @|^[0-9]+:[a-zA-Z_][a-zA-Z0-9_]*\(\))")
-            
+
             if [[ -n "$results" ]]; then
                 echo "📄 $(basename "$file"):"
                 echo "$results" | sed 's/^[0-9]*:/  /'
@@ -237,11 +237,11 @@ search_functions() {
             fi
         fi
     done
-    
+
     if [[ $found -eq 0 ]]; then
         echo "❌ 未找到包含 '$keyword' 的函数"
     fi
-    
+
     return $found
 }
 
@@ -257,23 +257,23 @@ show_readme() {
     local section="$1"
     local config_dir="${ZSH_CONF_DIR:-$HOME/.config/zsh}"
     local readme_file="$config_dir/README.md"
-    
+
     if [[ ! -f "$readme_file" ]]; then
         echo "❌ 未找到 README.md 文件: $readme_file"
         return 1
     fi
-    
+
     echo "📖 ZSH 配置文档"
     echo "==============="
-    
+
     if [[ -n "$section" ]]; then
         echo "📍 章节: $section"
         echo ""
-        
+
         # 搜索特定章节
         awk -v section="$section" '
         BEGIN { found = 0; in_section = 0 }
-        
+
         # 匹配章节标题
         /^#/ && tolower($0) ~ tolower(section) {
             found = 1
@@ -281,7 +281,7 @@ show_readme() {
             print $0
             next
         }
-        
+
         # 如果找到了章节，继续打印直到下一个同级或更高级标题
         in_section && /^#/ && !( tolower($0) ~ tolower(section) ) {
             # 检查是否是同级或更高级标题
@@ -292,9 +292,9 @@ show_readme() {
             }
             if(level <= start_level) in_section = 0
         }
-        
+
         in_section { print $0 }
-        
+
         # 记录开始章节的级别
         found && in_section && !start_level {
             start_level = 0
@@ -303,15 +303,15 @@ show_readme() {
                 else break
             }
         }
-        
+
         END { if(!found) print "❌ 未找到章节: " section }
         ' "$readme_file"
     else
         # 显示整个 README
         if command -v bat >/dev/null 2>&1; then
             bat "$readme_file"
-        elif command -v mdcat >/dev/null 2>&1; then
-            mdcat "$readme_file"
+        elif command -v glow >/dev/null 2>&1; then
+            glow "$readme_file"
         else
             cat "$readme_file"
         fi
@@ -332,7 +332,7 @@ show_readme() {
 show_help() {
     local help_type="$1"
     local param="$2"
-    
+
     case "$help_type" in
         "functions"|"func"|"f")
             show_functions "$param"

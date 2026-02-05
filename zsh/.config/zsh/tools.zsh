@@ -193,7 +193,7 @@ alias rgf='rg --files-with-matches --no-messages | fzf --preview "rg --context 3
 alias fdf='fd --type d | fzf --preview "eza --tree --level=2 --color=always {}" | xargs -r cd'
 alias rgp='rg --line-number --no-heading --color=always . | fzf --delimiter : --preview "bat --color=always --highlight-line {2} {1}" --preview-window +{2}-/2'
 
-# Tool upgrade aliases  
+# Tool upgrade aliases
 alias upgrade-tools='bash ~/Source/configs/dotfiles/init/init_ubuntu_root.sh UpgradeAllTools'
 alias check-versions='for tool in fzf rg fd bat starship lazygit nvim; do echo -n "$tool: "; $tool --version 2>/dev/null | head -n1 || echo "未安装"; done'
 
@@ -258,6 +258,53 @@ install_neofetch() {
   chmod +x ~/.local/bin/neofetch
 }
 
+
+
+
+# @brief Install eget for install package from github
+# @return 0 on success
+# @example install_eget
+# @category tools
+install_eget_proxy() {
+    local EGET_REPO="zyedidia/eget"
+	local EGET_RELEASE=$(GetLatestReleaseWithRetryProxy $EGET_REPO)
+	echo "EGET_RELEASE: $EGET_RELEASE"
+
+	# get the cpu arch
+	local CPU_ARCH=$(uname -m)
+	local ARCH
+	echo "CPU_ARCH: $CPU_ARCH"
+
+	    # 使用关联数组映射架构
+    local -A ARCH_MAP=(
+        ["x86_64"]="amd64"
+        ["x86"]="386"
+        ["i386"]="386"
+        ["i686"]="386"
+        ["arm64"]="arm64"
+        ["aarch64"]="arm64"
+        ["armv8l"]="arm"
+        ["armv7l"]="arm"
+        ["armv6l"]="arm"
+    )
+
+    # 获取映射后的架构
+    ARCH=${ARCH_MAP[$CPU_ARCH]:-amd64}  # 如果键不存在，使用默认值amd64
+
+	# download the binary
+	local EGET_URL="https://ghproxy.dengqi.org/https://github.com/zyedidia/eget/releases/download/v$EGET_RELEASE/eget-$EGET_RELEASE-linux_$ARCH.tar.gz"
+	mkdir -p /tmp/install
+	echo "download... $EGET_URL"
+	wget -O /tmp/install/eget.tar.gz $EGET_URL
+	echo "extracting... eget.tar.gz"
+	tar -xzf /tmp/install/eget.tar.gz -C /tmp/install
+	cd "/tmp/install/eget-$EGET_RELEASE-linux_$ARCH"
+	sudo cp eget /usr/local/bin/eget
+	sudo chmod +x /usr/local/bin/eget
+	sudo cp eget.1 /usr/local/share/man/man1/eget.1
+}
+
+
 # @brief Install fastfetch system information tool from source
 # @return 0 on success
 # @example install_fastfetch
@@ -272,7 +319,7 @@ install_fastfetch() {
   fi
   local _fastfetch_dir="$HOME/Source/app/fastfetch"
   local _fastfetch_url="https://github.com/fastfetch-cli/fastfetch.git"
-  mkdir -p $HOME/Source/app 
+  mkdir -p $HOME/Source/app
   if [[ -d $_fastfetch_dir ]]; then
     green_echo "=========fastfetch already installed, updating======"
     cd $_fastfetch_dir
@@ -359,7 +406,7 @@ install_fzf(){
 
     if command -v batch_smart_download_tools >/dev/null 2>&1; then
         batch_smart_download_tools "$example_url" "$install_prefix"
-        # fzf also needs its shell integrations installed. 
+        # fzf also needs its shell integrations installed.
         # The smart_install_downloaded function might handle some of this if completions/scripts are in standard locations.
         # However, fzf often requires sourcing specific files or running an install script found within its extracted contents.
         # This part might need additional logic after batch_smart_download_tools if the generic install isn't enough.
@@ -540,7 +587,7 @@ install_mise(){
         return 0
     fi
     # 根据其传统安装逻辑，推测的示例 URL。musl 版本，架构为 x64/arm64。
-    local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz" 
+    local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz"
     local install_prefix="$HOME/.local" # mise 通常期望安装到特定目录，然后符号链接，但 smart_install 会处理到 $HOME/.local/bin
 
     if command -v batch_smart_download_tools >/dev/null 2>&1; then
@@ -686,11 +733,11 @@ install_mihomo(){
 ##
 install_batch_modern(){
     echo "🚀 智能批量安装现代命令行工具..."
-    
+
     local modern_tools=(
         "fzf"
         "ripgrep"
-        "fd" 
+        "fd"
         "bat"
         "eza"
         "lazygit"
@@ -698,7 +745,7 @@ install_batch_modern(){
         "yazi"
         "bottom"
     )
-    
+
     for tool in "${modern_tools[@]}"; do
         echo ""
         echo "📦 安装 $tool..."
@@ -717,7 +764,7 @@ install_batch_modern(){
             esac
         fi
     done
-    
+
     echo ""
     echo "✅ 现代工具安装完成！"
 }
@@ -745,7 +792,7 @@ install_batch_release(){
 # @category tools
 install_modern_tools_rust() {
     echo "🦀 安装现代 Rust 工具..."
-    
+
     local rust_tools=(
         "bat"
         "ripgrep"
@@ -762,7 +809,7 @@ install_modern_tools_rust() {
         "zoxide"
         "starship"
     )
-    
+
     for tool in "${rust_tools[@]}"; do
         echo "📦 安装 $tool..."
         if command -v install_smart_tool >/dev/null 2>&1; then
@@ -771,7 +818,7 @@ install_modern_tools_rust() {
             cargo install "$tool" 2>/dev/null || echo "❌ 无法通过 Cargo 安装 $tool"
         fi
     done
-    
+
     echo "✅ Rust 工具安装完成！"
 }
 
@@ -781,7 +828,7 @@ install_modern_tools_rust() {
 # @category tools
 install_dev_tools() {
     echo "🛠️ 安装开发工具集..."
-    
+
     local dev_tools=(
         "git"
         "curl"
@@ -793,7 +840,7 @@ install_dev_tools() {
         "vim"
         "rsync"
     )
-    
+
     for tool in "${dev_tools[@]}"; do
         echo "📦 安装 $tool..."
         if command -v install_smart_tool >/dev/null 2>&1; then
@@ -802,7 +849,7 @@ install_dev_tools() {
             echo "⚠️ 请手动安装 $tool"
         fi
     done
-    
+
     echo "✅ 开发工具安装完成！"
 }
 
@@ -901,7 +948,7 @@ install_modern_tools_local() {
 install_modern_tools_by_download(){
     local requested_install_prefix="${1:-$HOME/.local}"
     echo "📞 调用批量智能下载安装现代工具 (URL 学习模式) 到 '$requested_install_prefix'..." >&2
-    
+
     # 定义工具的示例 GitHub Release 下载 URL 列表
     local -a example_tool_urls=(
         "https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz"
@@ -938,46 +985,447 @@ install_modern_tools_by_download(){
 # 向后兼容别名
 alias install_modertools_local_by_download="install_modern_tools_by_download"
 
+# @brief Install modern tools via eget (GitHub releases)
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @return 0 on success
+# @example install_modern_tools_by_eget
+# @example install_modern_tools_by_eget global
+# @example install_modern_tools_by_eget /usr/local
+# @category tools
+install_modern_tools_by_eget(){
+    local requested_install_prefix="${1:-local}"
+    local install_prefix
+
+    case "$requested_install_prefix" in
+        global) install_prefix="/usr/local" ;;
+        local) install_prefix="$HOME/.local" ;;
+        *) install_prefix="$requested_install_prefix" ;;
+    esac
+
+    echo "📦 使用 eget 安装现代工具到 '$install_prefix'..." >&2
+
+    if ! command -v eget >/dev/null 2>&1; then
+        echo "❌ install_modern_tools_by_eget: eget 未找到。请先安装 eget。" >&2
+        return 1
+    fi
+
+    local eget_bin="${install_prefix}/bin"
+    local use_sudo=0
+
+    if [[ "$install_prefix" == "/usr/local" || "$install_prefix" == "/usr" ]]; then
+        use_sudo=1
+    fi
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -v || return 1
+        sudo mkdir -p "$eget_bin"
+    else
+        mkdir -p "$eget_bin"
+    fi
+    export EGET_BIN="$eget_bin"
+
+    # 需要安装的工具列表（GitHub repo）
+    local -a eget_tools=(
+        "BurntSushi/ripgrep"
+        "sharkdp/fd"
+        "eza-community/eza"
+        "sharkdp/bat"
+        "charmbracelet/glow"
+        "casey/just"
+        "sinelaw/fresh"
+        "junegunn/fzf"
+        "jesseduffield/lazygit"
+        "cli/cli"
+        "muesli/duf"
+        "bootandy/dust"
+        "dundee/gdu"
+        "dalance/procs"
+        "chmln/sd"
+        "sharkdp/hyperfine"
+        "dandavison/delta"
+        "dbrgn/tealdeer"
+        "zellij-org/zellij"
+        "ajeetdsouza/zoxide"
+        "sigoden/aichat"
+        "starship/starship"
+        "ducaale/xh"
+        "ClementTsang/bottom"
+        "rs/curlie"
+        "sxyazi/yazi"
+        "tw93/Mole"
+        "jarun/nnn"
+        "bcicen/ctop"
+        "denisidoro/navi"
+        # Add more repos here
+    )
+
+    for tool in "${eget_tools[@]}"; do
+        echo "➡️  eget $tool" >&2
+        _install_tool_by_eget "$tool" "$install_prefix"
+    done
+}
+
+# @brief Install a single tool via eget
+# @param $1 GitHub repo (e.g., owner/repo)
+# @param $2 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @return 0 on success
+# @example _install_tool_by_eget BurntSushi/ripgrep global
+# @category tools
+_install_tool_by_eget(){
+    local tool="$1"
+    local requested_install_prefix="${2:-local}"
+    local install_prefix
+    local eget_bin
+    local use_sudo=0
+
+    if [[ -z "$tool" ]]; then
+        echo "Usage: _install_tool_by_eget <owner/repo> [global|local|/prefix]" >&2
+        return 1
+    fi
+
+    case "$requested_install_prefix" in
+        global) install_prefix="/usr/local" ;;
+        local) install_prefix="$HOME/.local" ;;
+        *) install_prefix="$requested_install_prefix" ;;
+    esac
+
+    eget_bin="${install_prefix}/bin"
+    if [[ "$install_prefix" == "/usr/local" || "$install_prefix" == "/usr" ]]; then
+        use_sudo=1
+    fi
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -v || return 1
+        sudo mkdir -p "$eget_bin"
+    else
+        mkdir -p "$eget_bin"
+    fi
+
+    export EGET_BIN="$eget_bin"
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -E eget "$tool"
+    else
+        eget "$tool"
+    fi
+}
+
+# @brief Install ctop via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_ctop_by_eget
+# @example install_ctop_by_eget global
+# @category tools
+install_ctop_by_eget(){
+    _install_tool_by_eget "bcicen/ctop" "${1:-local}"
+}
+
+# @brief Install procs via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_procs_by_eget
+# @example install_procs_by_eget global
+# @category tools
+install_procs_by_eget(){
+    _install_tool_by_eget "dalance/procs" "${1:-local}"
+}
+
+# @brief Install tealdeer (tldr) via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_tealdeer_by_eget
+# @example install_tealdeer_by_eget global
+# @category tools
+install_tealdeer_by_eget(){
+    _install_tool_by_eget "dbrgn/tealdeer" "${1:-local}"
+}
+
+# @brief Install ripgrep via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_ripgrep_by_eget
+# @example install_ripgrep_by_eget global
+# @category tools
+install_ripgrep_by_eget(){
+    _install_tool_by_eget "BurntSushi/ripgrep" "${1:-local}"
+}
+
+# @brief Install fd via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_fd_by_eget
+# @example install_fd_by_eget global
+# @category tools
+install_fd_by_eget(){
+    _install_tool_by_eget "sharkdp/fd" "${1:-local}"
+}
+
+# @brief Install eza via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_eza_by_eget
+# @example install_eza_by_eget global
+# @category tools
+install_eza_by_eget(){
+    _install_tool_by_eget "eza-community/eza" "${1:-local}"
+}
+
+# @brief Install bat via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_bat_by_eget
+# @example install_bat_by_eget global
+# @category tools
+install_bat_by_eget(){
+    _install_tool_by_eget "sharkdp/bat" "${1:-local}"
+}
+
+# @brief Install glow via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_glow_by_eget
+# @example install_glow_by_eget global
+# @category tools
+install_glow_by_eget(){
+    _install_tool_by_eget "charmbracelet/glow" "${1:-local}"
+}
+
+# @brief Install just via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_just_by_eget
+# @example install_just_by_eget global
+# @category tools
+install_just_by_eget(){
+    _install_tool_by_eget "casey/just" "${1:-local}"
+}
+
+# @brief Install fresh via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_fresh_by_eget
+# @example install_fresh_by_eget global
+# @category tools
+install_fresh_by_eget(){
+    _install_tool_by_eget "sinelaw/fresh" "${1:-local}"
+}
+
+# @brief Install fzf via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_fzf_by_eget
+# @example install_fzf_by_eget global
+# @category tools
+install_fzf_by_eget(){
+    _install_tool_by_eget "junegunn/fzf" "${1:-local}"
+}
+
+# @brief Install lazygit via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_lazygit_by_eget
+# @example install_lazygit_by_eget global
+# @category tools
+install_lazygit_by_eget(){
+    _install_tool_by_eget "jesseduffield/lazygit" "${1:-local}"
+}
+
+# @brief Install gh (GitHub CLI) via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_gh_by_eget
+# @example install_gh_by_eget global
+# @category tools
+install_gh_by_eget(){
+    _install_tool_by_eget "cli/cli" "${1:-local}"
+}
+
+# backward compatible alias
+alias install_cli_by_eget="install_gh_by_eget"
+
+# @brief Install duf via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_duf_by_eget
+# @example install_duf_by_eget global
+# @category tools
+install_duf_by_eget(){
+    _install_tool_by_eget "muesli/duf" "${1:-local}"
+}
+
+# @brief Install dust via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_dust_by_eget
+# @example install_dust_by_eget global
+# @category tools
+install_dust_by_eget(){
+    _install_tool_by_eget "bootandy/dust" "${1:-local}"
+}
+
+# @brief Install gdu via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_gdu_by_eget
+# @example install_gdu_by_eget global
+# @category tools
+install_gdu_by_eget(){
+    _install_tool_by_eget "dundee/gdu" "${1:-local}"
+}
+
+# @brief Install sd via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_sd_by_eget
+# @example install_sd_by_eget global
+# @category tools
+install_sd_by_eget(){
+    _install_tool_by_eget "chmln/sd" "${1:-local}"
+}
+
+# @brief Install hyperfine via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_hyperfine_by_eget
+# @example install_hyperfine_by_eget global
+# @category tools
+install_hyperfine_by_eget(){
+    _install_tool_by_eget "sharkdp/hyperfine" "${1:-local}"
+}
+
+# @brief Install delta via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_delta_by_eget
+# @example install_delta_by_eget global
+# @category tools
+install_delta_by_eget(){
+    _install_tool_by_eget "dandavison/delta" "${1:-local}"
+}
+
+# @brief Install zellij via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_zellij_by_eget
+# @example install_zellij_by_eget global
+# @category tools
+install_zellij_by_eget(){
+    _install_tool_by_eget "zellij-org/zellij" "${1:-local}"
+}
+
+# @brief Install zoxide via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_zoxide_by_eget
+# @example install_zoxide_by_eget global
+# @category tools
+install_zoxide_by_eget(){
+    _install_tool_by_eget "ajeetdsouza/zoxide" "${1:-local}"
+}
+
+# @brief Install aichat via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_aichat_by_eget
+# @example install_aichat_by_eget global
+# @category tools
+install_aichat_by_eget(){
+    _install_tool_by_eget "sigoden/aichat" "${1:-local}"
+}
+
+# @brief Install starship via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_starship_by_eget
+# @example install_starship_by_eget global
+# @category tools
+install_starship_by_eget(){
+    _install_tool_by_eget "starship/starship" "${1:-local}"
+}
+
+# @brief Install xh via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_xh_by_eget
+# @example install_xh_by_eget global
+# @category tools
+install_xh_by_eget(){
+    _install_tool_by_eget "ducaale/xh" "${1:-local}"
+}
+
+# @brief Install bottom via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_bottom_by_eget
+# @example install_bottom_by_eget global
+# @category tools
+install_bottom_by_eget(){
+    _install_tool_by_eget "ClementTsang/bottom" "${1:-local}"
+}
+
+# @brief Install curlie via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_curlie_by_eget
+# @example install_curlie_by_eget global
+# @category tools
+install_curlie_by_eget(){
+    _install_tool_by_eget "rs/curlie" "${1:-local}"
+}
+
+# @brief Install yazi via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_yazi_by_eget
+# @example install_yazi_by_eget global
+# @category tools
+install_yazi_by_eget(){
+    _install_tool_by_eget "sxyazi/yazi" "${1:-local}"
+}
+
+# @brief Install mole via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_mole_by_eget
+# @example install_mole_by_eget global
+# @category tools
+install_mole_by_eget(){
+    _install_tool_by_eget "tw93/Mole" "${1:-local}"
+}
+
+# @brief Install nnn via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_nnn_by_eget
+# @example install_nnn_by_eget global
+# @category tools
+install_nnn_by_eget(){
+    _install_tool_by_eget "jarun/nnn" "${1:-local}"
+}
+
+# @brief Install navi via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_navi_by_eget
+# @example install_navi_by_eget global
+# @category tools
+install_navi_by_eget(){
+    _install_tool_by_eget "denisidoro/navi" "${1:-local}"
+}
+
+# 向后兼容别名
+alias install_modertools_local_by_eget="install_modern_tools_by_eget"
+
 # @brief Install jq JSON processor from source
 # @return 0 on success
 # @example install_jq_from_source
 # @category tools
 install_jq_from_source() {
     echo "🚀 智能安装 jq..."
-    
+
     # 使用智能安装系统
     if command -v install_smart_tool >/dev/null 2>&1; then
         install_smart_tool jq
         return $?
     fi
-    
+
     # 回退到源码编译
     echo "⚠️  智能安装系统未加载，从源码编译..."
     local jq_dir="${HOME}/Source/app/jq"
     mkdir -p "$jq_dir"
-    
+
     if [ ! -d "$jq_dir/.git" ]; then
         git clone --depth 1 --recursive https://github.com/jqlang/jq.git "$jq_dir"
     fi
-    
+
     cd "$jq_dir"
     git pull origin main 2>/dev/null || git pull origin master
-    
+
     # 清理和构建
     make clean 2>/dev/null || true
     make distclean 2>/dev/null || true
-    
+
     # 检查依赖
     if ! command -v autoreconf >/dev/null 2>&1; then
         echo "❌ 请先安装 autotools: sudo apt install autotools-dev autoconf"
         return 1
     fi
-    
+
     autoreconf -i
     ./configure --prefix="${HOME}/.local" --disable-maintainer-mode
     make -j $(nproc)
     make install
-    
+
     green_echo "✅ jq 安装完成"
 }
 
@@ -1034,4 +1482,3 @@ fi
 if [[ -d $HOME/.config/broot/launcher/bash ]] then
  source $HOME/.config/broot/launcher/bash/br
 fi
-

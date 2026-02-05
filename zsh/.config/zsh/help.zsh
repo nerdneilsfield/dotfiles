@@ -1,13 +1,30 @@
 function show-help() {
-    if command -v mdcat &>/dev/null; then
-        local file
-        file=$(find "${ZSH_CONF_DIR}/help" -name '*.md' -type f | sed 's|.*/||;s|\.md$||' | fzf --prompt="Select help file: " --preview='mdcat "${ZSH_CONF_DIR}"/help/{}.md')
+    if command -v glow &>/dev/null; then
+        local file="$1"
+        local help_dir="${ZSH_CONF_DIR}/help"
+
         if [[ -n "$file" ]]; then
-            mdcat "${ZSH_CONF_DIR}/help/${file}.md"
+            if [[ -f "${help_dir}/${file}.md" ]]; then
+                glow "${help_dir}/${file}.md"
+                return 0
+            fi
+            if [[ -f "${help_dir}/tools/${file}.md" ]]; then
+                glow "${help_dir}/tools/${file}.md"
+                return 0
+            fi
+            if [[ -f "${help_dir}/commands/${file}.md" ]]; then
+                glow "${help_dir}/commands/${file}.md"
+                return 0
+            fi
+        fi
+
+        file=$(find "$help_dir" -name '*.md' -type f | sed "s|^${help_dir}/||;s|\\.md$||" | fzf --prompt="Select help file: " --preview="glow \"${help_dir}\"/{}.md")
+        if [[ -n "$file" ]]; then
+            glow "${help_dir}/${file}.md"
         fi
     else
-        yellow_echo "mdcat is not installed. Installing mdcat."
-        cins mdcat
+        yellow_echo "glow is not installed. Installing glow."
+        cins glow
     fi
 }
 

@@ -1,0 +1,107 @@
+# Starship 开发者配置
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$git_metrics\
+$fill\
+$nodejs\
+$python\
+$rust\
+$golang\
+$java\
+$dotnet\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
+
+[directory]
+style = "blue bold"
+read_only = " 🔒"
+truncation_length = 3
+truncate_to_repo = true
+format = "[$path]($style)[$read_only]($read_only_style) "
+
+[git_branch]
+symbol = "🌱 "
+format = "[$symbol$branch]($style) "
+style = "bright-green"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "cyan"
+
+[git_state]
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
+cherry_pick = "[🍒 PICKING](bold red)"
+
+[git_metrics]
+added_style = "bold blue"
+format = '[+$added]($added_style)/[-$deleted]($deleted_style) '
+
+[nodejs]
+symbol = "⬢ "
+format = "[$symbol($version )]($style)"
+
+[python]
+symbol = "🐍 "
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+
+[rust]
+symbol = "🦀 "
+format = "[$symbol($version )]($style)"
+
+[golang]
+symbol = "🐹 "
+format = "[$symbol($version )]($style)"
+
+[java]
+symbol = "☕ "
+format = "[$symbol($version )]($style)"
+
+[dotnet]
+symbol = "🔷 "
+format = "[$symbol($version )]($style)"
+
+[docker_context]
+symbol = "🐳 "
+format = "[$symbol$context]($style) "
+
+[cmd_duration]
+min_time = 2_000
+format = "took [$duration](bold yellow) "
+
+[memory_usage]
+disabled = false
+threshold = 70
+symbol = "🐏 "
+format = "$symbol[${ram_pct}]($style) "
+
+[username]
+style_user = "yellow bold"
+style_root = "red bold"
+format = "[$user]($style) "
+disabled = false
+show_always = true
+
+[hostname]
+ssh_only = false
+format = "on [$hostname](bold red) "
+disabled = false
+
+[time]
+disabled = false
+format = '🕙[\[ $time \]]($style) '
+time_format = "%T"
+utc_time_offset = "local"

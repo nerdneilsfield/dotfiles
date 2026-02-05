@@ -7,6 +7,19 @@ install_codex() {
   fi
 }
 
+install_kimi_cli(){
+  if command -v uv &>/dev/null; then
+    if command -v kimi &>/dev/null; then
+      echo "kimi is already installed, upgrading"
+       uv tool upgrade kimi-cli --no-cache 
+    else
+       uv tool install kimi-cli --no-cache 
+    fi
+  else
+    echo "uv is not installed"
+  fi
+}
+
 # @description install anthropic/codex
 install_claude_code() {
   if command -v npm &>/dev/null; then
