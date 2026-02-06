@@ -1,30 +1,48 @@
 function show-help() {
-    if command -v glow &>/dev/null; then
-        local file="$1"
-        local help_dir="${ZSH_CONF_DIR}/help"
+    local file="$1"
+    local help_dir="${ZSH_CONF_DIR}/help"
+    [[ "$file" == "install" ]] && file="installer"
 
-        if [[ -n "$file" ]]; then
-            if [[ -f "${help_dir}/${file}.md" ]]; then
+    if [[ -n "$file" ]]; then
+        if [[ -f "${help_dir}/${file}.md" ]]; then
+            if command -v glow &>/dev/null; then
                 glow "${help_dir}/${file}.md"
-                return 0
+            else
+                cat "${help_dir}/${file}.md"
             fi
-            if [[ -f "${help_dir}/tools/${file}.md" ]]; then
-                glow "${help_dir}/tools/${file}.md"
-                return 0
-            fi
-            if [[ -f "${help_dir}/commands/${file}.md" ]]; then
-                glow "${help_dir}/commands/${file}.md"
-                return 0
-            fi
+            return 0
         fi
+        if [[ -f "${help_dir}/tools/${file}.md" ]]; then
+            if command -v glow &>/dev/null; then
+                glow "${help_dir}/tools/${file}.md"
+            else
+                cat "${help_dir}/tools/${file}.md"
+            fi
+            return 0
+        fi
+        if [[ -f "${help_dir}/commands/${file}.md" ]]; then
+            if command -v glow &>/dev/null; then
+                glow "${help_dir}/commands/${file}.md"
+            else
+                cat "${help_dir}/commands/${file}.md"
+            fi
+            return 0
+        fi
+    fi
 
+    if command -v glow &>/dev/null; then
         file=$(find "$help_dir" -name '*.md' -type f | sed "s|^${help_dir}/||;s|\\.md$||" | fzf --prompt="Select help file: " --preview="glow \"${help_dir}\"/{}.md")
         if [[ -n "$file" ]]; then
             glow "${help_dir}/${file}.md"
         fi
     else
-        yellow_echo "glow is not installed. Installing glow."
-        cins glow
+        if [[ -n "$file" ]]; then
+            echo "help topic not found: $file" >&2
+            echo "tip: run \`show-help\` to list available docs" >&2
+            return 1
+        fi
+        echo "glow is not installed, falling back to plain text list:" >&2
+        find "$help_dir" -name '*.md' -type f | sed "s|^${help_dir}/||;s|\\.md$||" | sort
     fi
 }
 

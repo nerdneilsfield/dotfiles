@@ -65,10 +65,12 @@ install_version_check() {
 install_method_available() {
     local method="$1"
     local tool="$2"
+    local pm
 
     case "$method" in
         pkg)
-            [[ "$(get_package_manager)" != "unknown" ]]
+            pm="$(get_package_manager)"
+            [[ "$pm" != "unknown" ]] && install_catalog_pkg_name "$tool" "$pm" >/dev/null 2>&1
             ;;
         registry)
             case "$(install_catalog_normalize_tool "$tool")" in
@@ -88,28 +90,16 @@ install_method_available() {
 
 install_try_pkg() {
     local tool="$1"
-    local pm
+    local pm pkg_name
     pm="$(get_package_manager)"
+    pkg_name="$(install_catalog_pkg_name "$tool" "$pm" 2>/dev/null)" || return 1
 
-    case "$(install_catalog_normalize_tool "$tool")" in
-        gh)
-            if [[ "$pm" == "pacman" || "$pm" == "yay" ]]; then
-                install_with_manager github-cli
-            else
-                install_with_manager gh
-            fi
-            ;;
-        rustup)
-            if [[ "$pm" == "brew" ]]; then
-                brew install rustup-init && rustup-init -y
-            else
-                install_with_manager rustup
-            fi
-            ;;
-        *)
-            install_with_manager "$tool"
-            ;;
-    esac
+    install_with_manager "$pkg_name"
+
+    # Brew installs rustup-init package, initialize toolchain once.
+    if [[ "$(install_catalog_normalize_tool "$tool")" == "rustup" && "$pm" == "brew" ]]; then
+        command -v rustup-init >/dev/null 2>&1 && rustup-init -y
+    fi
 }
 
 install_try_registry() {

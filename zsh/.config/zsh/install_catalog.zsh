@@ -102,3 +102,55 @@ install_catalog_min_version() {
         *) return 1 ;;
     esac
 }
+
+install_catalog_pkg_name() {
+    local tool pm
+    tool="$(install_catalog_normalize_tool "$1")"
+    pm="$2"
+
+    case "$tool" in
+        fzf|ripgrep|bat|eza|lazygit|zellij|yazi|bottom|uv|ruff|pyenv)
+            case "$pm" in
+                brew|pacman|yay|dnf|yum) echo "$tool" ;;
+                apt)
+                    case "$tool" in
+                        eza|zellij|yazi|bottom|uv|ruff) return 1 ;;
+                        *) echo "$tool" ;;
+                    esac
+                    ;;
+                *) return 1 ;;
+            esac
+            ;;
+        fd)
+            case "$pm" in
+                apt) echo "fd-find" ;;
+                brew|pacman|yay|dnf|yum) echo "fd" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        gh)
+            case "$pm" in
+                pacman|yay) echo "github-cli" ;;
+                brew|apt|dnf|yum) echo "gh" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        rustup)
+            case "$pm" in
+                brew) echo "rustup-init" ;;
+                pacman|yay|apt|dnf|yum) echo "rustup" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        fnm)
+            case "$pm" in
+                brew) echo "fnm" ;;
+                pacman|yay) echo "fnm-bin" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
