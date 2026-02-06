@@ -1476,7 +1476,6 @@ fi
 if [[ -d $ASDF_DIR ]]; then
   . $ASDF_DIR/asdf.sh
   fpath=(${ASDF_DIR}/completions $fpath)
-  autoload -Uz compinit && compinit
 fi
 
 if [[ -d $HOME/.config/broot/launcher/bash ]] then

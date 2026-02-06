@@ -1,8 +1,6 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
-fpath=("/home/dengqi/.zsh/completions" $fpath)
-autoload -Uz compinit
-compinit
+fpath=("$HOME/.zsh/completions" $fpath)
 # OPENSPEC:END
 
 export ZSH_CONF_DIR="$HOME/.config/zsh"
@@ -29,7 +27,8 @@ source "$ZSH_CONF_DIR/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 ## wtf? auto completion need this guy
-autoload -U compinit && compinit
+source "$ZSH_CONF_DIR/tools.zsh"
+autoload -U compinit && compinit -C
 
 
 
@@ -61,7 +60,6 @@ autoload -U compinit && compinit
 
 
 ## check tools
-source "$ZSH_CONF_DIR/tools.zsh"
 source "$ZSH_CONF_DIR/editor.zsh"
 ## Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
@@ -88,4 +86,3 @@ fi
 
 ## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
-
