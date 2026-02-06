@@ -74,6 +74,9 @@ source "$ZSH_CONF_DIR/navigation.zsh"
 
 # 智能包管理器 - 总是加载
 source "$ZSH_CONF_DIR/package_manager.zsh"
+source "$ZSH_CONF_DIR/install_catalog.zsh"
+source "$ZSH_CONF_DIR/install_router.zsh"
+source "$ZSH_CONF_DIR/install_aliases.zsh"
 
 # 帮助系统 - 总是加载
 source "$ZSH_CONF_DIR/help_system.zsh"

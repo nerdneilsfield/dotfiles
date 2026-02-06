@@ -88,3 +88,41 @@ install_g2o() { _lazy_install_call "robotics.zsh" "install_g2o" "$@"; }
 install_ceres_v1() { _lazy_install_call "robotics.zsh" "install_ceres_v1" "$@"; }
 install_ceres_v2() { _lazy_install_call "robotics.zsh" "install_ceres_v2" "$@"; }
 install_robotics_deps() { _lazy_install_call "robotics.zsh" "install_robotics_deps" "$@"; }
+
+add_cuda_ppa() { _lazy_install_call "cuda.zsh" "add_cuda_ppa" "$@"; }
+add_cuda_ppa_cn() { _lazy_install_call "cuda.zsh" "add_cuda_ppa_cn" "$@"; }
+add_python_ppa() { _lazy_install_call "python.zsh" "add_python_ppa" "$@"; }
+add_golang_ppa() { _lazy_install_call "golang.zsh" "add_golang_ppa" "$@"; }
+add_zulu_ppa() { _lazy_install_call "java.zsh" "add_zulu_ppa" "$@"; }
+add_clang_ppa() { _lazy_install_call "cc.zsh" "add_clang_ppa" "$@"; }
+add_nodesource_ppa() { _lazy_install_call "node.zsh" "add_nodesource_ppa" "$@"; }
+
+install_help() {
+  local tool="$1"
+  if [[ -z "$tool" ]]; then
+    echo "Usage: install_help <tool>"
+    return 1
+  fi
+
+  if ! command -v install_catalog_normalize_tool >/dev/null 2>&1; then
+    echo "install catalog not loaded"
+    return 1
+  fi
+
+  local normalized
+  normalized="$(install_catalog_normalize_tool "$tool")"
+  local policy="${INSTALL_POLICY:-latest}"
+  local methods
+  methods="$(install_catalog_methods "$normalized" "$policy" 2>/dev/null)" || methods="(not cataloged)"
+  local binary
+  binary="$(install_catalog_binary "$normalized" 2>/dev/null || true)"
+  local min_version
+  min_version="$(install_catalog_min_version "$normalized" 2>/dev/null || true)"
+
+  echo "tool: $normalized"
+  echo "policy: $policy"
+  echo "forced method: ${INSTALL_METHOD:-auto}"
+  echo "method order: $methods"
+  [[ -n "$binary" ]] && echo "version binary: $binary"
+  [[ -n "$min_version" ]] && echo "minimum version: $min_version"
+}
