@@ -35,6 +35,7 @@ source "$ZSH_CONF_DIR/completion.zsh"
 source "$ZSH_CONF_DIR/shell.zsh"
 source "$ZSH_CONF_DIR/help.zsh"
 source "$ZSH_CONF_DIR/ai.zsh"
+source "$ZSH_CONF_DIR/installers.zsh"
 
 
 # 基于工具存在性的条件加载
