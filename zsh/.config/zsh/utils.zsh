@@ -9,32 +9,39 @@
 # @category performance
 benchmark_zsh() {
     echo "🕐 测量 ZSH 启动时间..."
-    
+
+    zmodload zsh/datetime 2>/dev/null
+
     local total_time=0
     local iterations=5
-    
-    for i in {1..$iterations}; do
-        local start_time=$(date +%s%3N)
+    local success_count=0
+    local i
+    local -F start_time end_time
+    local duration
+    local duration_ms
+
+    for ((i = 1; i <= iterations; i++)); do
+        start_time=$EPOCHREALTIME
         zsh -c "source ~/.zshrc" >/dev/null 2>&1
-        local end_time=$(date +%s%3N)
-        
-        # 确保时间变量是数字
-        if [[ -n "$start_time" && -n "$end_time" && "$start_time" =~ ^[0-9]+$ && "$end_time" =~ ^[0-9]+$ ]]; then
-            local duration=$((end_time - start_time))
+        end_time=$EPOCHREALTIME
+
+        duration=$(( (end_time - start_time) * 1000 ))
+        duration_ms=$(printf "%.0f" "$duration")
+        if (( duration_ms >= 0 )); then
+            echo "第 $i 次: ${duration_ms}ms"
+            total_time=$((total_time + duration_ms))
+            success_count=$((success_count + 1))
         else
-            local duration=0
             echo "第 $i 次: 时间获取失败"
-            continue
         fi
-        echo "第 $i 次: ${duration}ms"
-        total_time=$((total_time + duration))
     done
-    
-    # 避免除零错误
-    local avg_time=0
-    if [[ $total_time -gt 0 && $iterations -gt 0 ]]; then
-        avg_time=$((total_time / iterations))
+
+    if (( success_count == 0 )); then
+        echo "❌ 没有成功的测量结果"
+        return 1
     fi
+
+    local avg_time=$((total_time / success_count))
     echo "📊 平均启动时间: ${avg_time}ms"
     
     if [[ $avg_time -lt 100 ]]; then
