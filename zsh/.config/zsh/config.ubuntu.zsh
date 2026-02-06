@@ -37,7 +37,7 @@ install_ubuntu_basic_packages(){
 	sudo apt-get install -y linux-modules-extra-$(uname -r)
 }
 
-install_ubuntu_netwrok_packages(){
+install_ubuntu_network_packages(){
 	sudo apt-get install -y tinc nmap net-tools wireguard wireguard-tools
   sudo apt-get install -y wireguard-dkms
 }
@@ -177,4 +177,3 @@ update_missing_keys(){
    cat "${tmp}" | xargs -L 1 sh -c 'sudo gpg --yes --output "/etc/apt/trusted.gpg.d/$1.gpg" --export "$1"' sh  # to /etc/apt/trusted.gpg.d/*
    rm "${tmp}"
 }
-

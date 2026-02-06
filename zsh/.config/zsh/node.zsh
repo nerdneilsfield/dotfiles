@@ -111,9 +111,9 @@ install_node() {
 # @brief Add NodeSource PPA for latest Node.js versions
 # @param $1 Major Node.js version (default: 21)
 # @return 0 on success
-# @example add_nosource_ppa 20
+# @example add_nodesource_ppa 20
 # @category node
-add_nosource_ppa(){
+add_nodesource_ppa(){
   # https://github.com/nodesource/distributions
   local MAJOR_VERSION=21
 
@@ -132,9 +132,9 @@ add_nosource_ppa(){
 
 # @brief Install Node.js from NodeSource PPA
 # @return 0 on success
-# @example install_nosoource_ppa
+# @example install_nodesource_ppa
 # @category node
-install_nosoource_ppa(){
+install_nodesource_ppa(){
   sudo apt install -y nodejs
 }
 

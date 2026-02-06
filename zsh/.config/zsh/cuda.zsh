@@ -7,10 +7,10 @@ add_cuda_ppa(){
     
     # get ubuntu version
     VERSION_NUMBER=$(lsb_release -r | awk '{print $2}')
-    ARCHTERCTURE=$(uname -m)
+    ARCHITECTURE=$(uname -m)
 
     echo "-----import key---------"
-    sudo apt-key adv --fetch-keys "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${VERSION_NUMBER}/${ARCHTERCTURE}/3bf863cc.pub"
+    sudo apt-key adv --fetch-keys "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${VERSION_NUMBER}/${ARCHITECTURE}/3bf863cc.pub"
 
     echo "-----add apt repository---------"
     sudo bash -c "echo deb\ http://developer.download.nvidia.com/compute/cuda/repos/${VERSION_NUMBER}/${ARCHITECTURE}/\ / > /etc/apt/sources.list.d/cuda.list"
@@ -28,10 +28,10 @@ add_cuda_ppa_cn(){
     
     # get ubuntu version
     VERSION_NUMBER=$(lsb_release -r | awk '{print $2}')
-    ARCHTERCTURE=$(uname -m)
+    ARCHITECTURE=$(uname -m)
 
     echo "-----import key---------"
-    sudo apt-key adv --fetch-keys "https://developer.download.nvidia.cn/compute/cuda/repos/ubuntu${VERSION_NUMBER}/${ARCHTERCTURE}/3bf863cc.pub"
+    sudo apt-key adv --fetch-keys "https://developer.download.nvidia.cn/compute/cuda/repos/ubuntu${VERSION_NUMBER}/${ARCHITECTURE}/3bf863cc.pub"
 
     echo "-----add apt repository---------"
     sudo bash -c "echo deb\ http://developer.download.nvidia.cn/compute/cuda/repos/${VERSION_NUMBER}/${ARCHITECTURE}/\ / > /etc/apt/sources.list.d/cuda.list"

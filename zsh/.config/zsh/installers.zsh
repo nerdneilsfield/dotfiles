@@ -54,7 +54,7 @@ install_pixi() { _lazy_install_call "python.zsh" "install_pixi" "$@"; }
 install_fnm() { _lazy_install_call "node.zsh" "install_fnm" "$@"; }
 install_nvm() { _lazy_install_call "node.zsh" "install_nvm" "$@"; }
 install_node() { _lazy_install_call "node.zsh" "install_node" "$@"; }
-install_nosoource_ppa() { _lazy_install_call "node.zsh" "install_nosoource_ppa" "$@"; }
+install_nodesource_ppa() { _lazy_install_call "node.zsh" "install_nodesource_ppa" "$@"; }
 
 install_zulu_jdk() { _lazy_install_call "java.zsh" "install_zulu_jdk" "$@"; }
 
