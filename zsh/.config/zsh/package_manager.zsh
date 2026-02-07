@@ -212,7 +212,10 @@ alias install-tool="install_smart_tool"
 alias install-guide="show_install_guide"
 
 # 向后兼容入口
-smart_install() { install_with_manager "$@"; }
+unalias smart_install 2>/dev/null
+function smart_install {
+    install_with_manager "$@"
+}
 alias install_tool_smart="install_smart_tool"
 alias detect_package_manager="get_package_manager"
 alias show_install_recommendations="show_install_guide"

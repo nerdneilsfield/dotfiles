@@ -60,3 +60,30 @@ INSTALL_VERBOSE=1 install_route yazi
 - `~/.config/zsh/install_router.zsh`
 - `~/.config/zsh/installers.zsh`
 - `~/.config/zsh/package_manager.zsh`
+
+## AI CLI 安装命令（新增）
+
+- `install_openspec_cli`
+- `install_factory_droid`
+- `install_goose_cli`
+- `install_opencode_cli`
+- `install_cursh_cli`
+- `install_cursor_cli`
+
+批量更新：
+
+```zsh
+update_ai_tools
+```
+
+重装：
+
+```zsh
+reinstall_ai_tools
+```
+
+MCP 配置转换（跨平台）：
+
+```zsh
+show-help mcp
+```

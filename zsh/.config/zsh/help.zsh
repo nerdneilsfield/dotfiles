@@ -1,10 +1,18 @@
 function show-help() {
     local file="$1"
     local help_dir="${ZSH_CONF_DIR}/help"
-    [[ "$file" == "install" ]] && file="installer"
+    local install_alias_note=0
+    if [[ "$file" == "install" ]]; then
+        file="installer"
+        install_alias_note=1
+    fi
 
     if [[ -n "$file" ]]; then
         if [[ -f "${help_dir}/${file}.md" ]]; then
+            if [[ "$install_alias_note" -eq 1 ]]; then
+                echo "note: \`install\` is mapped to \`installer\`."
+                echo
+            fi
             if command -v glow &>/dev/null; then
                 glow "${help_dir}/${file}.md"
             else

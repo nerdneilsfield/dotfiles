@@ -1182,6 +1182,28 @@ install_glow_by_eget(){
     _install_tool_by_eget "charmbracelet/glow" "${1:-local}"
 }
 
+# @brief Install taplo via eget
+# @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
+# @example install_taplo_by_eget
+# @example install_taplo_by_eget global
+# @category tools
+install_taplo_by_eget(){
+    _install_tool_by_eget "tamasfe/taplo" "${1:-local}"
+}
+
+# @brief Install taplo via Homebrew
+# @return 0 on success
+# @example install_taplo_by_brew
+# @category tools
+install_taplo_by_brew(){
+    if command -v brew >/dev/null 2>&1; then
+        brew install taplo
+    else
+        echo "❌ Homebrew 未安装，无法使用 brew 安装 taplo。" >&2
+        return 1
+    fi
+}
+
 # @brief Install just via eget
 # @param $1 Optional install location: "global" (/usr/local), "local" (~/.local), or a custom prefix path.
 # @example install_just_by_eget
