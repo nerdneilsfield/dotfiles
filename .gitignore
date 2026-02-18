@@ -17,3 +17,4 @@ zsh/.config/lazygit
 zsh/.vscode/
 .vscode/
 zsh/~/
+/AstroNvimV5/.config/AstroNvim/lazy-lock.json
