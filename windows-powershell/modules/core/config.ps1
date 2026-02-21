@@ -128,7 +128,13 @@ if ($PSVersionTable.PSVersion.Major -ge 5) {
     
     # 智能补全
     if ($script:IsPowerShell7Plus) {
-        Set-PSReadLineOption -PredictionSource History
+        $allowPrediction = (-not [Console]::IsOutputRedirected) -and (-not ($env:PWSH_BENCHMARK_STARTUP -eq "1"))
+        if ($allowPrediction) {
+            Set-PSReadLineOption -PredictionSource History
+            Set-PSReadLineOption -PredictionViewStyle ListView
+        } else {
+            Set-PSReadLineOption -PredictionSource None
+        }
     }
 }
 

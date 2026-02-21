@@ -28,17 +28,23 @@ function Measure-PowerShellStartup {
         $stdoutFile = New-TemporaryFile
         $stderrFile = New-TemporaryFile
         $startTime = Get-Date
+        $benchmarkProfile = if ($script:PWSH_CONFIG_DIR -and (Test-Path (Join-Path $script:PWSH_CONFIG_DIR "Microsoft.PowerShell_profile.ps1"))) {
+            Join-Path $script:PWSH_CONFIG_DIR "Microsoft.PowerShell_profile.ps1"
+        } else {
+            $PROFILE
+        }
+        $escapedProfile = '"' + $benchmarkProfile.Replace('"', '`"') + '"'
         $startupCommand = if ($NoOptimization) {
             if ($ModuleTimings) {
-                '& { $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . $PROFILE; exit }'
+                '& { $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . ' + $escapedProfile + '; exit }'
             } else {
-                '& { $env:PWSH_PROFILE_TIMING = "0"; . $PROFILE; exit }'
+                '& { $env:PWSH_PROFILE_TIMING = "0"; . ' + $escapedProfile + '; exit }'
             }
         } else {
             if ($ModuleTimings) {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . $PROFILE; exit }'
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . ' + $escapedProfile + '; exit }'
             } else {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . $PROFILE; exit }'
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . ' + $escapedProfile + '; exit }'
             }
         }
         
@@ -159,11 +165,27 @@ function Measure-PowerShellStartup {
         if ($loadedModules.Count -eq 0) {
             Write-Host "  未采集到加载成功的模块记录" -ForegroundColor Yellow
         } else {
-            $moduleSummary = $loadedModules | Group-Object -Property Module | ForEach-Object {
-                $times = $_.Group | ForEach-Object { [double]$_.ElapsedMs }
-                $moduleName = $_.Name
+            $moduleSummary = $loadedModules | ForEach-Object {
+                $moduleDisplayName = if ($_.Module -and $_.Module -notmatch '[\u4e00-\u9fff]') {
+                    $_.Module
+                } else {
+                    if ($_.Path) {
+                        [IO.Path]::GetFileNameWithoutExtension($_.Path)
+                    } else {
+                        "Unknown"
+                    }
+                }
+
                 [PSCustomObject]@{
-                    Module  = $moduleName
+                    ModuleDisplay = $moduleDisplayName
+                    Module       = $_.Module
+                    Path         = $_.Path
+                    ElapsedMs    = $_.ElapsedMs
+                }
+            } | Group-Object -Property ModuleDisplay | ForEach-Object {
+                $times = $_.Group | ForEach-Object { [double]$_.ElapsedMs }
+                [PSCustomObject]@{
+                    Module  = $_.Name
                     AvgMs   = [math]::Round(($times | Measure-Object -Average).Average, 2)
                     MinMs   = [math]::Round(($times | Measure-Object -Minimum).Minimum, 2)
                     MaxMs   = [math]::Round(($times | Measure-Object -Maximum).Maximum, 2)
