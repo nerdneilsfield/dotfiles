@@ -30,21 +30,22 @@ function Measure-PowerShellStartup {
         $startTime = Get-Date
         $startupCommand = if ($NoOptimization) {
             if ($ModuleTimings) {
-                '& { $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . `$PROFILE; exit }'
+                '& { $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . $PROFILE; exit }'
             } else {
-                '& { $env:PWSH_PROFILE_TIMING = "0"; . `$PROFILE; exit }'
+                '& { $env:PWSH_PROFILE_TIMING = "0"; . $PROFILE; exit }'
             }
         } else {
             if ($ModuleTimings) {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . `$PROFILE; exit }'
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . $PROFILE; exit }'
             } else {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . `$PROFILE; exit }'
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . $PROFILE; exit }'
             }
         }
         
         # 测量完整配置加载时间
         $process = Start-Process -FilePath "pwsh" `
             -ArgumentList "-NoLogo", "-Command", $startupCommand `
+            "-NoProfile" `
             -RedirectStandardOutput $stdoutFile.FullName `
             -RedirectStandardError $stderrFile.FullName `
             -WindowStyle Hidden -PassThru -Wait

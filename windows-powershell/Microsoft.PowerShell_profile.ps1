@@ -389,7 +389,8 @@ if ($script:PWSH_FAST_STARTUP) {
         Write-ProfileLog "配置 PSReadLine"
         
         # 设置预测性 IntelliSense (PowerShell 7.2+)
-        if ($script:IsPowerShell7Plus -and $PSVersionTable.PSVersion -ge [Version]"7.2") {
+        $allowPrediction = (-not [Console]::IsOutputRedirected) -and (-not $env:PWSH_BENCHMARK_STARTUP)
+        if ($script:IsPowerShell7Plus -and $PSVersionTable.PSVersion -ge [Version]"7.2" -and $allowPrediction) {
             Set-PSReadLineOption -PredictionSource History
             Set-PSReadLineOption -PredictionViewStyle ListView
         }
