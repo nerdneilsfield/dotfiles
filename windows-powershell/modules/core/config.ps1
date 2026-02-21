@@ -42,38 +42,37 @@ if ($script:IsWindows) {
     # Windows 特定环境变量
     $env:PWSH_CONFIG_DIR = "$env:USERPROFILE\.config\powershell"
     $env:PWSH_CACHE_DIR = "$env:USERPROFILE\.cache\powershell"
-    
-    # Git 配置 (如果使用 Git for Windows)
-    if (Test-Path "$env:PROGRAMFILES\Git\bin") {
-        $env:PATH += ";$env:PROGRAMFILES\Git\bin"
-    }
-    
-    # Scoop 路径 (如果安装)
-    if (Test-Path "$env:USERPROFILE\scoop\shims") {
-        $env:PATH += ";$env:USERPROFILE\scoop\shims"
-    }
-    if (Test-Path "$env:PROGRAMDATA\scoop\shims") {
-        $env:PATH += ";$env:PROGRAMDATA\scoop\shims"
-    }
-    
-    # Chocolatey 路径 (如果安装)
-    if (Test-Path "$env:PROGRAMDATA\chocolatey\bin") {
-        $env:PATH += ";$env:PROGRAMDATA\chocolatey\bin"
-    }
 } else {
     # Unix-like 系统
     $env:PWSH_CONFIG_DIR = "$env:HOME/.config/powershell"
     $env:PWSH_CACHE_DIR = "$env:HOME/.cache/powershell"
 }
 
+# 快速启动模式：跳过开发者模式检测、路径扫描与高级配置
 if ($script:PWSH_FAST_STARTUP) {
-    Write-ProfileLog "快速启动模式：跳过开发者模式检测、路径扫描与高级配置"
-    
     if ([Environment]::UserInteractive) {
         $Host.UI.RawUI.WindowTitle = "PowerShell $($PSVersionTable.PSVersion)"
     }
-    
+
     return
+}
+
+# Git 配置 (如果使用 Git for Windows)
+if (Test-Path "$env:PROGRAMFILES\Git\bin") {
+    $env:PATH += ";$env:PROGRAMFILES\Git\bin"
+}
+
+# Scoop 路径 (如果安装)
+if (Test-Path "$env:USERPROFILE\scoop\shims") {
+    $env:PATH += ";$env:USERPROFILE\scoop\shims"
+}
+if (Test-Path "$env:PROGRAMDATA\scoop\shims") {
+    $env:PATH += ";$env:PROGRAMDATA\scoop\shims"
+}
+
+# Chocolatey 路径 (如果安装)
+if (Test-Path "$env:PROGRAMDATA\chocolatey\bin") {
+    $env:PATH += ";$env:PROGRAMDATA\chocolatey\bin"
 }
 
 # 历史记录优化

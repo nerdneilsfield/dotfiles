@@ -11,6 +11,7 @@ function Measure-PowerShellStartup {
     param(
         [int]$Iterations = 5,
         [switch]$Detailed,
+        [switch]$ModuleTimings,
         [switch]$NoOptimization
     )
     
@@ -25,9 +26,17 @@ function Measure-PowerShellStartup {
         
         $startTime = Get-Date
         $startupCommand = if ($NoOptimization) {
-            '& { . `$PROFILE; exit }'
+            if ($ModuleTimings) {
+                '& { $env:PWSH_PROFILE_TIMING = "1"; . `$PROFILE; exit }'
+            } else {
+                '& { $env:PWSH_PROFILE_TIMING = "0"; . `$PROFILE; exit }'
+            }
         } else {
-            '& { $env:PWSH_FAST_STARTUP = "1"; . `$PROFILE; exit }'
+            if ($ModuleTimings) {
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; . `$PROFILE; exit }'
+            } else {
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . `$PROFILE; exit }'
+            }
         }
         
         # 测量完整配置加载时间
@@ -87,6 +96,7 @@ function Measure-PowerShellStartup {
         Write-Host "  3. 设置 `$env:PWSH_DEBUG='1' 启用详细日志"
         Write-Host "  4. 设置 `$env:PWSH_FAST_STARTUP='1' 跳过非关键模块"
         Write-Host "  5. 重新测量时加上 -NoOptimization 查看完整启动时间"
+        Write-Host "  6. 重新测量时加上 -ModuleTimings 输出每个模块耗时"
     }
     
     return @{

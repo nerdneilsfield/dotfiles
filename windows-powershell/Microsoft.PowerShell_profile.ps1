@@ -39,6 +39,7 @@ if (-not $env:PWSH_FAST_STARTUP) {
 }
 
 $script:PWSH_FAST_STARTUP = $env:PWSH_FAST_STARTUP -eq "1"
+$script:PWSH_BENCHMARK_STARTUP = $env:PWSH_BENCHMARK_STARTUP -eq "1"
 
 # 日志函数 - 轻量级
 function Write-ProfileLog {
@@ -97,20 +98,22 @@ function Invoke-ConditionalLoad {
             
             if ($shouldLoad) {
                 Write-ProfileLog "加载模块 (全局): $Description ($ModulePath)"
-                $moduleContent = Get-Content -Path $fullPath -Raw
-                # 创建唯一的动态模块名称，基于文件名，并清理特殊字符
-                $dynamicModuleName = "DynamicPSModule_$(($ModulePath | Split-Path -Leaf) -replace '[^a-zA-Z0-9_]', '_')"
-                
-                # 如果模块已存在（例如 profile 重载），先移除
-                if (Get-Module $dynamicModuleName -ErrorAction SilentlyContinue) {
-                    Write-ProfileLog "重新加载模块: 移除旧的 $dynamicModuleName"
-                    Remove-Module $dynamicModuleName -Force -ErrorAction SilentlyContinue
-                }
+                return Invoke-TimedModuleLoad -Name $Description -Path $fullPath -LoadAction {
+                    $moduleContent = Get-Content -Path $fullPath -Raw
+                    # 创建唯一的动态模块名称，基于文件名，并清理特殊字符
+                    $dynamicModuleName = "DynamicPSModule_$(($ModulePath | Split-Path -Leaf) -replace '[^a-zA-Z0-9_]', '_')"
+                    
+                    # 如果模块已存在（例如 profile 重载），先移除
+                    if (Get-Module $dynamicModuleName -ErrorAction SilentlyContinue) {
+                        Write-ProfileLog "重新加载模块: 移除旧的 $dynamicModuleName"
+                        Remove-Module $dynamicModuleName -Force -ErrorAction SilentlyContinue
+                    }
 
-                New-Module -Name $dynamicModuleName -ScriptBlock ([scriptblock]::Create($moduleContent)) | Import-Module -Global -Force -DisableNameChecking
-                return $true
+                    New-Module -Name $dynamicModuleName -ScriptBlock ([scriptblock]::Create($moduleContent)) | Import-Module -Global -Force -DisableNameChecking
+                }
             } else {
                 Write-ProfileLog "跳过模块: $Description (条件不满足)"
+                Add-ProfileModuleLoadStat -Name $Description -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ConditionFalse"
                 return $false
             }
         } catch {
@@ -119,6 +122,7 @@ function Invoke-ConditionalLoad {
         }
     } else {
         Write-ProfileLog "模块不存在: $fullPath" "WARN"
+        Add-ProfileModuleLoadStat -Name $Description -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ModuleMissing"
         return $false
     }
 }
@@ -162,14 +166,126 @@ function Get-CachedResult {
     }
 }
 
+# 模块耗时统计
+$script:ProfileModuleLoadStats = @()
+
+function Add-ProfileModuleLoadStat {
+    param(
+        [string]$Name,
+        [string]$Path = "",
+        [string]$Status = "Loaded",
+        [double]$ElapsedMs = 0,
+        [string]$Reason = ""
+    )
+
+    $script:ProfileModuleLoadStats += [PSCustomObject]@{
+        Module   = $Name
+        Path     = $Path
+        Status   = $Status
+        ElapsedMs = [math]::Round($ElapsedMs, 2)
+        Reason   = $Reason
+    }
+}
+
+function Invoke-TimedModuleLoad {
+    [CmdletBinding()]
+    param(
+        [string]$Name,
+        [string]$Path,
+        [scriptblock]$LoadAction
+    )
+
+    $startTime = Get-Date
+    $status = "Loaded"
+    $reason = ""
+
+    try {
+        & $LoadAction
+        return $true
+    } catch {
+        $status = "Failed"
+        $reason = $_.Exception.Message
+        Write-ProfileLog "模块加载失败: $Name - $reason" "ERROR"
+        return $false
+    } finally {
+        $elapsedMs = ((Get-Date) - $startTime).TotalMilliseconds
+        Add-ProfileModuleLoadStat -Name $Name -Path $Path -Status $status -ElapsedMs $elapsedMs -Reason $reason
+    }
+}
+
+function Invoke-TimedModuleFileLoad {
+    [CmdletBinding()]
+    param(
+        [string]$Name,
+        [string]$ModulePath,
+        [scriptblock]$Condition = { $true }
+    )
+
+    try {
+        $shouldLoad = & $Condition
+    } catch {
+        $shouldLoad = $false
+    }
+
+    if (-not $shouldLoad) {
+        Write-ProfileLog "跳过模块: $Name (条件不满足)"
+        Add-ProfileModuleLoadStat -Name $Name -Path $ModulePath -Status "Skipped" -ElapsedMs 0 -Reason "ConditionFalse"
+        return $false
+    }
+
+    if (!(Test-Path $ModulePath)) {
+        Write-ProfileLog "模块不存在: $ModulePath" "WARN"
+        Add-ProfileModuleLoadStat -Name $Name -Path $ModulePath -Status "Skipped" -ElapsedMs 0 -Reason "ModuleMissing"
+        return $false
+    }
+
+    return Invoke-TimedModuleLoad -Name $Name -Path $ModulePath -LoadAction {
+        . $ModulePath
+    }
+}
+
+function Show-PowerShellProfileModuleTimings {
+    [CmdletBinding()]
+    param(
+        [int]$Top = 20,
+        [switch]$IncludeSkipped
+    )
+
+    if (!$script:ProfileModuleLoadStats -or $script:ProfileModuleLoadStats.Count -eq 0) {
+        Write-Host "未采集到模块加载耗时数据" -ForegroundColor Yellow
+        return
+    }
+
+    $statsForDisplay = if ($IncludeSkipped) {
+        $script:ProfileModuleLoadStats
+    } else {
+        $script:ProfileModuleLoadStats | Where-Object { $_.Status -ne "Skipped" }
+    }
+
+    $summary = $script:ProfileModuleLoadStats | Group-Object Status
+    $summaryText = ($summary | ForEach-Object { "$($_.Name):$($_.Count)" }) -join " / "
+    Write-Host "`n模块加载耗时 Top $Top (加载/失败模块):" -ForegroundColor Cyan
+    Write-Host "  模块状态: $summaryText" -ForegroundColor DarkGray
+
+    if (!$statsForDisplay -or $statsForDisplay.Count -eq 0) {
+        Write-Host "  未发现可计时模块（已全部跳过）" -ForegroundColor Yellow
+        return
+    }
+
+    $statsForDisplay |
+        Sort-Object ElapsedMs -Descending |
+        Select-Object -First $Top |
+        Format-Table Module, Status, ElapsedMs, Path, Reason -AutoSize
+}
+
 # === 核心模块加载 (总是加载) ===
 Write-ProfileLog "加载核心模块"
 
 # 直接加载核心模块（绕过函数作用域问题）
 $moduleList = @(
     @{Path="modules/core/config.ps1"; Condition={$true}; Name="基础配置"},
-    @{Path="modules/core/aliases.ps1"; Condition={$true}; Name="别名定义"},
-    @{Path="modules/core/functions.ps1"; Condition={$true}; Name="通用函数"}, 
+    @{Path="modules/core/aliases.ps1"; Condition={-not $script:PWSH_FAST_STARTUP -or -not $script:PWSH_BENCHMARK_STARTUP}; Name="别名定义"},
+    @{Path="modules/core/functions.ps1"; Condition={-not $script:PWSH_FAST_STARTUP -or -not $script:PWSH_BENCHMARK_STARTUP}; Name="通用函数"},
     # @{Path="modules/core/crossplatform.ps1"; Condition={$true}; Name="跨平台工具"},
     @{Path="modules/performance/benchmark.ps1"; Condition={$true}; Name="性能测试工具"}
 
@@ -181,14 +297,17 @@ foreach ($module in $moduleList) {
     } else {
         Join-Path $script:PWSH_CONFIG_DIR $module.Path
     }
-    
-    if ((Test-Path $fullPath) -and (& $module.Condition)) {
-        try {
-            Write-ProfileLog "加载模块: $($module.Name) ($($module.Path))"
-            . $fullPath
-        } catch {
-            Write-ProfileLog "模块加载失败: $($module.Name) - $($_.Exception.Message)" "ERROR"
+
+    if ((& $module.Condition)) {
+        if (Test-Path $fullPath) {
+            Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath -LoadAction {
+                . $fullPath
+            } | Out-Null
+        } else {
+            Add-ProfileModuleLoadStat -Name $module.Name -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ModuleMissing"
         }
+    } else {
+        Add-ProfileModuleLoadStat -Name $module.Name -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ConditionFalse"
     }
 }
 
@@ -201,14 +320,9 @@ if ($script:PWSH_FAST_STARTUP) {
 
     # Git 集成 (如果 Git 可用) - 直接加载
     $gitModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/git.ps1"
-    if ((Test-Path $gitModulePath) -and (Get-Command git -ErrorAction SilentlyContinue)) {
-        try {
-            Write-ProfileLog "加载模块: Git 集成 (modules\tools\git.ps1)"
-            . $gitModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: Git 集成 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "Git 集成" -ModulePath $gitModulePath -Condition {
+        (Test-Path $gitModulePath) -and (Get-Command git -ErrorAction SilentlyContinue)
+    } | Out-Null
 
     # Docker 支持 (如果 Docker 可用)
     Invoke-ConditionalLoad "modules/tools/docker.ps1" { 
@@ -247,14 +361,9 @@ if ($script:PWSH_FAST_STARTUP) {
 
     # WSL 集成 - 直接加载
     $wslModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/platform/wsl.ps1"
-    if ((Test-Path $wslModulePath) -and ($env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue))) {
-        try {
-            Write-ProfileLog "加载模块: WSL 集成 (modules\platform\wsl.ps1)"
-            . $wslModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: WSL 集成 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "WSL 集成" -ModulePath $wslModulePath -Condition {
+        (Test-Path $wslModulePath) -and ($env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue))
+    } | Out-Null
 }
 
 # === PowerShell 增强 ===
@@ -289,14 +398,9 @@ if ($script:PWSH_FAST_STARTUP) {
     # 帮助系统
     # 帮助文档系统 - 直接加载
     $helpModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/core/help.ps1"
-    if (Test-Path $helpModulePath) {
-        try {
-            Write-ProfileLog "加载模块: 帮助文档系统 (modules\core\help.ps1)"
-            . $helpModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: 帮助文档系统 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "帮助文档系统" -ModulePath $helpModulePath -Condition {
+        Test-Path $helpModulePath
+    } | Out-Null
     
     # 设置向导
     Invoke-ConditionalLoad "modules/core/wizard.ps1" { $true } "快速设置向导" | Out-Null
@@ -306,14 +410,9 @@ if ($script:PWSH_FAST_STARTUP) {
     
     # Scoop 工具链 - 直接加载
     $scoopModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/scoop.ps1"
-    if ((Test-Path $scoopModulePath) -and (Get-Command scoop -ErrorAction SilentlyContinue)) {
-        try {
-            Write-ProfileLog "加载模块: Scoop 工具链 (modules\tools\scoop.ps1)"
-            . $scoopModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: Scoop 工具链 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "Scoop 工具链" -ModulePath $scoopModulePath -Condition {
+        (Test-Path $scoopModulePath) -and (Get-Command scoop -ErrorAction SilentlyContinue)
+    } | Out-Null
     
     # Starship 提示符
     Invoke-ConditionalLoad "modules/tools/starship.ps1" { 
@@ -332,50 +431,30 @@ if ($script:PWSH_FAST_STARTUP) {
     
     # 跨平台操作 - 直接加载
     $crossplatformModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/core/crossplatform.ps1"
-    if (Test-Path $crossplatformModulePath) {
-        try {
-            Write-ProfileLog "加载模块: 跨平台文件操作 (modules\core\crossplatform.ps1)"
-            . $crossplatformModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: 跨平台文件操作 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "跨平台文件操作" -ModulePath $crossplatformModulePath -Condition {
+        Test-Path $crossplatformModulePath
+    } | Out-Null
     
     # === Phase 3: 高级工具集成 ===
     Write-ProfileLog "加载 Phase 3 高级工具"
     
     # Windows 功能深度集成 - 直接加载
     $windowsModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/platform/windows.ps1"
-    if ((Test-Path $windowsModulePath) -and ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6))) {
-        try {
-            Write-ProfileLog "加载模块: Windows 深度功能 (modules\platform\windows.ps1)"
-            . $windowsModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: Windows 深度功能 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "Windows 深度功能" -ModulePath $windowsModulePath -Condition {
+        (Test-Path $windowsModulePath) -and ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6))
+    } | Out-Null
     
     # 系统监控工具 - 直接加载
     $monitoringModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/monitoring.ps1"
-    if (Test-Path $monitoringModulePath) {
-        try {
-            Write-ProfileLog "加载模块: 系统监控工具 (modules\tools\monitoring.ps1)"
-            . $monitoringModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: 系统监控工具 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "系统监控工具" -ModulePath $monitoringModulePath -Condition {
+        Test-Path $monitoringModulePath
+    } | Out-Null
     
     # 开发环境集成 - 直接加载
     $devenvModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/devenv.ps1"
-    if (Test-Path $devenvModulePath) {
-        try {
-            Write-ProfileLog "加载模块: 开发环境集成 (modules\tools\devenv.ps1)"
-            . $devenvModulePath
-        } catch {
-            Write-ProfileLog "模块加载失败: 开发环境集成 - $($_.Exception.Message)" "ERROR"
-        }
-    }
+    Invoke-TimedModuleFileLoad -Name "开发环境集成" -ModulePath $devenvModulePath -Condition {
+        Test-Path $devenvModulePath
+    } | Out-Null
 }
 
 # === 私有配置加载 ===
@@ -384,12 +463,10 @@ Write-ProfileLog "加载私有配置"
 # 私有配置 (不被版本控制)
 $privateConfig = Join-Path $script:PWSH_PRIVATE_DIR "config.ps1"
 if (Test-Path $privateConfig) {
-    try {
+    Invoke-TimedModuleLoad -Name "私有配置" -Path $privateConfig -LoadAction {
         . $privateConfig
         Write-ProfileLog "已加载私有配置"
-    } catch {
-        Write-ProfileLog "私有配置加载失败: $($_.Exception.Message)" "ERROR"
-    }
+    } | Out-Null
 }
 
 # === 性能报告 ===
@@ -403,6 +480,10 @@ if ($script:ProfileLoadTime -gt 500) {
     Write-Host "⚠️  PowerShell 启动时间较长 ($($script:ProfileLoadTime.ToString('F0'))ms)，建议运行 Measure-PowerShellStartup 进行性能诊断" -ForegroundColor Yellow
 } elseif ($env:PWSH_DEBUG -eq "1") {
     Write-Host "✅ PowerShell 加载完成 ($($script:ProfileLoadTime.ToString('F0'))ms)" -ForegroundColor Green
+}
+
+if ($env:PWSH_PROFILE_TIMING -eq "1") {
+    Show-PowerShellProfileModuleTimings -Top 50
 }
 
 # 清理临时变量和缓存

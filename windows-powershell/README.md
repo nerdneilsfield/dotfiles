@@ -293,6 +293,7 @@ function My-Function {
 # 启动时间基准测试
 Measure-PowerShellStartup              # 5次平均测试
 Measure-PowerShellStartup -Iterations 10 -Detailed  # 详细分析
+Measure-PowerShellStartup -Iterations 5 -ModuleTimings  # 输出每个模块加载耗时
 
 # 缓存和性能管理
 Show-PowerShellCacheStatus             # 查看缓存状态
