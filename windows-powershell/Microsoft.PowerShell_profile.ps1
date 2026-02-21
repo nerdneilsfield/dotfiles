@@ -494,7 +494,17 @@ if ($script:ProfileLoadTime -gt 500) {
 }
 
 if ($env:PWSH_PROFILE_TIMING -eq "1") {
-    Show-PowerShellProfileModuleTimings -Top 50
+    if ($env:PWSH_PROFILE_TIMING_JSON -eq "1") {
+        $timingPayload = @{
+            ProfileLoadMs = [math]::Round($script:ProfileLoadTime, 2)
+            ModuleTimings = $script:ProfileModuleLoadStats
+        }
+        Write-Output "__PWSH_MODULE_TIMING_JSON_START__"
+        $timingPayload | ConvertTo-Json -Depth 5 -Compress
+        Write-Output "__PWSH_MODULE_TIMING_JSON_END__"
+    } else {
+        Show-PowerShellProfileModuleTimings -Top 50
+    }
 }
 
 # 清理临时变量和缓存

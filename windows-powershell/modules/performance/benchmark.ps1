@@ -20,27 +20,34 @@ function Measure-PowerShellStartup {
     
     $results = @()
     $totalTime = 0
+    $allModuleTimings = @()
     
     for ($i = 1; $i -le $Iterations; $i++) {
         Write-Host "第 $i 次测试..." -NoNewline
         
+        $stdoutFile = New-TemporaryFile
+        $stderrFile = New-TemporaryFile
         $startTime = Get-Date
         $startupCommand = if ($NoOptimization) {
             if ($ModuleTimings) {
-                '& { $env:PWSH_PROFILE_TIMING = "1"; . `$PROFILE; exit }'
+                '& { $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . `$PROFILE; exit }'
             } else {
                 '& { $env:PWSH_PROFILE_TIMING = "0"; . `$PROFILE; exit }'
             }
         } else {
             if ($ModuleTimings) {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; . `$PROFILE; exit }'
+                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . `$PROFILE; exit }'
             } else {
                 '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . `$PROFILE; exit }'
             }
         }
         
         # 测量完整配置加载时间
-        $process = Start-Process -FilePath "pwsh" -ArgumentList "-NoLogo", "-Command", $startupCommand -WindowStyle Hidden -PassThru -Wait
+        $process = Start-Process -FilePath "pwsh" `
+            -ArgumentList "-NoLogo", "-Command", $startupCommand `
+            -RedirectStandardOutput $stdoutFile.FullName `
+            -RedirectStandardError $stderrFile.FullName `
+            -WindowStyle Hidden -PassThru -Wait
         
         $endTime = Get-Date
         $duration = ($endTime - $startTime).TotalMilliseconds
@@ -53,6 +60,39 @@ function Measure-PowerShellStartup {
             elseif ($duration -lt 500) { "Yellow" }
             else { "Red" }
         )
+
+        if ($ModuleTimings) {
+            $outputText = Get-Content $stdoutFile.FullName -Raw
+            if ($outputText.Trim()) {
+                $startMarker = "__PWSH_MODULE_TIMING_JSON_START__"
+                $endMarker = "__PWSH_MODULE_TIMING_JSON_END__"
+                $startIndex = $outputText.IndexOf($startMarker)
+                $endIndex = $outputText.IndexOf($endMarker, $startIndex + $startMarker.Length)
+
+                if (($startIndex -ge 0) -and ($endIndex -gt $startIndex)) {
+                    try {
+                        $modulePayload = $outputText.Substring($startIndex + $startMarker.Length, $endIndex - $startIndex - $startMarker.Length).Trim()
+                        if ($modulePayload) {
+                            $payload = $modulePayload | ConvertFrom-Json -ErrorAction Stop
+                            if ($payload.PSObject.Properties['ModuleTimings']) {
+                                $allModuleTimings += $payload.ModuleTimings
+                            } elseif ($payload -is [System.Collections.IEnumerable] -and -not ($payload -is [string])) {
+                                $allModuleTimings += $payload
+                            } else {
+                                Write-Host "  ⚠️ 无法识别模块耗时结构" -ForegroundColor Yellow
+                            }
+                        }
+                    } catch {
+                        Write-Host "  ⚠️ 模块耗时 JSON 解析失败: $($_.Exception.Message)" -ForegroundColor Yellow
+                    }
+                } else {
+                    Write-Host "  模块/启动输出:" -ForegroundColor DarkGray
+                    Write-Host $outputText.Trim() -ForegroundColor DarkGray
+                }
+            }
+        }
+
+        Remove-Item $stdoutFile.FullName, $stderrFile.FullName -ErrorAction SilentlyContinue
     }
     
     Write-Host ""
@@ -65,14 +105,14 @@ function Measure-PowerShellStartup {
     
     Write-Host "📊 性能统计:" -ForegroundColor Cyan
     Write-Host "  平均时间: " -NoNewline
-    Write-Host "${average:F0}ms" -ForegroundColor $(
+    Write-Host "$( [math]::Round($average, 0) )ms" -ForegroundColor $(
         if ($average -lt 200) { "Green" }
         elseif ($average -lt 500) { "Yellow" }
         else { "Red" }
     )
-    Write-Host "  最快时间: ${min:F0}ms" -ForegroundColor Green
-    Write-Host "  最慢时间: ${max:F0}ms" -ForegroundColor Red
-    Write-Host "  中位数:   ${median:F0}ms"
+    Write-Host "  最快时间: $( [math]::Round($min, 0) )ms" -ForegroundColor Green
+    Write-Host "  最慢时间: $( [math]::Round($max, 0) )ms" -ForegroundColor Red
+    Write-Host "  中位数:   $( [math]::Round($median, 0) )ms"
     
     # 性能评级
     Write-Host ""
@@ -98,6 +138,36 @@ function Measure-PowerShellStartup {
         Write-Host "  5. 重新测量时加上 -NoOptimization 查看完整启动时间"
         Write-Host "  6. 重新测量时加上 -ModuleTimings 输出每个模块耗时"
     }
+
+    if ($ModuleTimings -and $allModuleTimings.Count -gt 0) {
+        Write-Host ""
+        Write-Host "⏱️  模块耗时汇总 (按平均耗时排序):" -ForegroundColor Cyan
+
+        $loadedModules = $allModuleTimings | Where-Object { $_.Status -eq "Loaded" }
+        if ($loadedModules.Count -eq 0) {
+            Write-Host "  未采集到加载成功的模块记录" -ForegroundColor Yellow
+        } else {
+            $moduleSummary = $loadedModules | Group-Object -Property Module | ForEach-Object {
+                $times = $_.Group | ForEach-Object { [double]$_.ElapsedMs }
+                $moduleName = $_.Name
+                [PSCustomObject]@{
+                    Module  = $moduleName
+                    AvgMs   = [math]::Round(($times | Measure-Object -Average).Average, 2)
+                    MinMs   = [math]::Round(($times | Measure-Object -Minimum).Minimum, 2)
+                    MaxMs   = [math]::Round(($times | Measure-Object -Maximum).Maximum, 2)
+                    Runs    = $times.Count
+                }
+            } | Sort-Object AvgMs -Descending
+
+            $moduleSummary | Select-Object -First 20 | Format-Table Module, Runs, AvgMs, MinMs, MaxMs -AutoSize
+        }
+
+        $skippedModules = $allModuleTimings | Where-Object { $_.Status -eq "Skipped" } | Group-Object -Property Module
+        if ($skippedModules.Count -gt 0) {
+            Write-Host ""
+            Write-Host "  跳过统计: $($skippedModules.Count) 个模块有跳过记录" -ForegroundColor DarkGray
+        }
+    }
     
     return @{
         Average = $average
@@ -105,6 +175,7 @@ function Measure-PowerShellStartup {
         Max = $max
         Median = $median
         Results = $results
+        ModuleTimings = if ($allModuleTimings.Count -gt 0) { $allModuleTimings } else { @() }
     }
 }
 
