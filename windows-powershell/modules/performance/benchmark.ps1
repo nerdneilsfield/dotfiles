@@ -1,6 +1,74 @@
 # PowerShell 性能测试和优化工具
 # 仿照 zsh/utils.zsh 的性能监控功能
 
+function Read-PowerShellStartupLogText {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path $Path)) {
+        return ""
+    }
+
+    try {
+        $bytes = [System.IO.File]::ReadAllBytes($Path)
+    } catch {
+        return ""
+    }
+
+    if (-not $bytes -or $bytes.Length -eq 0) {
+        return ""
+    }
+
+    $encoding = [System.Text.Encoding]::UTF8
+    $offset = 0
+
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        $encoding = [System.Text.UTF8Encoding]::new($false)
+        $offset = 3
+    } elseif ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) {
+        $encoding = [System.Text.UnicodeEncoding]::new($false, $false)
+        $offset = 2
+    } elseif ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF) {
+        $encoding = [System.Text.BigEndianUnicodeEncoding]::new($false, $false)
+        $offset = 2
+    } else {
+        # 无 BOM 时，按 UTF-8 解析；如果结果存在大量 NUL 字节，尝试 UTF-16。
+        $sample = $bytes[0..([Math]::Min($bytes.Length - 1, 4095)]
+        $oddNulls = 0
+        $evenNulls = 0
+        for ($j = 0; $j -lt $sample.Length; $j++) {
+            if ($sample[$j] -eq 0) {
+                if (($j % 2) -eq 0) { $evenNulls++ } else { $oddNulls++ }
+            }
+        }
+
+        if (($oddNulls -gt 0 -and $evenNulls -eq 0)) {
+            $encoding = [System.Text.UnicodeEncoding]::new($false, $false)
+        } elseif (($evenNulls -gt 0 -and $oddNulls -eq 0)) {
+            $encoding = [System.Text.BigEndianUnicodeEncoding]::new($false, $false)
+        } elseif (($oddNulls + $evenNulls) -gt [Math]::Floor($sample.Length * 0.2)) {
+            $encoding = [System.Text.UnicodeEncoding]::new($false, $false)
+        }
+    }
+
+    try {
+        $text = $encoding.GetString($bytes, $offset, $bytes.Length - $offset)
+    } catch {
+        try {
+            $reader = [System.IO.StreamReader]::new($Path, [System.Text.Encoding]::UTF8, $true)
+            $text = $reader.ReadToEnd()
+            $reader.Dispose()
+        } catch {
+            $text = ""
+        }
+    }
+
+    return $text
+}
+
 # 测量 PowerShell 启动时间
 function Measure-PowerShellStartup {
     <#
@@ -34,17 +102,18 @@ function Measure-PowerShellStartup {
             $PROFILE
         }
         $escapedProfile = '"' + $benchmarkProfile.Replace('"', '`"') + '"'
+        $benchmarkOutputEncoding = '$OutputEncoding = [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false);'
         $startupCommand = if ($NoOptimization) {
             if ($ModuleTimings) {
-                '& { $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . ' + $escapedProfile + '; exit }'
+                '& { ' + $benchmarkOutputEncoding + ' $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . ' + $escapedProfile + '; exit }'
             } else {
-                '& { $env:PWSH_PROFILE_TIMING = "0"; . ' + $escapedProfile + '; exit }'
+                '& { ' + $benchmarkOutputEncoding + ' $env:PWSH_PROFILE_TIMING = "0"; . ' + $escapedProfile + '; exit }'
             }
         } else {
             if ($ModuleTimings) {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . ' + $escapedProfile + '; exit }'
+                '& { ' + $benchmarkOutputEncoding + ' $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "1"; $env:PWSH_PROFILE_TIMING_JSON = "1"; . ' + $escapedProfile + '; exit }'
             } else {
-                '& { $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . ' + $escapedProfile + '; exit }'
+                '& { ' + $benchmarkOutputEncoding + ' $env:PWSH_FAST_STARTUP = "1"; $env:PWSH_BENCHMARK_STARTUP = "1"; $env:PWSH_PROFILE_TIMING = "0"; . ' + $escapedProfile + '; exit }'
             }
         }
         
@@ -69,7 +138,7 @@ function Measure-PowerShellStartup {
         )
 
         if ($ModuleTimings) {
-            $outputText = if (Test-Path $stdoutFile.FullName) { Get-Content $stdoutFile.FullName -Raw } else { "" }
+            $outputText = if (Test-Path $stdoutFile.FullName) { Read-PowerShellStartupLogText -Path $stdoutFile.FullName } else { "" }
             if (-not [string]::IsNullOrWhiteSpace($outputText)) {
                 $startMarker = "__PWSH_MODULE_TIMING_JSON_START__"
                 $endMarker = "__PWSH_MODULE_TIMING_JSON_END__"
@@ -103,7 +172,7 @@ function Measure-PowerShellStartup {
                 Write-Host "  未捕获到标准输出" -ForegroundColor DarkGray
             }
 
-            $stderrText = if (Test-Path $stderrFile.FullName) { Get-Content $stderrFile.FullName -Raw } else { "" }
+            $stderrText = if (Test-Path $stderrFile.FullName) { Read-PowerShellStartupLogText -Path $stderrFile.FullName } else { "" }
             if (-not [string]::IsNullOrWhiteSpace($stderrText)) {
                 Write-Host "  标准错误:" -ForegroundColor DarkGray
                 Write-Host $stderrText.Trim() -ForegroundColor Yellow
@@ -166,14 +235,12 @@ function Measure-PowerShellStartup {
             Write-Host "  未采集到加载成功的模块记录" -ForegroundColor Yellow
         } else {
             $moduleSummary = $loadedModules | ForEach-Object {
-                $moduleDisplayName = if ($_.Module -and $_.Module -notmatch '[\u4e00-\u9fff]') {
+                $moduleDisplayName = if ($_.Path) {
+                    [IO.Path]::GetFileNameWithoutExtension($_.Path)
+                } elseif ($_.Module) {
                     $_.Module
                 } else {
-                    if ($_.Path) {
-                        [IO.Path]::GetFileNameWithoutExtension($_.Path)
-                    } else {
-                        "Unknown"
-                    }
+                    "Unknown"
                 }
 
                 [PSCustomObject]@{
