@@ -314,7 +314,11 @@ foreach ($module in $moduleList) {
 
     if ((& $module.Condition)) {
         if (Test-Path $fullPath) {
-            Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath | Out-Null
+            if ($module.Path -eq "modules/performance/benchmark.ps1") {
+                Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath -ImportAsModule:$false -LoadAction { . $fullPath } | Out-Null
+            } else {
+                Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath | Out-Null
+            }
         } else {
             Add-ProfileModuleLoadStat -Name $module.Name -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ModuleMissing"
         }
