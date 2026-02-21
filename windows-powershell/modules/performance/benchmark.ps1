@@ -10,7 +10,8 @@ function Measure-PowerShellStartup {
     [CmdletBinding()]
     param(
         [int]$Iterations = 5,
-        [switch]$Detailed
+        [switch]$Detailed,
+        [switch]$NoOptimization
     )
     
     Write-Host "🕐 测量 PowerShell 启动时间..." -ForegroundColor Cyan
@@ -23,9 +24,14 @@ function Measure-PowerShellStartup {
         Write-Host "第 $i 次测试..." -NoNewline
         
         $startTime = Get-Date
+        $startupCommand = if ($NoOptimization) {
+            '& { . `$PROFILE; exit }'
+        } else {
+            '& { $env:PWSH_FAST_STARTUP = "1"; . `$PROFILE; exit }'
+        }
         
         # 测量完整配置加载时间
-        $process = Start-Process -FilePath "pwsh" -ArgumentList "-NoLogo", "-Command", "& {. `$PROFILE; exit}" -WindowStyle Hidden -PassThru -Wait
+        $process = Start-Process -FilePath "pwsh" -ArgumentList "-NoLogo", "-Command", $startupCommand -WindowStyle Hidden -PassThru -Wait
         
         $endTime = Get-Date
         $duration = ($endTime - $startTime).TotalMilliseconds
@@ -79,7 +85,8 @@ function Measure-PowerShellStartup {
         Write-Host "  1. 运行 Clear-PowerShellCache 清理缓存"
         Write-Host "  2. 运行 Show-PowerShellCacheStatus 检查缓存状态"
         Write-Host "  3. 设置 `$env:PWSH_DEBUG='1' 启用详细日志"
-        Write-Host "  4. 考虑禁用不必要的模块"
+        Write-Host "  4. 设置 `$env:PWSH_FAST_STARTUP='1' 跳过非关键模块"
+        Write-Host "  5. 重新测量时加上 -NoOptimization 查看完整启动时间"
     }
     
     return @{

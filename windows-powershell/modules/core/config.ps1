@@ -66,6 +66,16 @@ if ($script:IsWindows) {
     $env:PWSH_CACHE_DIR = "$env:HOME/.cache/powershell"
 }
 
+if ($script:PWSH_FAST_STARTUP) {
+    Write-ProfileLog "快速启动模式：跳过开发者模式检测、路径扫描与高级配置"
+    
+    if ([Environment]::UserInteractive) {
+        $Host.UI.RawUI.WindowTitle = "PowerShell $($PSVersionTable.PSVersion)"
+    }
+    
+    return
+}
+
 # 历史记录优化
 if (Get-Module PSReadLine -ListAvailable) {
     # 历史记录文件位置

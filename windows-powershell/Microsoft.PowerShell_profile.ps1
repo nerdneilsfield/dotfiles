@@ -33,6 +33,13 @@ $PSDefaultParameterValues = @{
 # PowerShell 7+ 特性检查
 $script:IsPowerShell7Plus = $PSVersionTable.PSVersion.Major -ge 7
 
+# 启动模式：非交互会话默认走轻量模式，避免加载大量会话增强模块
+if (-not $env:PWSH_FAST_STARTUP) {
+    $env:PWSH_FAST_STARTUP = if ([Environment]::UserInteractive) { "0" } else { "1" }
+}
+
+$script:PWSH_FAST_STARTUP = $env:PWSH_FAST_STARTUP -eq "1"
+
 # 日志函数 - 轻量级
 function Write-ProfileLog {
     param([string]$Message, [string]$Level = "DEBUG")
@@ -188,177 +195,186 @@ foreach ($module in $moduleList) {
 # === 条件加载模块 ===
 Write-ProfileLog "开始条件加载"
 
-# Git 集成 (如果 Git 可用) - 直接加载
-$gitModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/git.ps1"
-if ((Test-Path $gitModulePath) -and (Get-Command git -ErrorAction SilentlyContinue)) {
-    try {
-        Write-ProfileLog "加载模块: Git 集成 (modules\tools\git.ps1)"
-        . $gitModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: Git 集成 - $($_.Exception.Message)" "ERROR"
+if ($script:PWSH_FAST_STARTUP) {
+    Write-ProfileLog "快速启动模式：跳过条件加载模块"
+} else {
+
+    # Git 集成 (如果 Git 可用) - 直接加载
+    $gitModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/git.ps1"
+    if ((Test-Path $gitModulePath) -and (Get-Command git -ErrorAction SilentlyContinue)) {
+        try {
+            Write-ProfileLog "加载模块: Git 集成 (modules\tools\git.ps1)"
+            . $gitModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: Git 集成 - $($_.Exception.Message)" "ERROR"
+        }
     }
-}
 
-# Docker 支持 (如果 Docker 可用)
-Invoke-ConditionalLoad "modules/tools/docker.ps1" { 
-    Get-Command docker -ErrorAction SilentlyContinue 
-} "Docker 支持" | Out-Null
+    # Docker 支持 (如果 Docker 可用)
+    Invoke-ConditionalLoad "modules/tools/docker.ps1" { 
+        Get-Command docker -ErrorAction SilentlyContinue 
+    } "Docker 支持" | Out-Null
 
-# 开发工具集成
-Invoke-ConditionalLoad "modules/tools/development.ps1" { 
-    (Get-Command code -ErrorAction SilentlyContinue) -or 
-    (Get-Command nvim -ErrorAction SilentlyContinue) -or
-    (Get-Command vim -ErrorAction SilentlyContinue)
-} "开发工具" | Out-Null
+    # 开发工具集成
+    Invoke-ConditionalLoad "modules/tools/development.ps1" { 
+        (Get-Command code -ErrorAction SilentlyContinue) -or 
+        (Get-Command nvim -ErrorAction SilentlyContinue) -or
+        (Get-Command vim -ErrorAction SilentlyContinue)
+    } "开发工具" | Out-Null
 
-# Node.js 工具
-Invoke-ConditionalLoad "modules/tools/node.ps1" { 
-    (Get-Command node -ErrorAction SilentlyContinue) -or
-    (Get-Command fnm -ErrorAction SilentlyContinue) -or
-    (Get-Command nvm -ErrorAction SilentlyContinue)
-} "Node.js 工具" | Out-Null
+    # Node.js 工具
+    Invoke-ConditionalLoad "modules/tools/node.ps1" { 
+        (Get-Command node -ErrorAction SilentlyContinue) -or
+        (Get-Command fnm -ErrorAction SilentlyContinue) -or
+        (Get-Command nvm -ErrorAction SilentlyContinue)
+    } "Node.js 工具" | Out-Null
 
-# Python 工具
-Invoke-ConditionalLoad "modules/tools/python.ps1" { 
-    (Get-Command python -ErrorAction SilentlyContinue) -or
-    (Get-Command python3 -ErrorAction SilentlyContinue) -or
-    (Get-Command py -ErrorAction SilentlyContinue)
-} "Python 工具" | Out-Null
+    # Python 工具
+    Invoke-ConditionalLoad "modules/tools/python.ps1" { 
+        (Get-Command python -ErrorAction SilentlyContinue) -or
+        (Get-Command python3 -ErrorAction SilentlyContinue) -or
+        (Get-Command py -ErrorAction SilentlyContinue)
+    } "Python 工具" | Out-Null
 
-# Rust 工具
-Invoke-ConditionalLoad "modules/tools/rust.ps1" { 
-    (Get-Command cargo -ErrorAction SilentlyContinue) -or
-    (Test-Path "$env:USERPROFILE\.cargo\bin")
-} "Rust 工具" | Out-Null
+    # Rust 工具
+    Invoke-ConditionalLoad "modules/tools/rust.ps1" { 
+        (Get-Command cargo -ErrorAction SilentlyContinue) -or
+        (Test-Path "$env:USERPROFILE\.cargo\bin")
+    } "Rust 工具" | Out-Null
 
-# === 平台特定配置 ===
-Write-ProfileLog "加载平台特定配置"
+    # === 平台特定配置 ===
+    Write-ProfileLog "加载平台特定配置"
 
-# WSL 集成 - 直接加载
-$wslModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/platform/wsl.ps1"
-if ((Test-Path $wslModulePath) -and ($env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue))) {
-    try {
-        Write-ProfileLog "加载模块: WSL 集成 (modules\platform\wsl.ps1)"
-        . $wslModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: WSL 集成 - $($_.Exception.Message)" "ERROR"
+    # WSL 集成 - 直接加载
+    $wslModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/platform/wsl.ps1"
+    if ((Test-Path $wslModulePath) -and ($env:WSL_DISTRO_NAME -or (Get-Command wsl -ErrorAction SilentlyContinue))) {
+        try {
+            Write-ProfileLog "加载模块: WSL 集成 (modules\platform\wsl.ps1)"
+            . $wslModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: WSL 集成 - $($_.Exception.Message)" "ERROR"
+        }
     }
 }
 
 # === PowerShell 增强 ===
-Write-ProfileLog "加载 PowerShell 增强功能"
-
-# PSReadLine 增强 (PowerShell 5.1+)
-if (Get-Module PSReadLine -ListAvailable) {
-    Write-ProfileLog "配置 PSReadLine"
+if ($script:PWSH_FAST_STARTUP) {
+    Write-ProfileLog "快速启动模式：跳过 PowerShell 增强与高级工具加载"
+} else {
+    Write-ProfileLog "加载 PowerShell 增强功能"
     
-    # 设置预测性 IntelliSense (PowerShell 7.2+)
-    if ($script:IsPowerShell7Plus -and $PSVersionTable.PSVersion -ge [Version]"7.2") {
-        Set-PSReadLineOption -PredictionSource History
-        Set-PSReadLineOption -PredictionViewStyle ListView
+    # PSReadLine 增强 (PowerShell 5.1+)
+    if (Get-Module PSReadLine -ListAvailable) {
+        Write-ProfileLog "配置 PSReadLine"
+        
+        # 设置预测性 IntelliSense (PowerShell 7.2+)
+        if ($script:IsPowerShell7Plus -and $PSVersionTable.PSVersion -ge [Version]"7.2") {
+            Set-PSReadLineOption -PredictionSource History
+            Set-PSReadLineOption -PredictionViewStyle ListView
+        }
+        
+        # 键绑定
+        Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+        Set-PSReadLineKeyHandler -Key "Ctrl+d" -Function DeleteCharOrExit
+        Set-PSReadLineKeyHandler -Key "Ctrl+z" -Function Undo
+        
+        # 历史记录搜索
+        Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+        Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
     }
     
-    # 键绑定
-    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
-    Set-PSReadLineKeyHandler -Key "Ctrl+d" -Function DeleteCharOrExit
-    Set-PSReadLineKeyHandler -Key "Ctrl+z" -Function Undo
+    # 自动补全增强
+    Invoke-ConditionalLoad "modules/core/completion.ps1" { $true } "自动补全增强" | Out-Null
     
-    # 历史记录搜索
-    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-}
-
-# 自动补全增强
-Invoke-ConditionalLoad "modules/core/completion.ps1" { $true } "自动补全增强" | Out-Null
-
-# 帮助系统
-# 帮助文档系统 - 直接加载
-$helpModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/core/help.ps1"
-if (Test-Path $helpModulePath) {
-    try {
-        Write-ProfileLog "加载模块: 帮助文档系统 (modules\core\help.ps1)"
-        . $helpModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: 帮助文档系统 - $($_.Exception.Message)" "ERROR"
+    # 帮助系统
+    # 帮助文档系统 - 直接加载
+    $helpModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/core/help.ps1"
+    if (Test-Path $helpModulePath) {
+        try {
+            Write-ProfileLog "加载模块: 帮助文档系统 (modules\core\help.ps1)"
+            . $helpModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: 帮助文档系统 - $($_.Exception.Message)" "ERROR"
+        }
     }
-}
-
-# 设置向导
-Invoke-ConditionalLoad "modules/core/wizard.ps1" { $true } "快速设置向导" | Out-Null
-
-# 导航增强
-Invoke-ConditionalLoad "modules/tools/navigation.ps1" { $true } "智能导航" | Out-Null
-
-# Scoop 工具链 - 直接加载
-$scoopModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/scoop.ps1"
-if ((Test-Path $scoopModulePath) -and (Get-Command scoop -ErrorAction SilentlyContinue)) {
-    try {
-        Write-ProfileLog "加载模块: Scoop 工具链 (modules\tools\scoop.ps1)"
-        . $scoopModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: Scoop 工具链 - $($_.Exception.Message)" "ERROR"
+    
+    # 设置向导
+    Invoke-ConditionalLoad "modules/core/wizard.ps1" { $true } "快速设置向导" | Out-Null
+    
+    # 导航增强
+    Invoke-ConditionalLoad "modules/tools/navigation.ps1" { $true } "智能导航" | Out-Null
+    
+    # Scoop 工具链 - 直接加载
+    $scoopModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/scoop.ps1"
+    if ((Test-Path $scoopModulePath) -and (Get-Command scoop -ErrorAction SilentlyContinue)) {
+        try {
+            Write-ProfileLog "加载模块: Scoop 工具链 (modules\tools\scoop.ps1)"
+            . $scoopModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: Scoop 工具链 - $($_.Exception.Message)" "ERROR"
+        }
     }
-}
-
-# Starship 提示符
-Invoke-ConditionalLoad "modules/tools/starship.ps1" { 
-    Get-Command starship -ErrorAction SilentlyContinue 
-} "Starship 提示符" | Out-Null
-
-# 搜索工具集成
-Invoke-ConditionalLoad "modules/tools/search.ps1" { 
-    (Get-Command fd -ErrorAction SilentlyContinue) -or 
-    (Get-Command rg -ErrorAction SilentlyContinue) -or
-    (Get-Command fzf -ErrorAction SilentlyContinue)
-} "高级搜索工具" | Out-Null
-
-# 智能路由系统
-Invoke-ConditionalLoad "modules/core/router.ps1" { $true } "智能命令路由" | Out-Null
-
-# 跨平台操作 - 直接加载
-$crossplatformModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/core/crossplatform.ps1"
-if (Test-Path $crossplatformModulePath) {
-    try {
-        Write-ProfileLog "加载模块: 跨平台文件操作 (modules\core\crossplatform.ps1)"
-        . $crossplatformModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: 跨平台文件操作 - $($_.Exception.Message)" "ERROR"
+    
+    # Starship 提示符
+    Invoke-ConditionalLoad "modules/tools/starship.ps1" { 
+        Get-Command starship -ErrorAction SilentlyContinue 
+    } "Starship 提示符" | Out-Null
+    
+    # 搜索工具集成
+    Invoke-ConditionalLoad "modules/tools/search.ps1" { 
+        (Get-Command fd -ErrorAction SilentlyContinue) -or 
+        (Get-Command rg -ErrorAction SilentlyContinue) -or
+        (Get-Command fzf -ErrorAction SilentlyContinue)
+    } "高级搜索工具" | Out-Null
+    
+    # 智能路由系统
+    Invoke-ConditionalLoad "modules/core/router.ps1" { $true } "智能命令路由" | Out-Null
+    
+    # 跨平台操作 - 直接加载
+    $crossplatformModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/core/crossplatform.ps1"
+    if (Test-Path $crossplatformModulePath) {
+        try {
+            Write-ProfileLog "加载模块: 跨平台文件操作 (modules\core\crossplatform.ps1)"
+            . $crossplatformModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: 跨平台文件操作 - $($_.Exception.Message)" "ERROR"
+        }
     }
-}
-
-# === Phase 3: 高级工具集成 ===
-Write-ProfileLog "加载 Phase 3 高级工具"
-
-# Windows 功能深度集成 - 直接加载
-$windowsModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/platform/windows.ps1"
-if ((Test-Path $windowsModulePath) -and ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6))) {
-    try {
-        Write-ProfileLog "加载模块: Windows 深度功能 (modules\platform\windows.ps1)"
-        . $windowsModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: Windows 深度功能 - $($_.Exception.Message)" "ERROR"
+    
+    # === Phase 3: 高级工具集成 ===
+    Write-ProfileLog "加载 Phase 3 高级工具"
+    
+    # Windows 功能深度集成 - 直接加载
+    $windowsModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/platform/windows.ps1"
+    if ((Test-Path $windowsModulePath) -and ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6))) {
+        try {
+            Write-ProfileLog "加载模块: Windows 深度功能 (modules\platform\windows.ps1)"
+            . $windowsModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: Windows 深度功能 - $($_.Exception.Message)" "ERROR"
+        }
     }
-}
-
-# 系统监控工具 - 直接加载
-$monitoringModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/monitoring.ps1"
-if (Test-Path $monitoringModulePath) {
-    try {
-        Write-ProfileLog "加载模块: 系统监控工具 (modules\tools\monitoring.ps1)"
-        . $monitoringModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: 系统监控工具 - $($_.Exception.Message)" "ERROR"
+    
+    # 系统监控工具 - 直接加载
+    $monitoringModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/monitoring.ps1"
+    if (Test-Path $monitoringModulePath) {
+        try {
+            Write-ProfileLog "加载模块: 系统监控工具 (modules\tools\monitoring.ps1)"
+            . $monitoringModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: 系统监控工具 - $($_.Exception.Message)" "ERROR"
+        }
     }
-}
-
-# 开发环境集成 - 直接加载
-$devenvModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/devenv.ps1"
-if (Test-Path $devenvModulePath) {
-    try {
-        Write-ProfileLog "加载模块: 开发环境集成 (modules\tools\devenv.ps1)"
-        . $devenvModulePath
-    } catch {
-        Write-ProfileLog "模块加载失败: 开发环境集成 - $($_.Exception.Message)" "ERROR"
+    
+    # 开发环境集成 - 直接加载
+    $devenvModulePath = Join-Path $script:PWSH_CONFIG_DIR "modules/tools/devenv.ps1"
+    if (Test-Path $devenvModulePath) {
+        try {
+            Write-ProfileLog "加载模块: 开发环境集成 (modules\tools\devenv.ps1)"
+            . $devenvModulePath
+        } catch {
+            Write-ProfileLog "模块加载失败: 开发环境集成 - $($_.Exception.Message)" "ERROR"
+        }
     }
 }
 
