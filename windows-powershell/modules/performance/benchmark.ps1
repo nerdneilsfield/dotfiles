@@ -67,7 +67,10 @@ function Measure-PowerShellStartup {
                 $startMarker = "__PWSH_MODULE_TIMING_JSON_START__"
                 $endMarker = "__PWSH_MODULE_TIMING_JSON_END__"
                 $startIndex = $outputText.IndexOf($startMarker)
-                $endIndex = $outputText.IndexOf($endMarker, $startIndex + $startMarker.Length)
+                $endIndex = -1
+                if ($startIndex -ge 0) {
+                    $endIndex = $outputText.IndexOf($endMarker, $startIndex + $startMarker.Length)
+                }
 
                 if (($startIndex -ge 0) -and ($endIndex -gt $startIndex)) {
                     try {
