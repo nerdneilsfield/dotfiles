@@ -508,6 +508,20 @@ if ($env:PWSH_PROFILE_TIMING -eq "1") {
     }
 }
 
+# 若主流程中性能模块未加载成功（如条件加载被跳过、导入失败），兜底加载测量函数
+if (-not (Get-Command Measure-PowerShellStartup -ErrorAction SilentlyContinue)) {
+    $benchmarkFallbackPath = Join-Path $script:PWSH_CONFIG_DIR "modules/performance/benchmark.ps1"
+    if (Test-Path $benchmarkFallbackPath) {
+        try {
+            . $benchmarkFallbackPath
+        } catch {
+            Write-ProfileLog "性能模块兜底加载失败: $($_.Exception.Message)" "WARN"
+        }
+    } else {
+        Write-ProfileLog "性能模块不存在: $benchmarkFallbackPath" "WARN"
+    }
+}
+
 # 清理临时变量和缓存
 Remove-Variable ProfileStartTime, ProfileEndTime -Scope Script -ErrorAction SilentlyContinue
 
