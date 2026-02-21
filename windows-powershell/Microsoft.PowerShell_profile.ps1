@@ -314,7 +314,7 @@ foreach ($module in $moduleList) {
 
     if ((& $module.Condition)) {
         if (Test-Path $fullPath) {
-            if ($module.Path -eq "modules/performance/benchmark.ps1") {
+            if ($module.Path -match "(^|[\\/])modules[\\/]performance[\\/]benchmark\.ps1$") {
                 Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath -ImportAsModule:$false -LoadAction { . $fullPath } | Out-Null
             } else {
                 Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath | Out-Null
