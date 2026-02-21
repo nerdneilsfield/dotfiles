@@ -99,18 +99,8 @@ function Invoke-ConditionalLoad {
             if ($shouldLoad) {
                 Write-ProfileLog "加载模块 (全局): $Description ($ModulePath)"
                 return Invoke-TimedModuleLoad -Name $Description -Path $fullPath -LoadAction {
-                    $moduleContent = Get-Content -Path $fullPath -Raw
-                    # 创建唯一的动态模块名称，基于文件名，并清理特殊字符
-                    $dynamicModuleName = "DynamicPSModule_$(($ModulePath | Split-Path -Leaf) -replace '[^a-zA-Z0-9_]', '_')"
-                    
-                    # 如果模块已存在（例如 profile 重载），先移除
-                    if (Get-Module $dynamicModuleName -ErrorAction SilentlyContinue) {
-                        Write-ProfileLog "重新加载模块: 移除旧的 $dynamicModuleName"
-                        Remove-Module $dynamicModuleName -Force -ErrorAction SilentlyContinue
-                    }
-
-                    New-Module -Name $dynamicModuleName -ScriptBlock ([scriptblock]::Create($moduleContent)) | Import-Module -Global -Force -DisableNameChecking
-                }
+                    Import-PowerShellProfileScriptModule -ModulePath $fullPath
+                } -ImportAsModule:$false
             } else {
                 Write-ProfileLog "跳过模块: $Description (条件不满足)"
                 Add-ProfileModuleLoadStat -Name $Description -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ConditionFalse"
@@ -187,12 +177,34 @@ function Add-ProfileModuleLoadStat {
     }
 }
 
+function Import-PowerShellProfileScriptModule {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ModulePath
+    )
+
+    $moduleContent = Get-Content -Path $ModulePath -Raw
+    # 创建唯一的动态模块名称，基于文件名，并清理特殊字符
+    $dynamicModuleName = "DynamicPSModule_$(($ModulePath | Split-Path -Leaf) -replace '[^a-zA-Z0-9_]', '_')"
+
+    # 如果模块已存在（例如 profile 重载），先移除
+    if (Get-Module $dynamicModuleName -ErrorAction SilentlyContinue) {
+        Write-ProfileLog "重新加载模块: 移除旧的 $dynamicModuleName"
+        Remove-Module $dynamicModuleName -Force -ErrorAction SilentlyContinue
+    }
+
+    New-Module -Name $dynamicModuleName -ScriptBlock ([scriptblock]::Create($moduleContent)) |
+        Import-Module -Global -Force -DisableNameChecking | Out-Null
+}
+
 function Invoke-TimedModuleLoad {
     [CmdletBinding()]
     param(
         [string]$Name,
         [string]$Path,
-        [scriptblock]$LoadAction
+        [scriptblock]$LoadAction = { },
+        [switch]$ImportAsModule = $true
     )
 
     $startTime = Get-Date
@@ -200,7 +212,11 @@ function Invoke-TimedModuleLoad {
     $reason = ""
 
     try {
-        & $LoadAction
+        if ($ImportAsModule -and $Path) {
+            Import-PowerShellProfileScriptModule -ModulePath $Path
+        } else {
+            & $LoadAction
+        }
         return $true
     } catch {
         $status = "Failed"
@@ -239,9 +255,7 @@ function Invoke-TimedModuleFileLoad {
         return $false
     }
 
-    return Invoke-TimedModuleLoad -Name $Name -Path $ModulePath -LoadAction {
-        . $ModulePath
-    }
+    return Invoke-TimedModuleLoad -Name $Name -Path $ModulePath
 }
 
 function Show-PowerShellProfileModuleTimings {
@@ -300,9 +314,7 @@ foreach ($module in $moduleList) {
 
     if ((& $module.Condition)) {
         if (Test-Path $fullPath) {
-            Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath -LoadAction {
-                . $fullPath
-            } | Out-Null
+            Invoke-TimedModuleLoad -Name $module.Name -Path $fullPath | Out-Null
         } else {
             Add-ProfileModuleLoadStat -Name $module.Name -Path $fullPath -Status "Skipped" -ElapsedMs 0 -Reason "ModuleMissing"
         }
@@ -463,10 +475,9 @@ Write-ProfileLog "加载私有配置"
 # 私有配置 (不被版本控制)
 $privateConfig = Join-Path $script:PWSH_PRIVATE_DIR "config.ps1"
 if (Test-Path $privateConfig) {
-    Invoke-TimedModuleLoad -Name "私有配置" -Path $privateConfig -LoadAction {
-        . $privateConfig
+    if (Invoke-TimedModuleLoad -Name "私有配置" -Path $privateConfig) {
         Write-ProfileLog "已加载私有配置"
-    } | Out-Null
+    }
 }
 
 # === 性能报告 ===
