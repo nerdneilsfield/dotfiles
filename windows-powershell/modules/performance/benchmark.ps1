@@ -43,9 +43,9 @@ function Measure-PowerShellStartup {
         }
         
         # 测量完整配置加载时间
+        $startArguments = @("-NoLogo", "-NoProfile", "-Command", $startupCommand)
         $process = Start-Process -FilePath "pwsh" `
-            -ArgumentList "-NoLogo", "-Command", $startupCommand `
-            "-NoProfile" `
+            -ArgumentList $startArguments `
             -RedirectStandardOutput $stdoutFile.FullName `
             -RedirectStandardError $stderrFile.FullName `
             -WindowStyle Hidden -PassThru -Wait
@@ -63,8 +63,8 @@ function Measure-PowerShellStartup {
         )
 
         if ($ModuleTimings) {
-            $outputText = Get-Content $stdoutFile.FullName -Raw
-            if ($outputText.Trim()) {
+            $outputText = if (Test-Path $stdoutFile.FullName) { Get-Content $stdoutFile.FullName -Raw } else { "" }
+            if (-not [string]::IsNullOrWhiteSpace($outputText)) {
                 $startMarker = "__PWSH_MODULE_TIMING_JSON_START__"
                 $endMarker = "__PWSH_MODULE_TIMING_JSON_END__"
                 $startIndex = $outputText.IndexOf($startMarker)
@@ -93,10 +93,12 @@ function Measure-PowerShellStartup {
                     Write-Host "  模块/启动输出:" -ForegroundColor DarkGray
                     Write-Host $outputText.Trim() -ForegroundColor DarkGray
                 }
+            } else {
+                Write-Host "  未捕获到标准输出" -ForegroundColor DarkGray
             }
 
-            $stderrText = Get-Content $stderrFile.FullName -Raw
-            if ($stderrText.Trim()) {
+            $stderrText = if (Test-Path $stderrFile.FullName) { Get-Content $stderrFile.FullName -Raw } else { "" }
+            if (-not [string]::IsNullOrWhiteSpace($stderrText)) {
                 Write-Host "  标准错误:" -ForegroundColor DarkGray
                 Write-Host $stderrText.Trim() -ForegroundColor Yellow
             }
