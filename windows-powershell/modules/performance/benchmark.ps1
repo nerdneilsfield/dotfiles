@@ -90,6 +90,12 @@ function Measure-PowerShellStartup {
                     Write-Host $outputText.Trim() -ForegroundColor DarkGray
                 }
             }
+
+            $stderrText = Get-Content $stderrFile.FullName -Raw
+            if ($stderrText.Trim()) {
+                Write-Host "  标准错误:" -ForegroundColor DarkGray
+                Write-Host $stderrText.Trim() -ForegroundColor Yellow
+            }
         }
 
         Remove-Item $stdoutFile.FullName, $stderrFile.FullName -ErrorAction SilentlyContinue
