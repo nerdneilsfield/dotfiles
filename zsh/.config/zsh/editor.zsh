@@ -131,7 +131,7 @@ install_nvim_release_by_eget(){
         eget "$tool"
     fi
 
-	local cpu_arch = $(uname -m)
+	local cpu_arch=$(uname -m)
 	if [ "$cpu_arch" == "x86_64" ]; then 
 		if [ "$use_sudo" -eq 1 ]; then
 			sudo ln -sf /usr/local/bin/nvim-linux-x86_64 /usr/local/bin/nvim
