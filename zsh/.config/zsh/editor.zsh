@@ -132,14 +132,14 @@ install_nvim_release_by_eget(){
     fi
 
 	local cpu_arch=$(uname -m)
-	if [ "$cpu_arch" == "x86_64" ]; then 
-		if [ "$use_sudo" -eq 1 ]; then
+	if [[ "$cpu_arch" == "x86_64" ]]; then
+		if [[ "$use_sudo" -eq 1 ]]; then
 			sudo ln -sf /usr/local/bin/nvim-linux-x86_64 /usr/local/bin/nvim
 		else
 			ln -sf $PWD/.local/bin/nvim-linux-x86_64 $HOME/.local/bin/nvim
 		fi
 	elif [[ "$cpu_arch" == "aarch64" ]] || [[ "$cpu_arch" == "arm64" ]]; then
-		if [ "$use_sudo" -eq 1 ]; then
+		if [[ "$use_sudo" -eq 1 ]]; then
 			sudo ln -sf /usr/local/bin/nvim-linux-arm64 /usr/local/bin/nvim
 		else
 			ln -sf $PWD/.local/bin/nvim-linux-arm64 $HOME/.local/bin/nvim
