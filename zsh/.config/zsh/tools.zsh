@@ -301,6 +301,7 @@ install_eget_proxy() {
 	cd "/tmp/install/eget-$EGET_RELEASE-linux_$ARCH"
 	sudo cp eget /usr/local/bin/eget
 	sudo chmod +x /usr/local/bin/eget
+    sudo mkdir -p /usr/local/share/man/man1
 	sudo cp eget.1 /usr/local/share/man/man1/eget.1
 }
 

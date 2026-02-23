@@ -93,6 +93,62 @@ install_nvim_release_proxy(){
 	nvim --version
 }
 
+
+# @brief Install Neovim release using eget
+# @return 0 on success
+# @example install_nvim_release_by_eget
+# @category editor
+install_nvim_release_by_eget(){
+	local tool="neovim/neovim"
+    local requested_install_prefix="${1:-local}"
+    local install_prefix
+    local eget_bin
+    local use_sudo=0
+
+    case "$requested_install_prefix" in
+        global) install_prefix="/usr/local" ;;
+        local) install_prefix="$HOME/.local" ;;
+        *) install_prefix="$requested_install_prefix" ;;
+    esac
+
+    eget_bin="${install_prefix}/bin"
+    if [[ "$install_prefix" == "/usr/local" || "$install_prefix" == "/usr" ]]; then
+        use_sudo=1
+    fi
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -v || return 1
+        sudo mkdir -p "$eget_bin"
+    else
+        mkdir -p "$eget_bin"
+    fi
+
+    export EGET_BIN="$eget_bin"
+
+    if [[ "$use_sudo" -eq 1 ]]; then
+        sudo -E eget "$tool"
+    else
+        eget "$tool"
+    fi
+
+	local cpu_arch = $(uname -m)
+	if [ "$cpu_arch" == "x86_64" ]; then 
+		if [ "$use_sudo" -eq 1 ]; then
+			sudo ln -sf /usr/local/bin/nvim-linux-x86_64 /usr/local/bin/nvim
+		else
+			ln -sf $PWD/.local/bin/nvim-linux-x86_64 $HOME/.local/bin/nvim
+		fi
+	else [[ "$cpu_arch" == "aarch64" ]] || [[ "$cpu_arch" == "arm64" ]]; then
+		if [ "$use_sudo" -eq 1 ]; then
+			sudo ln -sf /usr/local/bin/nvim-linux-arm64 /usr/local/bin/nvim
+		else
+			ln -sf $PWD/.local/bin/nvim-linux-arm64 $HOME/.local/bin/nvim
+		fi
+	fi
+
+	nvim --version
+}
+
 # @brief Install Kakoune editor from source
 # @return 0 on success
 # @example install_kakoune
