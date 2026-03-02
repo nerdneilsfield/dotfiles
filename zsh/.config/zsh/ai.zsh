@@ -29,19 +29,18 @@ _ai_install_script() {
   fi
 }
 
-install_kimi_cli(){
+install_kimi_cli() {
   if command -v uv &>/dev/null; then
     if command -v kimi &>/dev/null; then
       echo "kimi is already installed, upgrading"
-       uv tool upgrade kimi-cli --no-cache
+      uv tool upgrade kimi-cli --no-cache
     else
-       uv tool install kimi-cli --no-cache
+      uv tool install kimi-cli --no-cache
     fi
   else
     echo "uv is not installed"
   fi
 }
-
 
 # @description install anthropic/codex
 install_claude_code() {
@@ -53,7 +52,7 @@ install_claude_code() {
 }
 
 # @description install anthropic/codex
-install_kilo_cli(){
+install_kilo_cli() {
   if command -v npm &>/dev/null; then
     npm install -g @kilocode/cli
   else
@@ -61,11 +60,11 @@ install_kilo_cli(){
   fi
 }
 
-install_gemini_cli(){
+install_gemini_cli() {
   _ai_install_npm_global "@google/gemini-cli" "Gemini CLI"
 }
 
-install_qwen_code(){
+install_qwen_code() {
   _ai_install_npm_global "@qwen-code/qwen-code" "Qwen Code"
 }
 
@@ -119,7 +118,7 @@ install_cursor_cli() {
   _ai_install_script "https://cursor.com/install" "Cursor CLI"
 }
 
-update_ai_tools(){
+update_ai_tools() {
   if ! command -v npm &>/dev/null; then
     echo "npm is not installed"
     return 1
@@ -139,7 +138,7 @@ update_ai_tools(){
   command -v goose &>/dev/null && goose --version >/dev/null || true
 }
 
-reinstall_ai_tools(){
+reinstall_ai_tools() {
   if ! command -v npm &>/dev/null; then
     echo "npm is not installed"
     return 1
@@ -202,7 +201,7 @@ _mcp_prepare_source_json() {
 
     # Prefer taplo for TOML parsing if available.
     if command -v taplo &>/dev/null; then
-      if taplo format --output-format json "$src" > "$tmpfile" 2>/dev/null; then
+      if taplo format --output-format json "$src" >"$tmpfile" 2>/dev/null; then
         if jq empty "$tmpfile" >/dev/null 2>&1; then
           converted_by_taplo=1
         fi
@@ -222,7 +221,7 @@ _mcp_prepare_source_json() {
       echo "Or install python3 to enable fallback TOML parsing." >&2
       return 1
     fi
-    if ! python3 - "$src" "$tmpfile" <<'PY'
+    if ! python3 - "$src" "$tmpfile" <<'PY'; then
 import json
 import sys
 import tomllib
@@ -257,7 +256,6 @@ for name, cfg in mcp_servers.items():
 with open(dst, "w", encoding="utf-8") as f:
     json.dump(out, f, ensure_ascii=False)
 PY
-    then
       rm -f "$tmpfile"
       echo "Failed to parse TOML source: $src" >&2
       echo "Install taplo (recommended): install_taplo_by_brew or install_taplo_by_eget" >&2
@@ -595,8 +593,8 @@ mcp_convert_cursor_to_factory() {
   _mcp_require_json_source "$src" || return 1
 
   mkdir -p "$(dirname "$dst")"
-  _mcp_emit_factory_json "$src" > "$dst"
-  echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Factory MCP: $dst"
+  _mcp_emit_factory_json "$src" >"$dst"
+  echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Factory MCP: $dst"
 }
 
 # @description convert MCP config to OpenCode MCP config (source can be JSON with mcpServers/mcp)
@@ -618,8 +616,8 @@ mcp_convert_cursor_to_opencode() {
   _mcp_require_json_source "$src" || return 1
 
   mkdir -p "$(dirname "$dst")"
-  _mcp_emit_opencode_json "$src" > "$dst"
-  echo "converted MCP ($( _mcp_detect_source_type "$src")) -> OpenCode MCP: $dst"
+  _mcp_emit_opencode_json "$src" >"$dst"
+  echo "converted MCP ($(_mcp_detect_source_type "$src")) -> OpenCode MCP: $dst"
 }
 
 # @description print Goose extension conversion hints from MCP config (source can be JSON with mcpServers/mcp)
@@ -671,17 +669,17 @@ _mcp_write_gemini_settings() {
   local dst="${2:-$HOME/.gemini/settings.json}"
   local tmpfile
   tmpfile="$(mktemp /tmp/mcp-gemini.XXXXXX)"
-  _mcp_emit_gemini_json "$src" > "$tmpfile"
+  _mcp_emit_gemini_json "$src" >"$tmpfile"
   mkdir -p "$(dirname "$dst")"
 
   if [[ -f "$dst" ]]; then
-    jq --slurpfile m "$tmpfile" '.mcpServers = (.mcpServers // {}) + ($m[0].mcpServers // {})' "$dst" > "${dst}.tmp" \
-      && mv "${dst}.tmp" "$dst"
+    jq --slurpfile m "$tmpfile" '.mcpServers = (.mcpServers // {}) + ($m[0].mcpServers // {})' "$dst" >"${dst}.tmp" &&
+      mv "${dst}.tmp" "$dst"
   else
-    echo '{ "mcpServers": {} }' | jq --slurpfile m "$tmpfile" '.mcpServers = ($m[0].mcpServers // {})' > "$dst"
+    echo '{ "mcpServers": {} }' | jq --slurpfile m "$tmpfile" '.mcpServers = ($m[0].mcpServers // {})' >"$dst"
   fi
   rm -f "$tmpfile"
-  echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Gemini settings: $dst"
+  echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Gemini settings: $dst"
 }
 
 _mcp_write_codex_config() {
@@ -689,7 +687,7 @@ _mcp_write_codex_config() {
   local dst="${2:-$HOME/.codex/config.toml}"
   local generated="${HOME}/.codex/mcp.generated.toml"
   mkdir -p "$HOME/.codex"
-  _mcp_emit_codex_toml "$src" > "$generated"
+  _mcp_emit_codex_toml "$src" >"$generated"
   if [[ ! -f "$dst" ]]; then
     cp "$generated" "$dst"
     echo "created Codex config: $dst"
@@ -767,7 +765,7 @@ _mcp_read_json_interactive() {
   if [[ "$choice" == "2" ]]; then
     local tmpfile
     tmpfile="$(mktemp /tmp/mcp-input.XXXXXX)"
-    cat > "$tmpfile"
+    cat >"$tmpfile"
     if ! jq empty "$tmpfile" >/dev/null 2>&1; then
       echo "Invalid JSON input." >&2
       rm -f "$tmpfile"
@@ -824,113 +822,113 @@ mcp_convert_interactive() {
   read -r mode
 
   case "$target" in
-    1)
-      if [[ "$mode" == "2" ]]; then
-        mcp_convert_cursor_to_factory "$src"
-      else
-        _mcp_emit_factory_json "$src"
-      fi
-      ;;
-    2)
-      if [[ "$mode" == "2" ]]; then
-        mcp_convert_cursor_to_opencode "$src"
-      else
-        _mcp_emit_opencode_json "$src"
-      fi
-      ;;
-    3)
+  1)
+    if [[ "$mode" == "2" ]]; then
+      mcp_convert_cursor_to_factory "$src"
+    else
+      _mcp_emit_factory_json "$src"
+    fi
+    ;;
+  2)
+    if [[ "$mode" == "2" ]]; then
+      mcp_convert_cursor_to_opencode "$src"
+    else
+      _mcp_emit_opencode_json "$src"
+    fi
+    ;;
+  3)
+    mcp_convert_cursor_to_goose "$src"
+    ;;
+  4)
+    if [[ "$mode" == "2" ]]; then
+      local cursor_dst="$HOME/.cursor/mcp.json"
+      mkdir -p "$(dirname "$cursor_dst")"
+      _mcp_emit_cursor_json "$src" >"$cursor_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
+    else
+      _mcp_emit_cursor_json "$src"
+    fi
+    ;;
+  5)
+    if [[ "$mode" == "2" ]]; then
+      local claude_dst=".mcp.json"
+      _mcp_emit_claude_json "$src" >"$claude_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
+    else
+      _mcp_emit_claude_json "$src"
+    fi
+    ;;
+  6)
+    if [[ "$mode" == "2" ]]; then
+      _mcp_write_gemini_settings "$src"
+    else
+      _mcp_emit_gemini_json "$src"
+    fi
+    ;;
+  7)
+    if [[ "$mode" == "2" ]]; then
+      local kimi_dst="$HOME/.kimi/mcp.json"
+      mkdir -p "$(dirname "$kimi_dst")"
+      _mcp_emit_kimi_json "$src" >"$kimi_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
+    else
+      _mcp_emit_kimi_json "$src"
+    fi
+    ;;
+  8)
+    if [[ "$mode" == "2" ]]; then
+      _mcp_write_codex_config "$src"
+    else
+      _mcp_emit_codex_toml "$src"
+    fi
+    ;;
+  9)
+    if [[ "$mode" == "2" ]]; then
+      mcp_convert_cursor_all "$src"
+      local cursor_dst="$HOME/.cursor/mcp.json"
+      local claude_dst=".mcp.json"
+      local kimi_dst="$HOME/.kimi/mcp.json"
+      mkdir -p "$(dirname "$cursor_dst")"
+      mkdir -p "$(dirname "$kimi_dst")"
+      _mcp_emit_cursor_json "$src" >"$cursor_dst"
+      _mcp_emit_claude_json "$src" >"$claude_dst"
+      _mcp_emit_kimi_json "$src" >"$kimi_dst"
+      _mcp_write_gemini_settings "$src"
+      _mcp_write_codex_config "$src"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
+    else
+      echo "===== Factory ====="
+      _mcp_emit_factory_json "$src"
+      echo
+      echo "===== OpenCode ====="
+      _mcp_emit_opencode_json "$src"
+      echo
+      echo "===== Cursor ====="
+      _mcp_emit_cursor_json "$src"
+      echo
+      echo "===== Claude Code ====="
+      _mcp_emit_claude_json "$src"
+      echo
+      echo "===== Gemini CLI ====="
+      _mcp_emit_gemini_json "$src"
+      echo
+      echo "===== Kimi CLI ====="
+      _mcp_emit_kimi_json "$src"
+      echo
+      echo "===== Codex CLI (TOML) ====="
+      _mcp_emit_codex_toml "$src"
+      echo
+      echo "===== Goose ====="
       mcp_convert_cursor_to_goose "$src"
-      ;;
-    4)
-      if [[ "$mode" == "2" ]]; then
-        local cursor_dst="$HOME/.cursor/mcp.json"
-        mkdir -p "$(dirname "$cursor_dst")"
-        _mcp_emit_cursor_json "$src" > "$cursor_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
-      else
-        _mcp_emit_cursor_json "$src"
-      fi
-      ;;
-    5)
-      if [[ "$mode" == "2" ]]; then
-        local claude_dst=".mcp.json"
-        _mcp_emit_claude_json "$src" > "$claude_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
-      else
-        _mcp_emit_claude_json "$src"
-      fi
-      ;;
-    6)
-      if [[ "$mode" == "2" ]]; then
-        _mcp_write_gemini_settings "$src"
-      else
-        _mcp_emit_gemini_json "$src"
-      fi
-      ;;
-    7)
-      if [[ "$mode" == "2" ]]; then
-        local kimi_dst="$HOME/.kimi/mcp.json"
-        mkdir -p "$(dirname "$kimi_dst")"
-        _mcp_emit_kimi_json "$src" > "$kimi_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
-      else
-        _mcp_emit_kimi_json "$src"
-      fi
-      ;;
-    8)
-      if [[ "$mode" == "2" ]]; then
-        _mcp_write_codex_config "$src"
-      else
-        _mcp_emit_codex_toml "$src"
-      fi
-      ;;
-    9)
-      if [[ "$mode" == "2" ]]; then
-        mcp_convert_cursor_all "$src"
-        local cursor_dst="$HOME/.cursor/mcp.json"
-        local claude_dst=".mcp.json"
-        local kimi_dst="$HOME/.kimi/mcp.json"
-        mkdir -p "$(dirname "$cursor_dst")"
-        mkdir -p "$(dirname "$kimi_dst")"
-        _mcp_emit_cursor_json "$src" > "$cursor_dst"
-        _mcp_emit_claude_json "$src" > "$claude_dst"
-        _mcp_emit_kimi_json "$src" > "$kimi_dst"
-        _mcp_write_gemini_settings "$src"
-        _mcp_write_codex_config "$src"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
-      else
-        echo "===== Factory ====="
-        _mcp_emit_factory_json "$src"
-        echo
-        echo "===== OpenCode ====="
-        _mcp_emit_opencode_json "$src"
-        echo
-        echo "===== Cursor ====="
-        _mcp_emit_cursor_json "$src"
-        echo
-        echo "===== Claude Code ====="
-        _mcp_emit_claude_json "$src"
-        echo
-        echo "===== Gemini CLI ====="
-        _mcp_emit_gemini_json "$src"
-        echo
-        echo "===== Kimi CLI ====="
-        _mcp_emit_kimi_json "$src"
-        echo
-        echo "===== Codex CLI (TOML) ====="
-        _mcp_emit_codex_toml "$src"
-        echo
-        echo "===== Goose ====="
-        mcp_convert_cursor_to_goose "$src"
-      fi
-      ;;
-    *)
-      echo "Invalid target choice: $target" >&2
-      [[ "$cleanup_tmp" == "1" ]] && rm -f "$src"
-      return 1
-      ;;
+    fi
+    ;;
+  *)
+    echo "Invalid target choice: $target" >&2
+    [[ "$cleanup_tmp" == "1" ]] && rm -f "$src"
+    return 1
+    ;;
   esac
 
   [[ "$cleanup_tmp" == "1" ]] && rm -f "$src"
@@ -962,113 +960,113 @@ mcp_convert_to() {
   _mcp_require_json_source "$src" || return 1
 
   case "$target" in
-    factory)
-      if [[ "$mode" == "--write" ]]; then
-        mcp_convert_cursor_to_factory "$src"
-      else
-        _mcp_emit_factory_json "$src"
-      fi
-      ;;
-    opencode)
-      if [[ "$mode" == "--write" ]]; then
-        mcp_convert_cursor_to_opencode "$src"
-      else
-        _mcp_emit_opencode_json "$src"
-      fi
-      ;;
-    goose)
+  factory)
+    if [[ "$mode" == "--write" ]]; then
+      mcp_convert_cursor_to_factory "$src"
+    else
+      _mcp_emit_factory_json "$src"
+    fi
+    ;;
+  opencode)
+    if [[ "$mode" == "--write" ]]; then
+      mcp_convert_cursor_to_opencode "$src"
+    else
+      _mcp_emit_opencode_json "$src"
+    fi
+    ;;
+  goose)
+    mcp_convert_cursor_to_goose "$src"
+    ;;
+  cursor)
+    if [[ "$mode" == "--write" ]]; then
+      local cursor_dst="$HOME/.cursor/mcp.json"
+      mkdir -p "$(dirname "$cursor_dst")"
+      _mcp_emit_cursor_json "$src" >"$cursor_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
+    else
+      _mcp_emit_cursor_json "$src"
+    fi
+    ;;
+  claude)
+    if [[ "$mode" == "--write" ]]; then
+      local claude_dst=".mcp.json"
+      _mcp_emit_claude_json "$src" >"$claude_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
+    else
+      _mcp_emit_claude_json "$src"
+    fi
+    ;;
+  gemini)
+    if [[ "$mode" == "--write" ]]; then
+      _mcp_write_gemini_settings "$src"
+    else
+      _mcp_emit_gemini_json "$src"
+    fi
+    ;;
+  kimi)
+    if [[ "$mode" == "--write" ]]; then
+      local kimi_dst="$HOME/.kimi/mcp.json"
+      mkdir -p "$(dirname "$kimi_dst")"
+      _mcp_emit_kimi_json "$src" >"$kimi_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
+    else
+      _mcp_emit_kimi_json "$src"
+    fi
+    ;;
+  codex)
+    if [[ "$mode" == "--write" ]]; then
+      _mcp_write_codex_config "$src"
+    else
+      _mcp_emit_codex_toml "$src"
+    fi
+    ;;
+  all)
+    if [[ "$mode" == "--write" ]]; then
+      mcp_convert_cursor_all "$src"
+      local cursor_dst="$HOME/.cursor/mcp.json"
+      local claude_dst=".mcp.json"
+      local kimi_dst="$HOME/.kimi/mcp.json"
+      mkdir -p "$(dirname "$cursor_dst")"
+      mkdir -p "$(dirname "$kimi_dst")"
+      _mcp_emit_cursor_json "$src" >"$cursor_dst"
+      _mcp_emit_claude_json "$src" >"$claude_dst"
+      _mcp_emit_kimi_json "$src" >"$kimi_dst"
+      _mcp_write_gemini_settings "$src"
+      _mcp_write_codex_config "$src"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
+      echo "converted MCP ($(_mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
+    else
+      echo "===== Factory ====="
+      _mcp_emit_factory_json "$src"
+      echo
+      echo "===== OpenCode ====="
+      _mcp_emit_opencode_json "$src"
+      echo
+      echo "===== Cursor ====="
+      _mcp_emit_cursor_json "$src"
+      echo
+      echo "===== Claude Code ====="
+      _mcp_emit_claude_json "$src"
+      echo
+      echo "===== Gemini CLI ====="
+      _mcp_emit_gemini_json "$src"
+      echo
+      echo "===== Kimi CLI ====="
+      _mcp_emit_kimi_json "$src"
+      echo
+      echo "===== Codex CLI (TOML) ====="
+      _mcp_emit_codex_toml "$src"
+      echo
+      echo "===== Goose ====="
       mcp_convert_cursor_to_goose "$src"
-      ;;
-    cursor)
-      if [[ "$mode" == "--write" ]]; then
-        local cursor_dst="$HOME/.cursor/mcp.json"
-        mkdir -p "$(dirname "$cursor_dst")"
-        _mcp_emit_cursor_json "$src" > "$cursor_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
-      else
-        _mcp_emit_cursor_json "$src"
-      fi
-      ;;
-    claude)
-      if [[ "$mode" == "--write" ]]; then
-        local claude_dst=".mcp.json"
-        _mcp_emit_claude_json "$src" > "$claude_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
-      else
-        _mcp_emit_claude_json "$src"
-      fi
-      ;;
-    gemini)
-      if [[ "$mode" == "--write" ]]; then
-        _mcp_write_gemini_settings "$src"
-      else
-        _mcp_emit_gemini_json "$src"
-      fi
-      ;;
-    kimi)
-      if [[ "$mode" == "--write" ]]; then
-        local kimi_dst="$HOME/.kimi/mcp.json"
-        mkdir -p "$(dirname "$kimi_dst")"
-        _mcp_emit_kimi_json "$src" > "$kimi_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
-      else
-        _mcp_emit_kimi_json "$src"
-      fi
-      ;;
-    codex)
-      if [[ "$mode" == "--write" ]]; then
-        _mcp_write_codex_config "$src"
-      else
-        _mcp_emit_codex_toml "$src"
-      fi
-      ;;
-    all)
-      if [[ "$mode" == "--write" ]]; then
-        mcp_convert_cursor_all "$src"
-        local cursor_dst="$HOME/.cursor/mcp.json"
-        local claude_dst=".mcp.json"
-        local kimi_dst="$HOME/.kimi/mcp.json"
-        mkdir -p "$(dirname "$cursor_dst")"
-        mkdir -p "$(dirname "$kimi_dst")"
-        _mcp_emit_cursor_json "$src" > "$cursor_dst"
-        _mcp_emit_claude_json "$src" > "$claude_dst"
-        _mcp_emit_kimi_json "$src" > "$kimi_dst"
-        _mcp_write_gemini_settings "$src"
-        _mcp_write_codex_config "$src"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Cursor MCP: $cursor_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Claude Code MCP: $claude_dst"
-        echo "converted MCP ($( _mcp_detect_source_type "$src")) -> Kimi MCP: $kimi_dst"
-      else
-        echo "===== Factory ====="
-        _mcp_emit_factory_json "$src"
-        echo
-        echo "===== OpenCode ====="
-        _mcp_emit_opencode_json "$src"
-        echo
-        echo "===== Cursor ====="
-        _mcp_emit_cursor_json "$src"
-        echo
-        echo "===== Claude Code ====="
-        _mcp_emit_claude_json "$src"
-        echo
-        echo "===== Gemini CLI ====="
-        _mcp_emit_gemini_json "$src"
-        echo
-        echo "===== Kimi CLI ====="
-        _mcp_emit_kimi_json "$src"
-        echo
-        echo "===== Codex CLI (TOML) ====="
-        _mcp_emit_codex_toml "$src"
-        echo
-        echo "===== Goose ====="
-        mcp_convert_cursor_to_goose "$src"
-      fi
-      ;;
-    *)
-      echo "Invalid target: $target" >&2
-      echo "Usage: mcp_convert_to <factory|opencode|goose|cursor|claude|gemini|kimi|codex|all> [source.json] [--write]" >&2
-      return 1
-      ;;
+    fi
+    ;;
+  *)
+    echo "Invalid target: $target" >&2
+    echo "Usage: mcp_convert_to <factory|opencode|goose|cursor|claude|gemini|kimi|codex|all> [source.json] [--write]" >&2
+    return 1
+    ;;
   esac
 }
 
@@ -1243,43 +1241,43 @@ mcp_generate_add_commands() {
   [[ "$src_json" == /tmp/mcp-from-toml.*.json ]] && cleanup_tmp=1
 
   case "$target" in
-    claude)
-      _mcp_emit_add_commands_claude "$src_json"
-      ;;
-    gemini)
-      _mcp_emit_add_commands_gemini "$src_json"
-      ;;
-    kimi)
-      _mcp_emit_add_commands_kimi "$src_json"
-      ;;
-    factory)
-      _mcp_emit_add_commands_factory "$src_json"
-      ;;
-    codex)
-      _mcp_emit_add_commands_codex "$src_json"
-      ;;
-    all)
-      echo "===== claude ====="
-      _mcp_emit_add_commands_claude "$src_json"
-      echo
-      echo "===== gemini ====="
-      _mcp_emit_add_commands_gemini "$src_json"
-      echo
-      echo "===== kimi ====="
-      _mcp_emit_add_commands_kimi "$src_json"
-      echo
-      echo "===== factory ====="
-      _mcp_emit_add_commands_factory "$src_json"
-      echo
-      echo "===== codex ====="
-      _mcp_emit_add_commands_codex "$src_json"
-      ;;
-    *)
-      echo "Invalid target: $target" >&2
-      echo "Usage: mcp_generate_add_commands <claude|gemini|kimi|factory|codex|all> [source.json]" >&2
-      [[ "$cleanup_tmp" == "1" ]] && rm -f "$src_json"
-      return 1
-      ;;
+  claude)
+    _mcp_emit_add_commands_claude "$src_json"
+    ;;
+  gemini)
+    _mcp_emit_add_commands_gemini "$src_json"
+    ;;
+  kimi)
+    _mcp_emit_add_commands_kimi "$src_json"
+    ;;
+  factory)
+    _mcp_emit_add_commands_factory "$src_json"
+    ;;
+  codex)
+    _mcp_emit_add_commands_codex "$src_json"
+    ;;
+  all)
+    echo "===== claude ====="
+    _mcp_emit_add_commands_claude "$src_json"
+    echo
+    echo "===== gemini ====="
+    _mcp_emit_add_commands_gemini "$src_json"
+    echo
+    echo "===== kimi ====="
+    _mcp_emit_add_commands_kimi "$src_json"
+    echo
+    echo "===== factory ====="
+    _mcp_emit_add_commands_factory "$src_json"
+    echo
+    echo "===== codex ====="
+    _mcp_emit_add_commands_codex "$src_json"
+    ;;
+  *)
+    echo "Invalid target: $target" >&2
+    echo "Usage: mcp_generate_add_commands <claude|gemini|kimi|factory|codex|all> [source.json]" >&2
+    [[ "$cleanup_tmp" == "1" ]] && rm -f "$src_json"
+    return 1
+    ;;
   esac
 
   [[ "$cleanup_tmp" == "1" ]] && rm -f "$src_json"
