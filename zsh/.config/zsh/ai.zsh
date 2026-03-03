@@ -60,6 +60,16 @@ install_kilo_cli() {
   fi
 }
 
+# @description install pi-coding-agent
+install_pi_agent() {
+  if command -v npm &>/dev/null; then
+    npm install -g @mariozechner/pi-coding-agent
+  else
+    echo "npm is not installed"
+  fi
+
+}
+
 install_gemini_cli() {
   _ai_install_npm_global "@google/gemini-cli" "Gemini CLI"
 }
