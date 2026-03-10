@@ -67,7 +67,9 @@ INSTALL_VERBOSE=1 install_route yazi
 - `install_factory_droid`
 - `install_goose_cli`
 - `install_opencode_cli`
-- `install_cursh_cli`
+- `install_kilo_cli`
+- `install_crush_cli`
+- `install_pi_agent`
 - `install_cursor_cli`
 
 批量更新：

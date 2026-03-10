@@ -157,6 +157,51 @@ kimi mcp list
 }
 ```
 
+官方命令入口：
+
+```zsh
+opencode mcp add
+opencode mcp list
+opencode mcp auth [name]
+opencode mcp debug <name>
+```
+
+### Kilo
+
+配置文件：
+
+- `~/.config/kilo/kilo.json`
+- `~/.config/kilo/kilo.jsonc`
+- `kilo.json`
+- `.kilo/kilo.json`
+
+核心结构（`mcp`）：
+
+- `type: "remote"` + `url`
+- `type: "local"` + `command`（数组）
+- 常用字段：`enabled`、`headers`、`environment`、`timeout`
+
+```json
+{
+  "$schema": "https://kilo.ai/config.json",
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    }
+  }
+}
+```
+
+官方命令入口：
+
+```zsh
+kilo mcp add
+kilo mcp list
+kilo mcp auth
+```
+
 ### Factory Droid
 
 配置文件：
@@ -195,6 +240,52 @@ goose configure
 - 远端 MCP -> `Remote Extension (Streamable HTTP)`
 - 本地 MCP -> `Command-line Extension`
 
+临时启用也可以直接从命令行开会话：
+
+```zsh
+goose session --with-extension "uvx mcp-server-fetch"
+goose session --with-streamable-http-extension "https://example.com/mcp"
+```
+
+### Crush
+
+配置文件：
+
+- `.crush.json`
+- `crush.json`
+- `~/.config/crush/crush.json`
+
+核心结构（`mcp`）：
+
+- 远端 HTTP: `type: "http"` + `url`
+- SSE: `type: "sse"` + `url`
+- 本地进程: `type: "stdio"` + `command`/`args`
+- 常用字段：`headers`、`env`、`timeout`、`disabled`、`disabled_tools`
+
+```json
+{
+  "$schema": "https://charm.land/crush.json",
+  "mcp": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": { "Authorization": "Bearer ..." }
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}
+```
+
+说明：
+
+- `crush` 目前没有官方的 `mcp add` 子命令
+- 本仓库提供 `mcp_convert_to crush ...` 直接生成 `crush.json`
+- `mcp_generate_add_commands crush ...` 会输出可粘贴到 `mcp` 下的 JSON 片段
+
 ## 本仓库转换命令
 
 交互式：
@@ -206,13 +297,19 @@ mcp_convert_interactive
 非交互：
 
 ```zsh
-mcp_convert_to <factory|opencode|goose|cursor|claude|gemini|kimi|codex|all> [source.json] [--write]
+mcp_convert_to <factory|opencode|kilo|crush|goose|cursor|claude|gemini|kimi|codex|all> [source.json] [--write]
 ```
 
-按目标 CLI 生成“可直接执行”的 `mcp add` 命令：
+按 `--from/--to/--input` 风格直接打印到 stdout：
 
 ```zsh
-mcp_generate_add_commands <claude|gemini|kimi|factory|codex|all> [source.json]
+mcp_convert_to_print --from <auto|cursor|factory|claude|gemini|kimi|opencode|kilo|crush|codex> --to <cursor|factory|claude|gemini|kimi|opencode|kilo|crush|codex> --input <path>
+```
+
+按目标 CLI 生成“直接命令、交互提示或配置片段”：
+
+```zsh
+mcp_generate_add_commands <claude|gemini|kimi|factory|codex|opencode|kilo|goose|crush|all> [source.json]
 ```
 
 说明：`source` 可以是 JSON，也可以直接给 `~/.codex/config.toml`（会自动转成中间 JSON）。
@@ -222,6 +319,15 @@ mcp_generate_add_commands <claude|gemini|kimi|factory|codex|all> [source.json]
 ```zsh
 # 打印为 Codex TOML 片段
 mcp_convert_to codex ~/.cursor/mcp.json
+
+# 用 flag 风格打印成 Kilo JSON
+mcp_convert_to_print --from auto --to kilo --input ~/.cursor/mcp.json
+
+# 把 Codex TOML 转成 Crush JSON 并输出到 stdout
+mcp_convert_to_print --from codex --to crush --input ~/.codex/config.toml
+
+# 把 Cursor JSON 转成 Codex TOML 并输出到 stdout
+mcp_convert_to_print --from cursor --to codex --input ~/.cursor/mcp.json
 
 # 把 Cursor 配置写入 Gemini settings.json（合并 mcpServers）
 mcp_convert_to gemini ~/.cursor/mcp.json --write
@@ -237,6 +343,18 @@ mcp_generate_add_commands gemini ~/.factory/mcp.json
 
 # 生成 Factory Droid 命令
 mcp_generate_add_commands factory ~/.kimi/mcp.json
+
+# 生成 OpenCode 交互提示
+mcp_generate_add_commands opencode ~/.cursor/mcp.json
+
+# 生成 Kilo 交互提示
+mcp_generate_add_commands kilo ~/.cursor/mcp.json
+
+# 生成 Goose 交互配置提示
+mcp_generate_add_commands goose ~/.cursor/mcp.json
+
+# 生成 Crush 的 mcp JSON 片段
+mcp_generate_add_commands crush ~/.cursor/mcp.json
 ```
 
 示例输出（Claude）：
@@ -256,6 +374,8 @@ claude mcp add -s user --transport stdio --env='NODE_ENV=production' 'memory' --
 | Gemini CLI | `~/.gemini/settings.json` | JSON | `mcpServers` | `httpUrl` 或 `url`(SSE) | `command` + `args` | 对 HTTP/SSE 字段区分更明显 |
 | Kimi CLI | `~/.kimi/mcp.json` | JSON | `mcpServers` | `url` | `command` + `args` | 与 Cursor 风格高度兼容 |
 | OpenCode | `~/.config/opencode/opencode.json` | JSON | `mcp` | `type=remote` + `url` | `type=local` + `command`(数组) | 字段命名差异最大 |
+| Kilo | `~/.config/kilo/kilo.json` | JSON | `mcp` | `type=remote` + `url` | `type=local` + `command`(数组) | 和 OpenCode 很像，但 schema / 默认路径不同 |
+| Crush | `.crush.json` / `crush.json` / `~/.config/crush/crush.json` | JSON | `mcp` | `type=http/sse` + `url` | `type=stdio` + `command` | 支持 `timeout`、`disabled_tools`，但无官方 `mcp add` |
 | Factory | `~/.factory/mcp.json` | JSON | `mcpServers` | `type=http` + `url` | `type=stdio` + `command` | `disabled`、`env` 很常用 |
 | Goose | `~/.config/goose/config.yaml` | YAML | `extensions` | `streamable_http` | `cmd/args` | 以交互配置为主，不是纯 mcpServers 文件 |
 
@@ -263,7 +383,10 @@ claude mcp add -s user --transport stdio --env='NODE_ENV=production' 'memory' --
 
 - JSON 源文件校验失败：先 `jq empty your.json`
 - Codex 不吃 JSON：先转 `codex` 目标再合并 TOML
+- 如果你只想拿 stdout，不想写文件：用 `mcp_convert_to_print --from --to --input`
 - Gemini 写入后不生效：确认写的是 `settings.json` 对应 scope（user/project）
+- Kilo 的 MCP 配置优先用 `~/.config/kilo/kilo.json` 或项目 `kilo.json`
 - Goose 无法自动全量落盘：先看 `mcp_convert_to goose` 输出映射，再 `goose configure`
-- 如果你只想拿到“命令行安装方式”，优先用 `mcp_generate_add_commands <target> <source>`
+- OpenCode/Goose/Crush 不一定有单行 `mcp add`：优先看 `mcp_generate_add_commands <target> <source>` 给出的交互提示或配置片段
+- `Pi` 当前官方明确是 `No MCP`：它走 `extensions` / `skills` / `pi packages`，不在这套 `mcp_convert_*` / `mcp_generate_add_commands` 链路里
 - TOML 解析建议优先安装 `taplo`：`install_taplo_by_brew` 或 `install_taplo_by_eget`
