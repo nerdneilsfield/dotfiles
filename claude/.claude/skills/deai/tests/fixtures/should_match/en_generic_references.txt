@@ -1,0 +1,5 @@
+# Generic references (Desaire et al. 2023)
+Researchers have shown that attention mechanisms improve accuracy.
+Previous research has demonstrated the effectiveness of this approach.
+Studies have indicated that pre-training helps downstream tasks.
+Experts believe this trend will continue in the coming years.

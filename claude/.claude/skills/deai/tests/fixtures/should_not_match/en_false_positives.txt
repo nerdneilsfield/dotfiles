@@ -1,0 +1,4 @@
+# Statistically qualified claims should not match
+The statistically significant improvement of 15% demonstrates effectiveness.
+We observed a significant improvement by 23% over the baseline.
+This comprehensive analysis covers from transformer to diffusion models.
