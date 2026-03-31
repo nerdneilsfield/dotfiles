@@ -1,11 +1,6 @@
 ---
 name: deai
 description: Reduce AI detection rate in writing (Chinese & English). Use when de-AIing, humanizing, or auditing text for AI traces in any format (LaTeX, Typst, Markdown, plain text).
-metadata:
-  category: writing
-  tags: [deai, humanize, ai-detection, chinese, english, academic, writing, latex, typst, markdown]
-argument-hint: "[file_or_text] [--lang zh|en|mixed|auto] [--mode check|rewrite|audit|style-profile] [--profile generic|deepseek|claude|mixed]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(python *)
 ---
 
 # De-AI Writing Assistant (Chinese & English)

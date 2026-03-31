@@ -1,11 +1,6 @@
 ---
 name: luxun-style
 description: 以鲁迅的语气、用词、逻辑和修辞写作或改写文章。支持杂文、散文、评论等体裁，基于35篇学术论文的系统研究成果。Use when writing in Lu Xun's style or converting text to Lu Xun's voice.
-metadata:
-  category: writing
-  tags: [luxun, 鲁迅, chinese-writing, style-transfer, essay, 杂文, satire, rhetoric]
-argument-hint: "[file_or_text] [--mode write|rewrite|analyze] [--genre zawen|sanwen|commentary|letter] [--period early|middle|late|auto] [--intensity high|medium|subtle]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(python *)
 ---
 
 # 鲁迅风格写作助手
