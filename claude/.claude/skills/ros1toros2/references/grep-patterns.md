@@ -1,6 +1,8 @@
 # ROS1 residual grep patterns
 # Usage:
 # grep -v '^[[:space:]]*#' references/grep-patterns.md | grep -v '^[[:space:]]*$' | rg -n -f - <workspace>
+# Maintainer note: any literal # that is part of a real pattern must be written as \#,
+# otherwise the line will look like a comment and be filtered out by the usage command.
 
 # C++ client library
 ros::NodeHandle
