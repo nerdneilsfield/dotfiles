@@ -3,6 +3,8 @@
 > This is the authoritative list of external URLs the mappings reference.
 > Every `api/<slug>.md` file in this directory MUST correspond to one entry below.
 > Every entry below MUST have a corresponding `api/<slug>.md` snapshot file.
+> Snapshot sanity rule: a valid snapshot must contain meaningful body content, not just redirect chrome or a page shell.
+> During audits, treat any snapshot with fewer than roughly 40 non-frontmatter lines as suspect and re-fetch or inspect it manually.
 
 | Slug | Canonical URL |
 |---|---|
@@ -27,7 +29,7 @@
 | `docs-ros-org-jazzy-how-to-guides-ament-cmake-documentation.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Ament-CMake-Documentation.html |
 | `docs-ros-org-jazzy-how-to-guides-ament-cmake-python-documentation.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Ament-CMake-Python-Documentation.html |
 | `docs-ros-org-jazzy-how-to-guides-interfaces-overview.md` | https://docs.ros.org/en/jazzy/Concepts/Basic/About-Interfaces.html |
-| `docs-ros-org-jazzy-how-to-guides-launch-files.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Launch-files-migration-guide.html |
+| `docs-ros-org-jazzy-how-to-guides-launch-files.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Migrating-from-ROS1/Migrating-Launch-Files.html |
 | `docs-ros-org-jazzy-how-to-guides-migrating-from-ros1-package-xml.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Migrating-from-ROS1/Migrating-Package-XML.html |
 | `docs-ros-org-jazzy-how-to-guides-using-callback-groups.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Using-callback-groups.html |
 | `docs-ros-org-jazzy-how-to-guides-working-with-multiple-rmw-implementations.md` | https://docs.ros.org/en/jazzy/How-To-Guides/Working-with-multiple-RMW-implementations.html |

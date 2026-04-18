@@ -1,17 +1,8 @@
-# ROS1 Residual Grep Patterns
+# ROS1 residual grep patterns
+# Usage:
+# grep -v '^[[:space:]]*#' references/grep-patterns.md | grep -v '^[[:space:]]*$' | rg -n -f - <workspace>
 
-Canonical `rg` patterns for spotting ROS1 leftovers during Step 5 verification and before M2's `verify_ros2.py` exists.
-
-## Usage
-
-Filter out comment lines and blank lines before handing the patterns to `rg -f`, otherwise comment text is treated as a real regex.
-
-```bash
-grep -v '^#' references/grep-patterns.md | grep -v '^$' | rg -n -f - <workspace>
-```
-
-## C++ client library
-
+# C++ client library
 ros::NodeHandle
 ros::init
 ros::spin\(
@@ -21,10 +12,10 @@ ros::Rate
 ROS_INFO
 ROS_WARN
 ROS_ERROR
-#include <ros/ros\.h>
+\#include\s*<ros/ros\.h>
+\bparam\(
 
-## Python client library
-
+# Python client library
 import rospy
 rospy\.init_node
 rospy\.Publisher
@@ -36,8 +27,7 @@ rospy\.get_param
 rospy\.set_param
 rospy\.sleep
 
-## Build system and packaging
-
+# Build system and packaging
 find_package\(catkin
 catkin_package\(
 message_generation
@@ -47,8 +37,7 @@ generate_messages\(
 catkin_install_python\(
 <buildtool_depend>catkin</buildtool_depend>
 
-## Launch and parameters
-
+# Launch and parameters
 <launch>
 <rosparam
 \$\(arg 
@@ -56,8 +45,7 @@ catkin_install_python\(
 \$\(eval 
 dynamic_reconfigure
 
-## TF, actions, nodelets
-
+# TF, actions, nodelets
 tf::TransformBroadcaster
 tf::TransformListener
 actionlib::SimpleActionServer

@@ -59,4 +59,4 @@ The default goal is to preserve topic names, service names, action names, parame
 
 ## Banned Symbols (Verification Hooks)
 
-`#include <ros/ros.h>`, `ros::init`, `ros::NodeHandle`, `.advertise(`, `.subscribe(`, `.advertiseService(`, `.serviceClient(`, `ros::Rate`, `ros::Timer`, `ros::spin(`, `ros::spinOnce(`, `ros::AsyncSpinner`, `ros::CallbackQueue`, `ROS_INFO`, `ROS_WARN`, `ROS_ERROR`, `ros::Time::now`, `ros::Duration`, `getParam(`, `setParam(`, `ros::ok(`
+`#include <ros/ros.h>`, `ros::init`, `ros::NodeHandle`, `.advertise(`, `.subscribe(`, `.advertiseService(`, `.serviceClient(`, `ros::Rate`, `ros::Timer`, `ros::spin(`, `ros::spinOnce(`, `ros::AsyncSpinner`, `ros::CallbackQueue`, `ROS_INFO`, `ROS_WARN`, `ROS_ERROR`, `ros::Time::now`, `ros::Duration`, `getParam(`, `param(`, `setParam(`, `ros::ok(`

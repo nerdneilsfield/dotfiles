@@ -26,6 +26,16 @@ One file per ROS1->ROS2 subsystem. Each contains Symbol Mapping Table, Covered S
 
 ## api/
 Firecrawl-baked Jazzy documentation snapshots. Every URL referenced by any mapping is present here. See `_manifest.md` for the full list.
+Snapshots must contain substantive body content; a redirect shell or title-only page does not count as a valid reference.
+
+Quick sanity audit:
+```bash
+for f in references/api/*.md; do
+  [ "$(basename "$f")" = "_manifest.md" ] && continue
+  body_lines=$(awk 'BEGIN{d=0;n=0} /^---$/{d++; next} d>=2 {n++} END{print n}' "$f")
+  [ "$body_lines" -lt 40 ] && echo "THIN SNAPSHOT: $f ($body_lines lines)"
+done
+```
 
 ## grep-patterns.md
 Ripgrep patterns for ROS1 residual scanning. Consumed by Step 5 and (from M2) by `verify_ros2.py`.

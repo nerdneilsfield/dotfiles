@@ -3,6 +3,8 @@ source_url: https://docs.ros2.org/latest/api/rclpy/api/services.html#rclpy.servi
 fetched_at: 2026-04-18T00:00:00Z
 ---
 
+> Snapshot note: upstream source is stale (`rclpy 0.6.1` on `docs.ros2.org`). Use this page as an API-shape reference only; verify exact Jazzy signatures against `https://docs.ros.org/en/jazzy/p/rclpy/` when needed.
+
 # Services — rclpy 0.6.1 documentation
 
 Services — rclpy 0.6.1 documentation

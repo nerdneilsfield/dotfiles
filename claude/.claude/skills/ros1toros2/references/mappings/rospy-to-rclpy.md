@@ -54,6 +54,7 @@ Preserve externally visible topic names, service names, action names, parameter 
 - `ServiceProxy` ports often work better when rewritten around an explicit client object and async request flow.
 - Mixed launch/parameter migration can hide configuration regressions if parameter files are not updated alongside code.
 - Logger access is node-scoped, which means static helper functions often need a logger or node passed in.
+- The `docs.ros2.org/latest/api/rclpy/*` pages cited here are upstream-stale (`rclpy 0.6.1`). Use them for API-shape hints only and verify exact Jazzy signatures against `https://docs.ros.org/en/jazzy/p/rclpy/` when in doubt.
 
 ## Banned Symbols (Verification Hooks)
 
