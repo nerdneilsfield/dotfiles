@@ -2,7 +2,7 @@
 
 ## Goal
 
-Confirm that the migrated ROS2 workspace preserves the intended interface surface, contains no ROS1 residuals, and builds cleanly enough to support handoff. In M1 this is a manual verification path; in M2 the same logic becomes the canonical `scripts/verify_ros2.py` path.
+Confirm that the migrated ROS2 workspace preserves the intended interface surface, contains no ROS1 residuals, and builds cleanly enough to support handoff. `scripts/verify_ros2.py` is the canonical bundled path for the machine-readable report.
 
 ## Inputs
 
@@ -33,6 +33,15 @@ Confirm that the migrated ROS2 workspace preserves the intended interface surfac
    - build and lint results
    - recommended next actions if the migration is not yet clean
 
+```bash
+python scripts/verify_ros2.py \
+    --workspace <target_project> \
+    --inventory <target_project>/docs/ros1-migration/artifacts/inventory.json \
+    --plan-meta <target_project>/docs/ros1-migration/artifacts/plan-meta.json \
+    --output <target_project>/docs/ros1-migration/artifacts/verify-report.json \
+    --md <target_project>/docs/ros1-migration/05-verify-report.md
+```
+
 ## Tools available
 
 - `Read`, `Grep`, `Glob`
@@ -40,12 +49,12 @@ Confirm that the migrated ROS2 workspace preserves the intended interface surfac
 - `references/grep-patterns.md`
 - `references/mappings/*.md`
 - `docs/ros1-migration/artifacts/plan-meta.json`
-- `scripts/verify_ros2.py` *(M2 canonical path)*
+- `scripts/verify_ros2.py`
 
 ## Outputs
 
 - `<target_project>/docs/ros1-migration/05-verify-report.md`
-- `<target_project>/docs/ros1-migration/artifacts/verify-report.json` *(M2)*
+- `<target_project>/docs/ros1-migration/artifacts/verify-report.json`
 
 ## Exit criteria
 

@@ -7,7 +7,7 @@ Turn the ROS1 inventory into explicit ROS2 Jazzy migration decisions and save th
 ## Inputs
 
 - `docs/ros1-migration/01-inventory.md`
-- `docs/ros1-migration/artifacts/inventory.json` *(M2, optional)*
+- `docs/ros1-migration/artifacts/inventory.json` *(optional)*
 - `references/mappings/*.md`
 - `references/api/*.md`
 - `templates/design.md.tmpl`

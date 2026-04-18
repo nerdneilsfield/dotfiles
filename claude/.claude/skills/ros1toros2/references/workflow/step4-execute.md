@@ -23,7 +23,7 @@ Apply the migration plan to the ROS1 codebase, one task at a time, while keeping
 7. After finishing a task, flip its `status` in `plan-meta.json` to `completed`.
 8. Build and sanity-check the affected package when the task says to do so.
 9. Per-package commits are recommended to keep the migration reviewable, but they are not mandatory.
-10. In M2, the agent may re-run `scripts/scan_ros1.py` on partially migrated code when a refreshed view is helpful.
+10. The agent may re-run `scripts/scan_ros1.py` on partially migrated code when a refreshed view is helpful.
 
 ## Tools available
 
@@ -32,7 +32,7 @@ Apply the migration plan to the ROS1 codebase, one task at a time, while keeping
 - `references/mappings/*.md`
 - `references/api/*.md`
 - `docs/ros1-migration/artifacts/plan-meta.json`
-- `scripts/scan_ros1.py` *(M2, optional refresh path)*
+- `scripts/scan_ros1.py` *(optional refresh path)*
 
 ## Outputs
 

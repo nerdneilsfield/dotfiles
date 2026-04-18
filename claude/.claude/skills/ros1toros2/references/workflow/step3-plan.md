@@ -11,7 +11,7 @@ Convert the design into an ordered, reviewable execution plan and produce both:
 
 - `docs/ros1-migration/02-design.md`
 - `docs/ros1-migration/01-inventory.md`
-- `docs/ros1-migration/artifacts/inventory.json` *(M2, optional)*
+- `docs/ros1-migration/artifacts/inventory.json` *(optional)*
 - `references/mappings/*.md`
 - `templates/plan.md.tmpl`
 - `templates/plan-meta.json.tmpl`

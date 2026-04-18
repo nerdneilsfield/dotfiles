@@ -1,6 +1,6 @@
 # ros1toros2 Skill
 
-A documentation-driven assistant for migrating ROS1 packages to ROS2 Jazzy. The skill guides the host agent through a 5-step workflow and supplies the knowledge references, templates, and (from M2) helper scripts the agent reaches for during the work.
+A documentation-driven assistant for migrating ROS1 packages to ROS2 Jazzy. The skill guides the host agent through a 5-step workflow and supplies the knowledge references, templates, and helper scripts the agent reaches for during the work.
 
 ## What the skill produces
 
@@ -12,9 +12,9 @@ All outputs land under `<target_project>/docs/ros1-migration/`:
 03-plan.md               # Ordered task breakdown (human prose)
 05-verify-report.md      # Verification outcome
 artifacts/
-  inventory.json         # (M2) scanner output
+  inventory.json         # scanner output
   plan-meta.json         # Machine contract: tasks + surface_changes
-  verify-report.json     # (M2) verifier output
+  verify-report.json     # verifier output
 ```
 
 ## Requirements
@@ -26,7 +26,7 @@ artifacts/
 - ROS2 Jazzy installed and sourced in the shell where the agent runs `colcon build`.
 - `colcon` and `ament_lint_auto` available.
 
-### M2 scripts (not yet shipped)
+### Scripts
 - Python 3.9+
 - Optional AST mode: `pip install libclang parse_cmake`
   - Without these, `scan_ros1.py` falls back to regex and marks each affected file `parser: "regex"`.
@@ -38,22 +38,46 @@ Point the host agent at this skill and tell it which workspace to migrate. It wi
 2. Produce each of the five output documents.
 3. Consult `references/mappings/` and `references/api/` as it translates.
 
-### Manual invocation (M2, placeholder)
+## Scripts
 
-Once M2 ships:
+### `scripts/scan_ros1.py`
+
+Walks a ROS1 workspace, dispatches per-language parsers, and emits
+`inventory.json` plus an optional markdown digest.
 
 ```bash
-# Step 1 — comprehensive ROS1 scan
 python scripts/scan_ros1.py \
-    --workspace /path/to/ros1_ws \
-    --output /path/to/target/docs/ros1-migration/artifacts/inventory.json
-
-# Step 5 — post-migration verification
-python scripts/verify_ros2.py \
-    --workspace /path/to/ros2_ws \
-    --inventory /path/to/target/docs/ros1-migration/artifacts/inventory.json \
-    --output /path/to/target/docs/ros1-migration/artifacts/verify-report.json
+    --workspace <ws> \
+    [--package <pkg>] \
+    [--output <ws>/docs/ros1-migration/artifacts/inventory.json] \
+    [--md <ws>/docs/ros1-migration/inventory-digest.md] \
+    [--source-distro noetic] [--target-distro jazzy]
 ```
+
+Requires Python 3.9+. Optional: `pip install libclang parse_cmake` for AST
+parsing. Without them, affected files are marked `parser: "regex"` and the
+scanner continues with degraded coverage.
+
+### `scripts/verify_ros2.py`
+
+Runs residual scan, interface-surface diff, `colcon build`, and
+`colcon test`, emitting a structured JSON report plus an optional markdown
+digest. Consumes `plan-meta.json` to decide which surface changes are
+declared.
+
+```bash
+python scripts/verify_ros2.py \
+    --workspace <ws> \
+    --inventory <ws>/docs/ros1-migration/artifacts/inventory.json \
+    --plan-meta <ws>/docs/ros1-migration/artifacts/plan-meta.json \
+    [--output <ws>/docs/ros1-migration/artifacts/verify-report.json] \
+    [--md <ws>/docs/ros1-migration/05-verify-report.md] \
+    [--skip-build] [--skip-lint]
+```
+
+Requires ROS2 Jazzy sourced in the shell for build + lint. Use
+`--skip-build --skip-lint` for quick residual + surface diffing without
+a full build.
 
 ## Troubleshooting
 
@@ -63,7 +87,7 @@ python scripts/verify_ros2.py \
 | `colcon build` fails with missing `<ros2-pkg>` | The ROS2 package name may differ from ROS1. Check `references/mappings/package-xml.md` and `references/mappings/cmakelists.md`. |
 | `ament_lint` warnings on migrated code | Warnings don't block verification PASS. Fix at your convenience. |
 | Verification reports undeclared surface change | Either restore the original topic/service/type/QoS, or declare the change in `artifacts/plan-meta.json` `surface_changes[]` with a justification. |
-| M2 scripts missing | The skill is currently at Milestone 1. The agent can run the full workflow using its native Read/Grep/Edit/Bash tools; workflow docs describe the manual path. |
+| Parser reports `parser: "regex"` | `libclang` or `parse_cmake` is unavailable or failed on that file. Install the optional deps if you want deeper AST coverage, or continue with the degraded scan and review the flagged files manually. |
 
 ## Structure
 
@@ -78,5 +102,5 @@ references/
   grep-patterns.md                 # Ripgrep patterns for residual scanning
   _external/                       # Archived third-party material
 templates/                         # Scaffolds for output documents
-scripts/                           # (M2) scan_ros1.py + verify_ros2.py + parsers
+scripts/                           # scan_ros1.py + verify_ros2.py + parsers
 ```
