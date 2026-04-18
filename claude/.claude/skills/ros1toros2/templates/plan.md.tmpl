@@ -1,0 +1,45 @@
+# ROS1 -> ROS2 Migration Plan
+
+> Target distro: <ros2-distro>
+> Machine contract: `artifacts/plan-meta.json` (tasks status + surface_changes)
+> Review verdict: <pending / reviewer approved / self-review complete>
+
+## Topological task order
+
+Tasks are ordered to respect the package dependency graph in the inventory. A task does not start until every task it depends on is complete.
+
+## Task T01 - <title>
+
+**Packages:** <pkg_a>
+**Depends on:** <none | T??, T??>
+**Mapping references:**
+- `mappings/package-xml.md` §Symbol Mapping Table
+- `mappings/cmakelists.md` §Structural Translation Patterns
+- `mappings/roscpp-to-rclcpp.md` §<subsection>
+
+**Steps:**
+1. <specific edit>
+2. <specific edit>
+3. Build package: `colcon build --packages-select <pkg>`
+4. Commit.
+
+**Surface preserved:**
+- topics: <list>
+- services: <list>
+- actions: <list>
+- params: <list>
+
+**Surface changes declared (must also appear in `plan-meta.json`):**
+- <e.g., /scan QoS -> sensor_data>
+
+---
+
+## Task T02 - <title>
+
+<same structure as T01>
+
+---
+
+## Reviewer verdict
+
+<If host provided a subagent/reviewer, paste the verdict here. Otherwise record completion of the self-review checklist from `references/workflow/step3-plan.md`.>

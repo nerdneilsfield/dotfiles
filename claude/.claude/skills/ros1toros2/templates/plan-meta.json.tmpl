@@ -1,0 +1,56 @@
+{
+  "$schema_version": "1",
+  "generated_at": "<ISO8601>",
+  "target_ros_distro": "jazzy",
+  "tasks": [
+    {
+      "id": "T01",
+      "title": "<short title>",
+      "packages": ["<pkg_name>"],
+      "depends_on": [],
+      "mapping_refs": [
+        "mappings/package-xml.md",
+        "mappings/cmakelists.md"
+      ],
+      "status": "pending"
+    }
+  ],
+  "surface_changes": [
+    {
+      "package": "<pkg_name>",
+      "kind": "topic_rename",
+      "from": "/old_topic",
+      "to": "/new_topic",
+      "reason": "<why>"
+    },
+    {
+      "package": "<pkg_name>",
+      "kind": "topic_removed",
+      "name": "/debug",
+      "reason": "<why>"
+    },
+    {
+      "package": "<pkg_name>",
+      "kind": "type_changed",
+      "name": "/pose",
+      "from": "geometry_msgs/Pose",
+      "to": "geometry_msgs/PoseStamped",
+      "reason": "Downstream consumer needs timestamps; genuine wire-format change"
+    },
+    {
+      "package": "<pkg_name>",
+      "kind": "qos_changed",
+      "name": "/scan",
+      "from": "reliable/volatile (implicit)",
+      "to": "sensor_data",
+      "reason": "Sensor topic throughput"
+    },
+    {
+      "package": "<pkg_name>",
+      "kind": "service_rename",
+      "from": "/old_srv",
+      "to": "/new_srv",
+      "reason": "<why>"
+    }
+  ]
+}

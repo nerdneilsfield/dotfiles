@@ -1,0 +1,50 @@
+# ROS1 -> ROS2 Migration Design
+
+> Target distro: <ros2-distro>
+> Based on: `artifacts/inventory.json`
+> Migration strategy: full cutover (no ros1_bridge)
+
+## Per-package decisions
+
+### `<package_name>`
+
+| Area | ROS1 state (from inventory) | ROS2 target (decision) | Mapping ref |
+|---|---|---|---|
+| package.xml | <format 2, catkin depends> | <format 3, ament_cmake> | mappings/package-xml.md |
+| Build system | <catkin CMake> | <ament_cmake CMake> | mappings/cmakelists.md |
+| Client library | <roscpp / rospy> | <rclcpp / rclpy> | mappings/roscpp-to-rclcpp.md or rospy-to-rclpy.md |
+| Launch | <launch XML> | <Python launch> | mappings/launch-files.md |
+| Parameters | <rosparam> | <declared node params> | mappings/parameters.md |
+| QoS | <implicit reliable/volatile> | <profiles chosen> | mappings/qos.md |
+| tf | <tf / tf2> | <tf2_ros> | mappings/tf2.md |
+| Actions | <actionlib> | <rclcpp_action / rclpy.action> | mappings/actionlib.md |
+| Nodelets | <nodelet::Nodelet> | <rclcpp components> | mappings/nodelets.md |
+| Messages | <msg/srv files> | <rosidl_generate_interfaces> | mappings/msg-srv-action.md |
+
+**Structural translations planned:**
+
+- <e.g., free functions + NodeHandle -> `class <Name> : public rclcpp::Node`>
+
+**Surface-preserving commitments:**
+
+- Topics kept identical: <list>
+- Services kept identical: <list>
+- Actions kept identical: <list>
+- Parameters kept identical: <list>
+- TF frames kept identical: <list>
+
+**Intentional surface changes (must also appear in `artifacts/plan-meta.json`):**
+
+- <e.g., QoS for `/scan` changed from default to `sensor_data` - reason: ...>
+
+**Open questions:**
+
+- <symbol/idiom the agent could not classify; user decision needed>
+
+---
+
+## Cross-package concerns
+
+- Dependency graph order: <topological order>
+- Shared custom msgs: <list packages where they live>
+- Known risky areas: <e.g., nodelets are rewritten as components, callback semantics differ>
