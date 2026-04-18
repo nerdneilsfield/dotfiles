@@ -1,87 +1,89 @@
 ---
 source_url: https://docs.ros2.org/latest/api/rclpy/index.html
-fetched_at: 2026-04-18T00:00:00Z
+fetched_at: 2026-04-18T10:58:01Z
 ---
 
 > Snapshot note: upstream source is stale (`rclpy 0.6.1` on `docs.ros2.org`). Use this page as an API-shape reference only; verify exact Jazzy signatures against `https://docs.ros.org/en/jazzy/p/rclpy/` when needed.
 
-# rclpy — rclpy 0.6.1 documentation
+rclpy[¶](https://docs.ros2.org/latest/api/rclpy/index.html#rclpy "Permalink to this headline")
 
-rclpy — rclpy 0.6.1 documentation
-
-rclpy¶
+===============================================================================================
 
 rclpy provides the canonical Python API for interacting with ROS 2.
 
-- About
-- Examples
-- API
+*   [About](https://docs.ros2.org/latest/api/rclpy/about.html)
 
-- Initialization, Shutdown, and Spinning
-- Node
-- Topics
+*   [Examples](https://docs.ros2.org/latest/api/rclpy/examples.html)
 
-- Publisher
-- Subscription
+*   [API](https://docs.ros2.org/latest/api/rclpy/api.html)
+    *   [Initialization, Shutdown, and Spinning](https://docs.ros2.org/latest/api/rclpy/api/init_shutdown.html)
 
-- Services
+    *   [Node](https://docs.ros2.org/latest/api/rclpy/api/node.html)
 
-- Client
-- Service
+    *   [Topics](https://docs.ros2.org/latest/api/rclpy/api/topics.html)
+        *   [Publisher](https://docs.ros2.org/latest/api/rclpy/api/topics.html#module-rclpy.publisher)
 
-- Actions
+        *   [Subscription](https://docs.ros2.org/latest/api/rclpy/api/topics.html#module-rclpy.subscription)
 
-- Action Client
-- Action Server
+    *   [Services](https://docs.ros2.org/latest/api/rclpy/api/services.html)
+        *   [Client](https://docs.ros2.org/latest/api/rclpy/api/services.html#module-rclpy.client)
 
-- Timer
-- Parameters
+        *   [Service](https://docs.ros2.org/latest/api/rclpy/api/services.html#module-rclpy.service)
 
-- Parameter
-- Parameter Service
+    *   [Actions](https://docs.ros2.org/latest/api/rclpy/api/actions.html)
+        *   [Action Client](https://docs.ros2.org/latest/api/rclpy/api/actions.html#module-rclpy.action.client)
 
-- Logging
-- Context
-- Execution and Callbacks
+        *   [Action Server](https://docs.ros2.org/latest/api/rclpy/api/actions.html#module-rclpy.action.server)
 
-- Executors
-- Callback Groups
+    *   [Timer](https://docs.ros2.org/latest/api/rclpy/api/timers.html)
 
-- Utilities
-- Quality of Service
+    *   [Parameters](https://docs.ros2.org/latest/api/rclpy/api/parameters.html)
+        *   [Parameter](https://docs.ros2.org/latest/api/rclpy/api/parameters.html#module-rclpy.parameter)
 
-Indices and tables¶
+        *   [Parameter Service](https://docs.ros2.org/latest/api/rclpy/api/parameters.html#module-rclpy.parameter_service)
 
--
-Index
+    *   [Logging](https://docs.ros2.org/latest/api/rclpy/api/logging.html)
 
--
-Module Index
+    *   [Context](https://docs.ros2.org/latest/api/rclpy/api/context.html)
 
--
-Search Page
+    *   [Execution and Callbacks](https://docs.ros2.org/latest/api/rclpy/api/execution_and_callbacks.html)
+        *   [Executors](https://docs.ros2.org/latest/api/rclpy/api/execution_and_callbacks.html#module-rclpy.executors)
 
-rclpy
+        *   [Callback Groups](https://docs.ros2.org/latest/api/rclpy/api/execution_and_callbacks.html#module-rclpy.callback_groups)
 
-Navigation
+    *   [Utilities](https://docs.ros2.org/latest/api/rclpy/api/utilities.html)
 
-- About
-- Examples
-- API
+    *   [Quality of Service](https://docs.ros2.org/latest/api/rclpy/api/qos.html)
 
-Related Topics
 
-- Documentation overview
+Indices and tables[¶](https://docs.ros2.org/latest/api/rclpy/index.html#indices-and-tables "Permalink to this headline")
 
-- Next: About
+=========================================================================================================================
 
-Quick search
+*   [Index](https://docs.ros2.org/latest/api/rclpy/genindex.html)
 
-©2016-2019, Open Source Robotics Foundation, Inc..
+*   [Module Index](https://docs.ros2.org/latest/api/rclpy/py-modindex.html)
 
-|
-Powered by Sphinx 3.0.4
-& Alabaster 0.7.12
+*   [Search Page](https://docs.ros2.org/latest/api/rclpy/search.html)
 
-|
-Page source
+
+[rclpy](https://docs.ros2.org/latest/api/rclpy/index.html#)
+
+============================================================
+
+### Navigation
+
+*   [About](https://docs.ros2.org/latest/api/rclpy/about.html)
+
+*   [Examples](https://docs.ros2.org/latest/api/rclpy/examples.html)
+
+*   [API](https://docs.ros2.org/latest/api/rclpy/api.html)
+
+
+### Related Topics
+
+*   [Documentation overview](https://docs.ros2.org/latest/api/rclpy/index.html#)
+    *   Next: [About](https://docs.ros2.org/latest/api/rclpy/about.html "next chapter")
+
+
+### Quick search
