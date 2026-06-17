@@ -20,3 +20,4 @@ zsh/~/
 __pycache__/
 .pyc
 /AstroNvimV5/.config/AstroNvim/lazy-lock.json
+/AstroNvimV6/.config/AstroNvim/lazy-lock.json
