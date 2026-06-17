@@ -1,6 +1,8 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
-fpath=("$HOME/.zsh/completions" $fpath)
+fpath=("/Users/dengqi/.zsh/completions" $fpath)
+autoload -Uz compinit
+compinit
 # OPENSPEC:END
 
 export ZSH_CONF_DIR="$HOME/.config/zsh"
