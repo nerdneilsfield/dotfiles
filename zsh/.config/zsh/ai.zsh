@@ -60,11 +60,7 @@ init_agent_skills() {
     ".agents/skills"
     ".claude/skills"
     ".codex/skills"
-    ".crush/skills"
     ".factory/skills"
-    ".kimi/skills"
-    ".kimi-code/skills"
-    ".opencode/skills"
   )
   local dir target
 
@@ -87,6 +83,10 @@ init_agent_skills() {
       print -r -- "created: ${target}"
     fi
   done
+}
+
+init_agents_dir() {
+  init_agent_skills "$@"
 }
 
 install_kimi_cli() {
