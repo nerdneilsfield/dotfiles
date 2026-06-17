@@ -89,6 +89,49 @@ init_agents_dir() {
   init_agent_skills "$@"
 }
 
+# @description initialize runtime skills dirs and stow shared agent skills
+# @param $1 dotfiles_dir[optional, default: $DOTFILES_DIR or $HOME/Source/configs/dotfiles]
+stow_agents_skills() {
+  local dotfiles_dir="${1:-${DOTFILES_DIR:-$HOME/Source/configs/dotfiles}}"
+  local expected_remote_slug="${DOTFILES_REMOTE_SLUG:-nerdneilsfield/dotfiles}"
+  local remote_url remote_slug
+
+  if ! command -v stow &>/dev/null; then
+    echo "stow is not installed"
+    return 1
+  fi
+
+  if [[ ! -d "$dotfiles_dir" ]]; then
+    echo "dotfiles directory does not exist: ${dotfiles_dir}" >&2
+    return 1
+  fi
+
+  (
+    builtin cd "$dotfiles_dir" || return 1
+    if ! remote_url="$(git remote get-url origin 2>/dev/null)"; then
+      echo "not a git repository with origin remote: ${dotfiles_dir}" >&2
+      return 1
+    fi
+    remote_slug="${remote_url%.git}"
+    remote_slug="${remote_slug#git@github.com:}"
+    remote_slug="${remote_slug#https://github.com/}"
+    remote_slug="${remote_slug#http://github.com/}"
+    if [[ "$remote_slug" != "$expected_remote_slug" ]]; then
+      echo "unexpected dotfiles remote: ${remote_url}" >&2
+      echo "expected GitHub repo: ${expected_remote_slug}" >&2
+      return 1
+    fi
+
+    init_agent_skills "$HOME" || return 1
+
+    if [[ ! -d agents || ! -d factory ]]; then
+      echo "agents and factory stow packages must exist in ${dotfiles_dir}" >&2
+      return 1
+    fi
+    stow -Rvt "$HOME" agents factory
+  )
+}
+
 install_kimi_cli() {
   if command -v uv &>/dev/null; then
     if command -v kimi &>/dev/null; then
