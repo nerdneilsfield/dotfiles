@@ -90,7 +90,7 @@
 - `help/installer.md`（安装路由与策略）
 - `help/tools.md` + `help/tools/*.md`（工具说明）
 - `help/commands/*.md`（系统命令速查）
-- `help/vim.md` / `help/emacs.md` / `help/helix.md`
+- `help/vim.md` / `help/neovim.md` / `help/emacs.md` / `help/helix.md`
 - `help/keymap.md`（zsh 快捷键）
 
 ## 可选/未默认加载的模块
