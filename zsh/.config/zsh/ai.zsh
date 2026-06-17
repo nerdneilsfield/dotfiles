@@ -234,6 +234,42 @@ install_grok_cli() {
   _ai_install_script "https://x.ai/cli/install.sh" "Grok CLI"
 }
 
+# @description install headroom-ai (uv tool)
+install_headroom_ai() {
+  _ai_install_uv_tool "headroom-ai[all]" "Headroom AI" "headroom"
+}
+
+# @description install rtk cli
+install_rtk_cli() {
+  if command -v brew &>/dev/null; then
+    if command -v rtk &>/dev/null; then
+      echo "rtk is already installed, upgrading via Homebrew"
+      brew upgrade rtk || brew install rtk
+    else
+      brew install rtk
+    fi
+  else
+    _ai_install_script \
+      "https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh" \
+      "RTK CLI" \
+      "sh"
+  fi
+}
+
+# @description install caveman cli
+install_caveman_cli() {
+  _ai_install_script \
+    "https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh" \
+    "Caveman CLI"
+}
+
+# @description install headroom-ai, rtk, and caveman in one go
+install_extra_ai_tools() {
+  install_headroom_ai || true
+  install_rtk_cli || true
+  install_caveman_cli || true
+}
+
 update_ai_tools() {
   if command -v npm &>/dev/null; then
     npm update -g @openai/codex
