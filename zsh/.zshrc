@@ -91,3 +91,13 @@ source "$ZSH_CONF_DIR/keymap.zsh"
 
 # kimi-code
 export PATH="/Users/dengqi/.kimi-code/bin:$PATH"
+
+# mimocode
+export PATH=/Users/dengqi/.mimocode/bin:$PATH
+
+# bun completions
+[ -s "/Users/dengqi/.bun/_bun" ] && source "/Users/dengqi/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
