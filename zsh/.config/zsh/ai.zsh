@@ -26,11 +26,28 @@ _ai_install_npm_global() {
 _ai_install_script() {
   local install_url="$1"
   local label="$2"
+  local shell_bin="${3:-bash}"
   if command -v curl &>/dev/null; then
-    curl -fsSL "$install_url" | bash
+    curl -fsSL "$install_url" | "$shell_bin"
   else
     echo "curl is not installed: cannot install ${label}"
     return 1
+  fi
+}
+
+_ai_install_uv_tool() {
+  local package="$1"
+  local label="${2:-$1}"
+  local bin_name="${3:-$1}"
+  if ! command -v uv &>/dev/null; then
+    echo "uv is not installed: cannot install ${label}"
+    return 1
+  fi
+  if command -v "$bin_name" &>/dev/null; then
+    echo "${label} is already installed, upgrading"
+    uv tool upgrade "${package%%\[*}" --no-cache
+  else
+    uv tool install "$package" --no-cache
   fi
 }
 
