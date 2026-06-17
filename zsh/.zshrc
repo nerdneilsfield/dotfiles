@@ -86,3 +86,6 @@ fi
 
 ## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
+
+# kimi-code
+export PATH="/Users/dengqi/.kimi-code/bin:$PATH"

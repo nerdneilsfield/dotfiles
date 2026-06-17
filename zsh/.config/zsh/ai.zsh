@@ -1,3 +1,8 @@
+# kimi-code
+if [[ -d "$HOME/.kimi-code/bin" ]]; then
+  export PATH="$HOME/.kimi-code/bin:$PATH"
+fi
+
 # @description install openai/codex
 install_codex() {
   if command -v npm &>/dev/null; then
@@ -40,6 +45,16 @@ install_kimi_cli() {
   else
     echo "uv is not installed"
   fi
+}
+
+# @description install kimi code
+install_kimi_code() {
+  _ai_install_script "https://code.kimi.com/kimi-code/install.sh" "Kimi Code"
+}
+
+# @description install mimo code
+install_mimo_code() {
+  _ai_install_script "https://mimo.xiaomi.com/install" "Mimo Code"
 }
 
 # @description install anthropic/codex
