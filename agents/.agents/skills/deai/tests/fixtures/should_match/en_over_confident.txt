@@ -1,0 +1,4 @@
+# Over-confident
+Obviously, this approach outperforms all existing methods.
+The results clearly demonstrate the superiority of our method.
+This method completely eliminates the need for manual labeling.

@@ -1,0 +1,2 @@
+# Uniform sentence lengths - should trigger sentence_uniformity
+Deep learning is a powerful tool for analysis. Neural networks can learn complex data patterns. Transformers have changed language processing tasks. Attention helps models focus on relevant parts. Pre-training on data improves task performance. Fine-tuning adapts models to specific applications. Transfer learning reduces need for training data. Augmentation helps improve model generalization well. Regularization prevents overfitting in neural networks. Normalization accelerates training and stabilizes learning.

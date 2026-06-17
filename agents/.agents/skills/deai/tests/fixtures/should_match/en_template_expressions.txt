@@ -1,0 +1,5 @@
+# Template expressions
+In recent years, deep learning has attracted considerable attention.
+More and more researchers are adopting transformer-based architectures.
+Machine learning plays an important role in modern data analysis.
+It is worth noting that this trend has accelerated in 2025.
