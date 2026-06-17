@@ -20,6 +20,9 @@ return {
           ["<Leader>c"] = { desc = "Cursor" },
           ["<Leader>z"] = { desc = "Zen Mode" },
           ["<Leader>j"] = { desc = "Jump" },
+          ["<Leader>ja"] = { function() require("flash").jump() end, desc = "Flash jump" },
+          ["<Leader>jj"] = { function() require("flash").jump() end, desc = "Flash jump" },
+          ["<Leader>jt"] = { function() require("flash").treesitter() end, desc = "Flash Treesitter" },
           ["<Leader>js"] = {
             function()
               local ok, snacks = pcall(require, "snacks")
