@@ -212,6 +212,11 @@ install_cursor_cli() {
   _ai_install_script "https://cursor.com/install" "Cursor CLI"
 }
 
+# @description install grok cli
+install_grok_cli() {
+  _ai_install_script "https://x.ai/cli/install.sh" "Grok CLI"
+}
+
 update_ai_tools() {
   if command -v npm &>/dev/null; then
     npm update -g @openai/codex
@@ -231,6 +236,7 @@ update_ai_tools() {
   command -v cursor-agent &>/dev/null && cursor-agent update || true
   command -v opencode &>/dev/null && opencode upgrade || true
   command -v goose &>/dev/null && goose --version >/dev/null || true
+  command -v grok &>/dev/null && install_grok_cli || true
 }
 
 reinstall_ai_tools() {

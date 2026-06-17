@@ -63,14 +63,23 @@ INSTALL_VERBOSE=1 install_route yazi
 
 ## AI CLI 安装命令（新增）
 
+- `install_codex`
+- `install_kimi_cli`
+- `install_kimi_code`
+- `install_mimo_code`
+- `install_claude_code`
+- `install_kilo_cli`
+- `install_pi_agent`
+- `install_gemini_cli`
+- `install_qwen_code`
 - `install_openspec_cli`
 - `install_factory_droid`
 - `install_goose_cli`
 - `install_opencode_cli`
-- `install_kilo_cli`
 - `install_crush_cli`
-- `install_pi_agent`
 - `install_cursor_cli`
+- `install_grok_cli`
+- `install_aichat`
 
 批量更新：
 
