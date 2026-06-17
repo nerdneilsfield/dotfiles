@@ -51,6 +51,44 @@ _ai_install_uv_tool() {
   fi
 }
 
+# @description create runtime skills directories for AI agents
+# @param $1 base_dir[optional, default: $HOME]
+init_agent_skills() {
+  local base_dir="${1:-$HOME}"
+  local -a skill_dirs=(
+    ".agent/skills"
+    ".agents/skills"
+    ".claude/skills"
+    ".codex/skills"
+    ".crush/skills"
+    ".factory/skills"
+    ".kimi/skills"
+    ".kimi-code/skills"
+    ".opencode/skills"
+  )
+  local dir target
+
+  base_dir="${base_dir%/}"
+  if [[ -z "$base_dir" ]]; then
+    base_dir="/"
+  fi
+
+  for dir in "${skill_dirs[@]}"; do
+    if [[ "$base_dir" == "/" ]]; then
+      target="/${dir}"
+    else
+      target="${base_dir}/${dir}"
+    fi
+
+    if [[ -d "$target" ]]; then
+      print -r -- "exists: ${target}"
+    else
+      mkdir -p "$target" || return 1
+      print -r -- "created: ${target}"
+    fi
+  done
+}
+
 install_kimi_cli() {
   if command -v uv &>/dev/null; then
     if command -v kimi &>/dev/null; then
