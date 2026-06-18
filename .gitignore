@@ -25,3 +25,4 @@ __pycache__/
 /.crush/
 /.factory/
 /.serena/
+/skills-lock.json
