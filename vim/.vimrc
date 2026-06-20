@@ -271,8 +271,10 @@ endif
 " 备份设置
 "----------------------------------------------------------------------
 
-" 创建备份目录，并且忽略可能出现的警告
-silent! call mkdir(expand('~/.vim/tmp'), "p", 0755)
+" 创建备份目录，仅在不存在时创建，避免每次启动都做系统调用
+if !isdirectory(expand('~/.vim/tmp'))
+	silent! call mkdir(expand('~/.vim/tmp'), "p", 0755)
+endif
 
 " 允许备份
 set backup
@@ -497,15 +499,37 @@ colorscheme desert
 " 现代化状态栏设置
 "----------------------------------------------------------------------
 
-" 获取 Git 分支信息的函数
+" 获取 Git 分支信息（带缓存，5 秒内不重复 fork git 进程）
+" 原先每次 statusline 刷新都 system() fork，滚动/切窗极卡
+let s:git_branch_cache = {}
 function! GitBranch()
-  let branch = system("git branch --show-current 2>/dev/null | tr -d '\n'")
+  let key = expand('%:p:h')
+  if empty(key) | return '' | endif
+  let now = localtime()
+  if has_key(s:git_branch_cache, key) && now - s:git_branch_cache[key].t < 5
+    let branch = s:git_branch_cache[key].b
+  else
+    let branch = system("git -C '" . key . "' branch --show-current 2>/dev/null | tr -d '\n'")
+    let s:git_branch_cache[key] = {'t': now, 'b': branch}
+  endif
   return strlen(branch) > 0 ? ' ' . branch . ' ' : ''
 endfunction
 
-" 获取文件大小的函数
+" 获取文件大小的函数（带缓存，避免每次 statusline 刷新都 stat）
+" 文件未修改时复用缓存值
+let s:filesize_cache = {}
 function! FileSize()
-  let bytes = getfsize(expand('%:p'))
+  let path = expand('%:p')
+  if empty(path) | return '' | endif
+  let key = path
+  let now = localtime()
+  let mtime = getftime(path)
+  if has_key(s:filesize_cache, key) && s:filesize_cache[key].m == mtime
+    let bytes = s:filesize_cache[key].s
+  else
+    let bytes = getfsize(path)
+    let s:filesize_cache[key] = {'m': mtime, 's': bytes}
+  endif
   if bytes <= 0
     return ''
   endif
@@ -1500,7 +1524,9 @@ augroup END
 
 augroup TrimWS
   autocmd!
-  autocmd BufWritePre * if &modifiable && !&binary | silent! %s/\s\+$//e | endif
+  " 跳过大文件，避免写盘时全文正则替换卡顿
+  autocmd BufWritePre * if &modifiable && !&binary && !exists('b:bigfile')
+        \ | silent! %s/\s\+$//e | endif
 augroup END
 
 
