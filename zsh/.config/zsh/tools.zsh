@@ -1468,28 +1468,50 @@ export GIT_EXTERNAL_DIFF=difft
 
 
 # use ip address
-# @brief Show all IPv4 addresses on system
+# @brief Show IP addresses cross-platform, table output (Interface | Family | Address)
 # @return 0 on success
-# @example show_ipv4_addr
+# @example show-ip-addr
+# @example show-ipv4-addr
+# @example show-ipv6-addr
 # @category tools
-show_ipv4_addr() {
-  # ip addr | grep -E "192.168" | awk '{print $2}' | cut -d "/" --field 1
-  ip addr | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
+_show-ip-addr() {
+  local want="$1"  # IPv4 / IPv6 / "" (both)
+  local os=$(uname -s)
+  {
+    printf "%s\t%s\t%s\n" "Interface" "Family" "Address"
+    if [[ "$os" == "Linux" ]]; then
+      ip -o addr show 2>/dev/null | while read -r _ iface fam addr _; do
+        [[ "$fam" == "inet" || "$fam" == "inet6" ]] || continue
+        addr=${addr%%/*}
+        [[ "$addr" == "127.0.0.1" || "$addr" == "::1" ]] && continue
+        local fam_norm="IPv6"; [[ "$fam" == "inet" ]] && fam_norm="IPv4"
+        [[ -n "$want" && "$fam_norm" != "$want" ]] && continue
+        printf "%s\t%s\t%s\n" "$iface" "$fam_norm" "$addr"
+      done
+    elif [[ "$os" == "Darwin" ]]; then
+      ifconfig 2>/dev/null | awk -v want="$want" '
+        /^[a-z0-9]/ { iface=$1; gsub(/:$/,"",iface) }
+        /inet [0-9]/ && $2 != "127.0.0.1" {
+          if (want == "" || want == "IPv4") print iface "\tIPv4\t" $2
+        }
+        /inet6 / && $2 != "::1" {
+          if (want == "" || want == "IPv6") print iface "\tIPv6\t" $2
+        }
+      '
+    else
+      echo "Unsupported: $os" >&2; return 1
+    fi
+  } | column -t
 }
 
+show-ip-addr()   { _show-ip-addr ""; }
+show-ipv4-addr() { _show-ip-addr "IPv4"; }
+show-ipv6-addr() { _show-ip-addr "IPv6"; }
 
-# show_ipv6_addr() {
-#   ip addr | grep -E -o "([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)|([0-9a-fA-F]{1,4}:){6}(:[0-9a-fA-F]{1,4}|:)|([0-9a-fA-F]{1,4}:){5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
-# }
-
-# @brief Show all IP addresses (IPv4 and IPv6) on system
-# @return 0 on success
-# @example show_ip_addr
-# @category tools
-show_ip_addr(){
-  show_ipv4_addr
-  show_ipv6_addr
-}
+# backward compat
+show_ip_addr()   { show-ip-addr "$@"; }
+show_ipv4_addr() { show-ipv4-addr "$@"; }
+show_ipv6_addr() { show-ipv6-addr "$@"; }
 
 
 if [[ -f $HOME/.local/bin/mise ]]; then
