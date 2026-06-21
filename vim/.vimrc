@@ -390,9 +390,9 @@ set softtabstop=4
 " 鼠标支持 - 仅在兼容的环境中启用
 if has('mouse_sgr') || has('mouse_xterm')
     set mouse=a                " 启用鼠标支持
-if exists('&ttymouse')
-if exists("&ttymouse") | set ttymouse=sgr | endif
-endif
+    if exists('&ttymouse')
+        set ttymouse=sgr
+    endif
 elseif has('gui_running') || has('nvim')
     set mouse=a                " GUI 或 neovim 中启用鼠标
 else
@@ -402,9 +402,11 @@ endif
 " 剪贴板设置 - 根据环境选择
 if has('clipboard')
     if has('unnamedplus')
-if has("clipboard") | set clipboard^=unnamed,unnamedplus | endif
+        " Linux: 优先使用 + 寄存器（X11 剪贴板）
+        set clipboard^=unnamedplus,unnamed
     else
-        set clipboard=unnamed        " macOS/Windows
+        " macOS/Windows: 使用 * 寄存器
+        set clipboard=unnamed
     endif
 endif
 
@@ -959,8 +961,8 @@ let mapleader = ","
 " Add doom like save
 "----------------------------------------------------------------------
 noremap <silent><space>fs :update<CR>
-noremap <silent><space>fS :saveas 
-"----------------------------------------------------------------------
+" :saveas 需要用户输入新文件名，故不加 <CR>，去掉 <silent> 以显示命令
+noremap <space>fS :saveas 
 " 开关行号显示的方式 <slient><leader><C-l>
 "----------------------------------------------------------------------
 " 固定行号列宽度，避免 relativenumber/number 切换时光标横向跳动
@@ -1114,7 +1116,7 @@ noremap <silent> <space><tab>x :tabclose<cr>
 noremap <silent> <space><tab>q :tabclose<cr>
 noremap <silent> <space><tab>o :tabonly<cr>
 
-" 左移 tab
+" 左移 tab（和左边邻居交换）
 function! Tab_MoveLeft()
 	let l:tabnr = tabpagenr() - 2
 	if l:tabnr >= 0
@@ -1122,11 +1124,11 @@ function! Tab_MoveLeft()
 	endif
 endfunc
 
-" 右移 tab
+" 右移 tab（和右边邻居交换）
 function! Tab_MoveRight()
-	let l:tabnr = tabpagenr() + 1
-	if l:tabnr <= tabpagenr('$')
-		exec 'tabmove '.l:tabnr
+	" 只有非末尾 tab 才需要右移
+	if tabpagenr() < tabpagenr('$')
+		exec 'tabmove '.tabpagenr()
 	endif
 endfunc
 
@@ -1140,8 +1142,8 @@ noremap <silent><m-right> :call Tab_MoveRight()<cr>
 " ALT + CTRL 键移动增强
 "----------------------------------------------------------------------
 
-noremap <c-j> jjj
-noremap <c-k> kkk
+" 注意：原先此处有 noremap <c-j> jjj / <c-k> kkk，会覆盖前面定义的
+" <C-j>/<C-k> 单行上下移动，已删除。
 
 " ALT+h/l 快速左右按单词移动（正常模式+插入模式）
 noremap <m-h> b
