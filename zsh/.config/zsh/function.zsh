@@ -106,68 +106,291 @@ alias printpx="show_proxy_status"
 alias testconn="test_connectivity"
 
 ##
-# @brief 测试网络连接性
-# @description 测试连接到 Google、Github、Cloudflare 等常用网站的网络状况
-# @return 0 测试完成
+# @brief 测试网络连接性（并行 + 多格式输出）
+# @description 并发探测一组常用站点，输出 HTTP 状态码与耗时。
+#              默认列表：gstatic / google / api.github / 1.1.1.1 / reddit / twitter / stackoverflow。
+#              可通过位置参数自定义目标，或经 stdin 传入（每行一个）。
+# @option --quiet 仅输出失败项
+# @option --json  输出 JSON 数组
+# @option --tsv   输出 TSV：url<TAB>status<TAB>http_code<TAB>time_ms
+# @option --dry-run 列出将要测试的目标，不执行
+# @option -j N    并发数（默认 6）
+# @option -n N    每个 URL 探测轮数（默认 1；>1 时报告均值/最小/最大）
+# @option --timeout SEC 单站超时（默认 10）
+# @return 0 全部成功；1 任一失败
 # @example test_connectivity
+# @example test_connectivity --json
+# @example test_connectivity --tsv --quiet
+# @example test_connectivity https://github.com https://example.com
+# @example printf "https://a.com\nhttps://b.com\n" | test_connectivity -
 # @category network
 ##
 test_connectivity() {
-    # 测试 Google 和 Gstatic 的连接
-    echo "正在测试 Google 和 Gstatic 的连接..."
-    if curl --connect-timeout 5 --max-time 10 -s https://www.gstatic.com/generate_204; then
-        echo "成功连接到 www.gstatic.com"
-    else
-        echo "无法连接到 www.gstatic.com" >&2
+    # 局部抑制 job control 噪音（互动 shell 默认 monitor/notify）
+    emulate -L zsh
+    setopt local_options no_monitor no_notify
+
+    local concurrency=6 timeout=10 rounds=5
+    local -a positional=()
+    # 解析自有选项 + 透传给 __tools_parse_args
+    local -a passthrough=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -j)        concurrency="$2"; shift 2 ;;
+            --timeout) timeout="$2"; shift 2 ;;
+            -n)        rounds="$2"; shift 2 ;;
+            -j*)       concurrency="${1#-j}"; shift ;;
+            -n*)       rounds="${1#-n}"; shift ;;
+            --timeout=*) timeout="${1#--timeout=}"; shift ;;
+            *) passthrough+=("$1"); shift ;;
+        esac
+    done
+    [[ ! "$rounds" =~ ^[0-9]+$ || "$rounds" -lt 1 ]] && rounds=1
+
+    # 复用 tools.zsh I/O 框架（若未载入则提供退化路径）
+    if (( ! ${+functions[__tools_parse_or_help]} )); then
+        # tools.zsh 未载入，使用极简退化逻辑
+        local url ok=1
+        local -a urls=("${passthrough[@]}")
+        [[ ${#urls[@]} -eq 0 ]] && urls=(
+            https://www.gstatic.com/generate_204
+            https://google.com
+            https://api.github.com
+            https://1.1.1.1
+            https://www.reddit.com
+            https://twitter.com
+            https://stackoverflow.com
+            https://chatgpt.com
+            https://claude.ai
+            https://gemini.google.com
+            https://www.perplexity.ai
+            https://huggingface.co
+            https://openai.com
+            https://www.anthropic.com
+            https://x.com
+            https://www.youtube.com
+        )
+        for url in "${urls[@]}"; do
+            if curl --connect-timeout 5 --max-time "$timeout" -sS -o /dev/null "$url" 2>/dev/null; then
+                printf '✅ %s\n' "$url"
+            else
+                printf '❌ %s\n' "$url" >&2
+                ok=0
+            fi
+        done
+        return $(( 1 - ok ))
     fi
 
-    if curl --connect-timeout 5 --max-time 10 -s https://google.com &>/dev/null; then
-        echo "成功连接到 google.com"
+    __tools_parse_or_help "Usage: test_connectivity [-q|--quiet] [--json|--tsv] [--dry-run] [-j N] [-n N] [--timeout SEC] [url...|-]" "${passthrough[@]}" \
+        || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+
+    local _json=$ZSH_TOOLS_JSON _tsv=$ZSH_TOOLS_TSV _quiet=$ZSH_TOOLS_QUIET _dry=$ZSH_TOOLS_DRY_RUN
+    local -a rest=("${passthrough[@]:$((ZSH_TOOLS_OPT_INDEX-1))}")
+
+    __tools_read_stdin_or_args "${rest[@]}"
+
+    local -a default_urls=(
+        https://www.gstatic.com/generate_204
+        https://google.com
+        https://api.github.com
+        https://1.1.1.1
+        https://www.reddit.com
+        https://twitter.com
+        https://stackoverflow.com
+        https://chatgpt.com
+        https://claude.ai
+        https://gemini.google.com
+        https://www.perplexity.ai
+        https://huggingface.co
+        https://openai.com
+        https://www.anthropic.com
+        https://x.com
+        https://www.youtube.com
+    )
+    local -a urls
+    if [[ ${#ZSH_TOOLS_INPUT_LINES[@]} -gt 0 ]]; then
+        urls=("${ZSH_TOOLS_INPUT_LINES[@]}")
     else
-        echo "无法连接到 google.com" >&2
+        urls=("${default_urls[@]}")
     fi
 
-    # 测试 Github 的连接
-    echo "正在测试 Github 的连接..."
-    if curl --connect-timeout 5 --max-time 10 -s https://api.github.com &>/dev/null; then
-        echo "成功连接到 api.github.com"
-    else
-        echo "无法连接到 api.github.com" >&2
+    if [[ $_dry -eq 1 ]]; then
+        local u
+        for u in "${urls[@]}"; do __tools_output "$u"; done
+        return 0
     fi
 
-    # 测试 Cloudflare DNS 的连接
-    echo "正在测试 Cloudflare DNS 的连接..."
-    if curl --connect-timeout 5 --max-time 10 -s https://1.1.1.1 &>/dev/null; then
-        echo "成功连接到 1.1.1.1 (Cloudflare DNS)"
-    else
-        echo "无法连接到 1.1.1.1 (Cloudflare DNS)" >&2
+    if ! command -v curl >/dev/null 2>&1; then
+        __tools_error "curl not found"; return 1
     fi
 
-    # 测试额外的网站连接
-    echo "正在测试额外的网站连接..."
+    # 并行执行 curl，每个结果输出 'url|http_code|time_total_seconds|exit'
+    local tmpdir
+    tmpdir=$(mktemp -d 2>/dev/null) || tmpdir="/tmp/testconn.$$"
+    mkdir -p "$tmpdir"
 
-    # 测试 Reddit
-    if curl --connect-timeout 5 --max-time 10 -s https://www.reddit.com &>/dev/null; then
-        echo "成功连接到 reddit.com"
-    else
-        echo "无法连接到 reddit.com" >&2
+    local probe_one
+    probe_one() {
+        local u="$1" t="$2" outfile="$3"
+        local body
+        body=$(curl --connect-timeout 5 --max-time "$t" -sS -o /dev/null \
+                    -w '%{http_code}|%{time_total}' "$u" 2>/dev/null)
+        local rc=$?
+        printf '%s|%s|%s\n' "$u" "$body" "$rc" > "$outfile"
+    }
+
+    # 通知运行模式
+    if [[ $_quiet -eq 0 && $_json -eq 0 && $_tsv -eq 0 ]]; then
+        if [[ $rounds -gt 1 ]]; then
+            __tools_info "🔁 跑 $rounds 轮 × ${#urls[@]} 站 = $((rounds * ${#urls[@]})) 次探测（并发 $concurrency, 超时 ${timeout}s）"
+        fi
     fi
 
-    # 测试 Twitter
-    if curl --connect-timeout 5 --max-time 10 -s https://twitter.com &>/dev/null; then
-        echo "成功连接到 twitter.com"
+    local total_jobs=0
+    local r u
+    local -a pids=()
+    local pids_running=0
+    for ((r=1; r<=rounds; r++)); do
+        for u in "${urls[@]}"; do
+            ((total_jobs++))
+            probe_one "$u" "$timeout" "$tmpdir/$total_jobs" &
+            pids+=($!)
+            ((pids_running++))
+            if [[ $pids_running -ge $concurrency ]]; then
+                wait "${pids[@]}"
+                pids=()
+                pids_running=0
+            fi
+        done
+    done
+    [[ ${#pids[@]} -gt 0 ]] && wait "${pids[@]}"
+
+    # 收集所有原始记录
+    local -a raw=()
+    local j
+    for ((j=1; j<=total_jobs; j++)); do
+        [[ -r "$tmpdir/$j" ]] && raw+=("$(<"$tmpdir/$j")")
+    done
+    rm -rf "$tmpdir"
+
+    # 按 URL 聚合
+    typeset -A agg_ok agg_fail agg_sum agg_min agg_max agg_last_code
+    local entry url http_code time_s rc time_ms
+    for entry in "${raw[@]}"; do
+        url="${entry%%|*}"; entry="${entry#*|}"
+        http_code="${entry%%|*}"; entry="${entry#*|}"
+        time_s="${entry%%|*}"; entry="${entry#*|}"
+        rc="$entry"
+
+        time_ms="0"
+        if [[ -n "$time_s" ]]; then
+            time_ms=$(awk -v t="$time_s" 'BEGIN{printf "%d", t*1000}')
+            [[ -z "$time_ms" ]] && time_ms="0"
+        fi
+
+        if [[ "$rc" == "0" && -n "$http_code" && "$http_code" =~ ^[23] ]]; then
+            agg_ok[$url]=$(( ${agg_ok[$url]:-0} + 1 ))
+            agg_sum[$url]=$(( ${agg_sum[$url]:-0} + time_ms ))
+            local cur_min=${agg_min[$url]:-}
+            local cur_max=${agg_max[$url]:-}
+            if [[ -z "$cur_min" || $time_ms -lt $cur_min ]]; then agg_min[$url]=$time_ms; fi
+            if [[ -z "$cur_max" || $time_ms -gt $cur_max ]]; then agg_max[$url]=$time_ms; fi
+        else
+            agg_fail[$url]=$(( ${agg_fail[$url]:-0} + 1 ))
+            [[ -z "$http_code" ]] && http_code="000"
+        fi
+        agg_last_code[$url]="$http_code"
+    done
+
+    # 生成最终 parsed 行：url|st|http_code|avg_ms|min_ms|max_ms|ok|fail
+    local total_ok=0 total_fail=0
+    local -a parsed=()
+    local ok_cnt fail_cnt avg_ms min_ms max_ms st
+    for u in "${urls[@]}"; do
+        ok_cnt=${agg_ok[$u]:-0}
+        fail_cnt=${agg_fail[$u]:-0}
+        if [[ $ok_cnt -gt 0 ]]; then
+            avg_ms=$(( agg_sum[$u] / ok_cnt ))
+            min_ms=${agg_min[$u]}
+            max_ms=${agg_max[$u]}
+            if [[ $fail_cnt -eq 0 ]]; then
+                st="ok"
+                ((total_ok++))
+            else
+                st="partial"
+                ((total_fail++))
+            fi
+        else
+            avg_ms=0; min_ms=0; max_ms=0
+            st="fail"
+            ((total_fail++))
+        fi
+        parsed+=("$u|$st|${agg_last_code[$u]:-000}|$avg_ms|$min_ms|$max_ms|$ok_cnt|$fail_cnt")
+    done
+
+    if [[ $_json -eq 1 ]]; then
+        __tools_output "["
+        local -a json_lines=() esc_url
+        local p
+        for p in "${parsed[@]}"; do
+            IFS='|' read -r url st http_code avg_ms min_ms max_ms ok_cnt fail_cnt <<< "$p"
+            esc_url=$(__tools_json_escape "$url")
+            json_lines+=("  {\"url\":\"$esc_url\",\"status\":\"$st\",\"http_code\":\"$http_code\",\"rounds\":$rounds,\"ok\":$ok_cnt,\"fail\":$fail_cnt,\"avg_ms\":$avg_ms,\"min_ms\":$min_ms,\"max_ms\":$max_ms}")
+        done
+        local k n=${#json_lines[@]}
+        for ((k=1; k<=n; k++)); do
+            if [[ $k -lt $n ]]; then
+                __tools_output "${json_lines[$k]},"
+            else
+                __tools_output "${json_lines[$k]}"
+            fi
+        done
+        __tools_output "]"
+    elif [[ $_tsv -eq 1 ]]; then
+        [[ $_quiet -eq 0 ]] && __tools_output $'url\tstatus\thttp_code\tok\tfail\tavg_ms\tmin_ms\tmax_ms'
+        local p
+        for p in "${parsed[@]}"; do
+            IFS='|' read -r url st http_code avg_ms min_ms max_ms ok_cnt fail_cnt <<< "$p"
+            printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$url" "$st" "$http_code" "$ok_cnt" "$fail_cnt" "$avg_ms" "$min_ms" "$max_ms"
+        done
     else
-        echo "无法连接到 twitter.com" >&2
+        ZSH_TOOLS_QUIET=$_quiet
+        local fmt_input=""
+        if [[ $rounds -gt 1 ]]; then
+            [[ $_quiet -eq 0 ]] && fmt_input+=$'STATUS\tHTTP\tOK/N\tAVG(ms)\tMIN(ms)\tMAX(ms)\tURL\n'
+        else
+            [[ $_quiet -eq 0 ]] && fmt_input+=$'STATUS\tHTTP\tTIME(ms)\tURL\n'
+        fi
+        local mark p
+        for p in "${parsed[@]}"; do
+            IFS='|' read -r url st http_code avg_ms min_ms max_ms ok_cnt fail_cnt <<< "$p"
+            case "$st" in
+                ok)      mark="✅" ;;
+                partial) mark="⚠️ " ;;
+                *)       mark="❌" ;;
+            esac
+            if [[ $_quiet -eq 1 && "$st" == "ok" ]]; then
+                continue
+            fi
+            if [[ $rounds -gt 1 ]]; then
+                fmt_input+="$mark"$'\t'"$http_code"$'\t'"$ok_cnt/$rounds"$'\t'"$avg_ms"$'\t'"$min_ms"$'\t'"$max_ms"$'\t'"$url"$'\n'
+            else
+                fmt_input+="$mark"$'\t'"$http_code"$'\t'"$avg_ms"$'\t'"$url"$'\n'
+            fi
+        done
+        if command -v column >/dev/null 2>&1; then
+            printf '%s' "$fmt_input" | column -t -s $'\t'
+        else
+            printf '%s' "$fmt_input"
+        fi
+        if [[ $_quiet -eq 0 ]]; then
+            __tools_info ""
+            __tools_info "📊 $total_ok 成功 / $total_fail 失败 (含部分失败) / 共 ${#urls[@]}（并发 $concurrency, 超时 ${timeout}s, 轮数 $rounds）"
+        fi
     fi
 
-    # 测试 Stack Overflow
-    if curl --connect-timeout 5 --max-time 10 -s https://stackoverflow.com &>/dev/null; then
-        echo "成功连接到 stackoverflow.com"
-    else
-        echo "无法连接到 stackoverflow.com" >&2
-    fi
-
-    echo "所有测试完成。"
+    [[ $total_fail -gt 0 ]] && return 1
+    return 0
 }
 
 
