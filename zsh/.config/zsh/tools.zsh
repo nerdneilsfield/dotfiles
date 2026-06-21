@@ -31,6 +31,188 @@ export LOCAL_BIN="$HOME/.local/bin/"
 export ASDF_DIR="$HOME/.local/share/asdf"
 
 # ===================================================================
+# Unified I/O framework for tools.zsh
+# ===================================================================
+# Goal: consistent stdout/stderr separation, optional quiet/JSON/TSV/dry-run
+# modes, and stdin support for batch functions.
+#
+# Inside a function that needs options:
+#   __tools_parse_args "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+#   # IMPORTANT: snapshot flags into locals BEFORE calling any nested function
+#   # that also calls __tools_parse_args (it resets all ZSH_TOOLS_* globals).
+#   local _my_json=$ZSH_TOOLS_JSON _my_quiet=$ZSH_TOOLS_QUIET
+#   local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+#
+# Output helpers (always use printf, never echo, to avoid \t/\n/-n surprises):
+#   __tools_info  "progress"    -> stderr (unless --quiet)
+#   __tools_success "success"   -> stderr (unless --quiet)
+#   __tools_warn  "warning"     -> stderr (always)
+#   __tools_error "error"       -> stderr (always)
+#   __tools_output "data"       -> stdout (always)
+#   __tools_data "data"         -> stdout (always)
+#
+# Helpers:
+#   __tools_json_escape <str>   -> escape \\ and " for JSON string content
+#   __tools_read_stdin_or_args "$@"
+#     # When called with args, uses them.
+#     # When called with no args AND the SINGLE arg "-" was originally passed,
+#     # reads stdin. To keep callers explicit, batch funcs forward args as-is;
+#     # they pass an explicit sentinel "-" to request stdin reading.
+# ===================================================================
+
+typeset -g ZSH_TOOLS_QUIET=0
+typeset -g ZSH_TOOLS_JSON=0
+typeset -g ZSH_TOOLS_TSV=0
+typeset -g ZSH_TOOLS_DRY_RUN=0
+typeset -g ZSH_TOOLS_HELP=0
+typeset -g ZSH_TOOLS_FORMAT="human"
+typeset -g ZSH_TOOLS_OPT_INDEX=1
+
+# @brief Parse common options and set global I/O flags
+# @param $* All arguments passed to the calling function
+# @return 0 on success, 1 on unknown option, 2 on --help (caller should print help)
+# @example __tools_parse_args "$@" || return $?
+# @category tools
+__tools_parse_args() {
+    ZSH_TOOLS_QUIET=0
+    ZSH_TOOLS_JSON=0
+    ZSH_TOOLS_TSV=0
+    ZSH_TOOLS_DRY_RUN=0
+    ZSH_TOOLS_HELP=0
+    ZSH_TOOLS_FORMAT="human"
+    ZSH_TOOLS_OPT_INDEX=1
+
+    while [[ $ZSH_TOOLS_OPT_INDEX -le $# ]]; do
+        local arg="${@[$ZSH_TOOLS_OPT_INDEX]}"
+        case "$arg" in
+            -q|--quiet) ZSH_TOOLS_QUIET=1 ;;
+            --json) ZSH_TOOLS_JSON=1; ZSH_TOOLS_FORMAT="json" ;;
+            --tsv) ZSH_TOOLS_TSV=1; ZSH_TOOLS_FORMAT="tsv" ;;
+            --dry-run|--dryrun) ZSH_TOOLS_DRY_RUN=1 ;;
+            -h|--help) ZSH_TOOLS_HELP=1; return 2 ;;
+            --) ((ZSH_TOOLS_OPT_INDEX++)); return 0 ;;
+            -)  return 0 ;;  # bare "-" is a positional sentinel, not an option
+            -*) __tools_error "Unknown option: $arg"; return 1 ;;
+            *)  return 0 ;;
+        esac
+        ((ZSH_TOOLS_OPT_INDEX++))
+    done
+    return 0
+}
+
+__tools_info()    { [[ $ZSH_TOOLS_QUIET -eq 0 ]] && printf '%s\n' "$*" >&2; return 0; }
+__tools_success() { [[ $ZSH_TOOLS_QUIET -eq 0 ]] && printf '%s\n' "$*" >&2; return 0; }
+__tools_warn()    { printf '%s\n' "$*" >&2; }
+__tools_error()   { printf '%s\n' "$*" >&2; }
+__tools_output()  { printf '%s\n' "$*"; }
+__tools_data()    { printf '%s\n' "$*"; }
+
+# @brief Standard parse_args entry for callers; prints $1 (usage) on -h/--help.
+# @description Use as:
+#   __tools_parse_or_help "Usage: install_fzf [-q] [--dry-run] [prefix]" "$@" \
+#     || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+#   ZSH_TOOLS_HELP=0  # (already reset by parse_args next call)
+# @param $1 Usage string
+# @param $@ Forwarded to __tools_parse_args
+# @return same as __tools_parse_args, but on rc=2 also prints usage to stdout
+# @category tools
+__tools_parse_or_help() {
+    local _usage="$1"; shift
+    __tools_parse_args "$@"
+    local _rc=$?
+    if [[ $_rc -eq 2 ]]; then
+        __tools_output "$_usage"
+    elif [[ $_rc -ne 0 ]]; then
+        printf '%s\n' "$_usage" >&2
+    fi
+    return $_rc
+}
+
+# @brief Escape a string for embedding in a JSON string literal
+# @description Escapes \ and " (other control chars rare in our domain are left as-is).
+# @param $1 Raw string
+# @return prints escaped string on stdout
+# @example __tools_json_escape 'a"b\c'
+# @category tools
+__tools_json_escape() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    printf '%s' "$s"
+}
+
+# @brief Read input lines from stdin when caller passes the "-" sentinel
+# @description Args take priority. If args are exactly ("-"), reads stdin.
+#              Otherwise uses args as-is. Never silently consumes script stdin.
+# @param $* Positional arguments
+# @sets ZSH_TOOLS_INPUT_LINES
+# @example __tools_read_stdin_or_args "$@"
+# @example printf "fzf\nbat\n" | install_batch_modern -
+# @category tools
+__tools_read_stdin_or_args() {
+    typeset -g ZSH_TOOLS_INPUT_LINES=()
+    if [[ $# -eq 1 && "$1" == "-" ]]; then
+        local line
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            [[ -z "$line" ]] && continue
+            ZSH_TOOLS_INPUT_LINES+=("$line")
+        done
+        return 0
+    fi
+    if [[ $# -gt 0 ]]; then
+        ZSH_TOOLS_INPUT_LINES=("$@")
+        return 0
+    fi
+    # No args, no sentinel: leave ZSH_TOOLS_INPUT_LINES empty so caller can
+    # fall back to its default list. Do NOT consume parent stdin.
+    return 0
+}
+
+# @brief Common single-tool installer via smart download or Homebrew
+# @param $1 Tool name (also brew formula by default)
+# @param $2 Example GitHub release URL used by batch_smart_download_tools
+# @param $3 Optional install prefix (default $HOME/.local)
+# @param $4 Optional brew formula override (when differs from tool name)
+# @return 0 on success, 1 on failure
+# @example __install_tool_by_download "fzf" "https://github.com/junegunn/fzf/releases/..." "$HOME/.local"
+# @category tools
+__install_tool_by_download() {
+    local tool_name="$1"
+    local example_url="$2"
+    local install_prefix="${3:-$HOME/.local}"
+    local brew_formula="${4:-$tool_name}"
+
+    if [[ -z "$tool_name" || -z "$example_url" ]]; then
+        __tools_error "Usage: __install_tool_by_download <tool_name> <example_url> [install_prefix] [brew_formula]"
+        return 1
+    fi
+
+    __tools_info "🚀 智能安装 $tool_name..."
+    if test_brew_command >/dev/null 2>&1; then
+        if [[ $ZSH_TOOLS_DRY_RUN -eq 1 ]]; then
+            __tools_info "🔍 [dry-run] brew install $brew_formula"
+            return 0
+        fi
+        __tools_info "📦 使用 Homebrew 安装 $brew_formula..."
+        brew install "$brew_formula"
+        return $?
+    fi
+
+    if [[ $ZSH_TOOLS_DRY_RUN -eq 1 ]]; then
+        __tools_info "🔍 [dry-run] 将从 $example_url 下载并安装 $tool_name 到 $install_prefix"
+        return 0
+    fi
+
+    if command -v batch_smart_download_tools >/dev/null 2>&1; then
+        batch_smart_download_tools "$example_url" "$install_prefix"
+        return $?
+    else
+        __tools_error "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。"
+        return 1
+    fi
+}
+
+# ===================================================================
 # install tools exist
 # ===================================================================
 
@@ -197,20 +379,110 @@ alias rgp='rg --line-number --no-heading --color=always . | fzf --delimiter : --
 alias upgrade-tools='bash ~/Source/configs/dotfiles/init/init_ubuntu_root.sh UpgradeAllTools'
 alias check-versions='for tool in fzf rg fd bat starship lazygit nvim; do echo -n "$tool: "; $tool --version 2>/dev/null | head -n1 || echo "未安装"; done'
 
-# User-friendly upgrade functions (no sudo required for checking)
-function check-tool-updates() {
-	echo "🔍 检查工具更新状态..."
-	for tool in fzf rg fd bat starship lazygit nvim; do
-		echo -n "🔍 $tool: "
-		local current_version=$($tool --version 2>/dev/null | head -n1 | awk '{print $2}' 2>/dev/null)
-		if [[ -n "$current_version" ]]; then
-			echo "当前版本 $current_version"
-		else
-			echo "❌ 未安装"
-		fi
-	done
-	echo ""
-	echo "💡 运行 'upgrade-tools' 来升级所有工具"
+# @brief Check installed versions of modern tools
+# @option --quiet Suppress header/trailer and only emit data rows
+# @option --json Output JSON array instead of human-readable text
+# @option --tsv Output tab-separated values (tool<TAB>installed<TAB>version)
+# @option --dry-run Show what would be checked without checking
+# @return 0 on success
+# @example check-tool-updates
+# @example check-tool-updates --json
+# @example check-tool-updates --tsv
+# @category tools
+check-tool-updates() {
+    __tools_parse_args "$@"
+    local pa_rc=$?
+    if [[ $pa_rc -eq 2 ]]; then
+        __tools_output "Usage: check-tool-updates [-q|--quiet] [--json|--tsv] [--dry-run] [-h|--help]"
+        return 0
+    fi
+    [[ $pa_rc -ne 0 ]] && return $pa_rc
+
+    # Snapshot flags so nested calls cannot reset them mid-flow.
+    local _json=$ZSH_TOOLS_JSON _tsv=$ZSH_TOOLS_TSV _quiet=$ZSH_TOOLS_QUIET _dry=$ZSH_TOOLS_DRY_RUN
+
+    local tools=(fzf rg fd bat starship lazygit nvim)
+    local -a data=()
+    local tool version
+
+    for tool in "${tools[@]}"; do
+        version=$($tool --version 2>/dev/null | head -n1 | awk '{print $2}')
+        if [[ -n "$version" ]]; then
+            data+=("$tool|yes|$version")
+        else
+            data+=("$tool|no|null")
+        fi
+    done
+
+    if [[ $_dry -eq 1 ]]; then
+        ZSH_TOOLS_QUIET=$_quiet
+        __tools_info "🔍 [dry-run] 将检查 ${#tools[@]} 个工具的版本"
+        return 0
+    fi
+
+    if [[ $_json -eq 1 ]]; then
+        if command -v python3 >/dev/null 2>&1; then
+            # Pipe data via stdin to avoid any shell/Python source injection.
+            printf '%s\n' "${data[@]}" | python3 -c '
+import json, sys
+out = []
+for line in sys.stdin:
+    line = line.rstrip("\n")
+    if not line:
+        continue
+    tool, installed, version = line.split("|", 2)
+    out.append({"tool": tool, "installed": installed == "yes", "version": None if version == "null" else version})
+print(json.dumps(out, ensure_ascii=False))
+'
+        else
+            __tools_output "["
+            local -a json_lines=()
+            local entry t iv v v_json esc_t esc_v installed_json
+            for entry in "${data[@]}"; do
+                IFS='|' read -r t iv v <<< "$entry"
+                esc_t=$(__tools_json_escape "$t")
+                if [[ "$v" == "null" ]]; then
+                    v_json="null"
+                else
+                    esc_v=$(__tools_json_escape "$v")
+                    v_json="\"$esc_v\""
+                fi
+                [[ "$iv" == "yes" ]] && installed_json="true" || installed_json="false"
+                json_lines+=("  {\"tool\":\"$esc_t\",\"installed\":$installed_json,\"version\":$v_json}")
+            done
+            local i n=${#json_lines[@]}
+            for ((i=1; i<=n; i++)); do
+                if [[ $i -lt $n ]]; then
+                    __tools_output "${json_lines[$i]},"
+                else
+                    __tools_output "${json_lines[$i]}"
+                fi
+            done
+            __tools_output "]"
+        fi
+    elif [[ $_tsv -eq 1 ]]; then
+        __tools_output $'tool\tinstalled\tversion'
+        local entry t iv v
+        for entry in "${data[@]}"; do
+            IFS='|' read -r t iv v <<< "$entry"
+            printf '%s\t%s\t%s\n' "$t" "$iv" "$v"
+        done
+    else
+        ZSH_TOOLS_QUIET=$_quiet
+        __tools_info "🔍 检查工具更新状态..."
+        local entry t iv v
+        for entry in "${data[@]}"; do
+            IFS='|' read -r t iv v <<< "$entry"
+            if [[ "$iv" == "yes" ]]; then
+                __tools_output "🔍 $t: 当前版本 $v"
+            else
+                __tools_output "🔍 $t: ❌ 未安装"
+            fi
+        done
+        __tools_info ""
+        __tools_info "💡 运行 'upgrade-tools' 来升级所有工具"
+    fi
+    return 0
 }
 
 # @brief Execute command from shell history using fzf
@@ -341,433 +613,378 @@ install_fastfetch() {
 
 
 # @brief Install GitHub CLI tool intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_gh
+# @example install_gh --quiet
+# @example install_gh /usr/local
 # @category tools
 install_gh(){
-    echo "🚀 智能安装 GitHub CLI..."
-    if test_brew_command; then
-        brew install gh
-        return 0
-    fi
-    local example_url="https://github.com/cli/cli/releases/download/v2.73.0/gh_2.73.0_linux_amd64.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        echo "   尝试使用旧方法回退安装 gh... (可能已移除)" >&2
-        # Fallback to old method (which should ideally be removed or also made smart if kept)
-        # For now, demonstrating the call to batch_smart_download_tools is the primary goal.
-        # The original old code for gh was complex and is superseded.
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_gh [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "gh" "https://github.com/cli/cli/releases/download/v2.73.0/gh_2.73.0_linux_amd64.tar.gz" "$install_prefix"
 }
 
 # @brief Install zellij terminal editor intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_zellij
+# @example install_zellij --quiet
+# @example install_zellij /usr/local
 # @category tools
 install_zellij(){
-    echo "🚀 智能安装 zellij..."
-    if test_brew_command; then
-        brew install zellij
-        return 0
-    fi
-    local example_url="https://github.com/zellij-org/zellij/releases/download/v0.42.2/zellij-x86_64-unknown-linux-musl.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        echo "   尝试使用旧方法回退安装 zellij... (可能已移除)" >&2
-        # Fallback to old method (which should ideally be removed or also made smart if kept)
-        # For now, demonstrating the call to batch_smart_download_tools is the primary goal.
-        # The original old code for gh was complex and is superseded.
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_zellij [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "zellij" "https://github.com/zellij-org/zellij/releases/download/v0.42.2/zellij-x86_64-unknown-linux-musl.tar.gz" "$install_prefix"
 }
 
 # @brief Install fzf fuzzy finder intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_fzf
+# @example install_fzf --quiet
+# @example install_fzf /usr/local
 # @category tools
 install_fzf(){
-    echo "🚀 智能安装 fzf..."
-    if test_brew_command; then
-        brew install fzf
-        return 0
+    __tools_parse_or_help "Usage: install_fzf [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "fzf" "https://github.com/junegunn/fzf/releases/download/v0.62.0/fzf-0.62.0-linux_amd64.tar.gz" "$install_prefix"
+    local rc=$?
+    if [[ $rc -eq 0 && $ZSH_TOOLS_QUIET -eq 0 && $ZSH_TOOLS_DRY_RUN -eq 0 ]]; then
+        __tools_info "💡 请确保 fzf 的 shell 集成 (key bindings, completion) 已正确配置。"
     fi
-    local example_url="https://github.com/junegunn/fzf/releases/download/v0.62.0/fzf-0.62.0-linux_amd64.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        # fzf also needs its shell integrations installed.
-        # The smart_install_downloaded function might handle some of this if completions/scripts are in standard locations.
-        # However, fzf often requires sourcing specific files or running an install script found within its extracted contents.
-        # This part might need additional logic after batch_smart_download_tools if the generic install isn't enough.
-        echo "请记得根据 fzf 的文档或提示，确保其 shell 集成 (key bindings, completion) 已正确配置。"
-        echo "通常这涉及到在 .zshrc 或类似文件中 source 一些脚本，或者运行解压后的 fzf/install 脚本。"
-        echo "智能安装程序会尝试将可执行文件放到 $install_prefix/bin，并将补全脚本放到标准位置。"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    return $rc
 }
 
 # @brief Install eza modern ls replacement intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_eza
+# @example install_eza --quiet
+# @example install_eza /usr/local
 # @category tools
 install_eza(){
-    echo "🚀 智能安装 eza..."
-    if test_brew_command; then
-        brew install eza
-        return 0
-    fi
-    local example_url="https://github.com/eza-community/eza/releases/download/v0.21.3/eza_x86_64-unknown-linux-gnu.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_eza [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "eza" "https://github.com/eza-community/eza/releases/download/v0.21.3/eza_x86_64-unknown-linux-gnu.tar.gz" "$install_prefix"
 }
 
 # @brief Install lazygit Git TUI
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_lazygit
+# @example install_lazygit --quiet
+# @example install_lazygit /usr/local
 # @category tools
 install_lazygit(){
-    echo "🚀 智能安装 lazygit..."
-    if test_brew_command; then
-        brew install lazygit
-        return 0
-    fi
-    local example_url="https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1 # Or fallback to old method if one existed and was simple enough
-    fi
+    __tools_parse_or_help "Usage: install_lazygit [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "lazygit" "https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz" "$install_prefix"
 }
 
 # @brief Install lazydocker Docker TUI
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_lazydocker
+# @example install_lazydocker --quiet
+# @example install_lazydocker /usr/local
 # @category tools
 install_lazydocker(){
-    echo "🚀 智能安装 lazydocker..."
-    if test_brew_command; then
-        brew install lazydocker
-        return 0
-    fi
+    __tools_parse_or_help "Usage: install_lazydocker [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
     # 注意: 下面的 URL 是基于常见模式推测的，如果 lazydocker 的发布资源命名不同，可能需要调整。
-    # 或者，确保此工具包含在 install_modern_tools_by_download 的 URL 列表中以获得更准确的模式学习。
-    local example_url="https://github.com/jesseduffield/lazydocker/releases/download/v0.23.1/lazydocker_0.23.1_Linux_x86_64.tar.gz" # 推测的示例 URL
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    __install_tool_by_download "lazydocker" "https://github.com/jesseduffield/lazydocker/releases/download/v0.23.1/lazydocker_0.23.1_Linux_x86_64.tar.gz" "$install_prefix"
 }
 
 # @brief Install duf disk usage utility
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_duf
+# @example install_duf --quiet
+# @example install_duf /usr/local
 # @category tools
 install_duf(){
-    echo "🚀 智能安装 duf..."
-    if test_brew_command; then
-        brew install duf
-        return 0
-    fi
-    local example_url="https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_duf [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "duf" "https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz" "$install_prefix"
 }
 
 # @brief Install gdu disk usage analyzer
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_gdu
+# @example install_gdu --quiet
+# @example install_gdu /usr/local
 # @category tools
 install_gdu(){
-    echo "🚀 智能安装 gdu..."
-    if test_brew_command; then
-        brew install gdu
-        return 0
-    fi
-    local example_url="https://github.com/dundee/gdu/releases/download/v5.30.1/gdu_linux_amd64.tgz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_gdu [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "gdu" "https://github.com/dundee/gdu/releases/download/v5.30.1/gdu_linux_amd64.tgz" "$install_prefix"
 }
 
 # @brief Install ripgrep fast text search tool intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_ripgrep
+# @example install_ripgrep --quiet
+# @example install_ripgrep /usr/local
 # @category tools
 install_ripgrep(){
-    echo "🚀 智能安装 ripgrep..."
-    if test_brew_command; then
-        brew install ripgrep
-        return 0
-    fi
-    local example_url="https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_ripgrep [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "ripgrep" "https://github.com/BurntSushi/ripgrep/releases/download/v14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz" "$install_prefix"
 }
 
 # @brief Install fd fast file finder
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_fd
+# @example install_fd --quiet
+# @example install_fd /usr/local
 # @category tools
 install_fd(){
-    echo "🚀 智能安装 fd..."
-    if test_brew_command; then
-        brew install fd
-        return 0
-    fi
-    local example_url="https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz" # 从 install_modern_tools_by_download 列表获取
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        return $?
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
-    fi
+    __tools_parse_or_help "Usage: install_fd [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
+    __install_tool_by_download "fd" "https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz" "$install_prefix"
 }
 
 # @brief Install mise runtime version manager
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_mise
+# @example install_mise --quiet
+# @example install_mise /usr/local
 # @category tools
 install_mise(){
-    echo "🚀 智能安装 mise..."
-    if test_brew_command; then
-        brew install mise
-        return 0
-    fi
+    __tools_parse_or_help "Usage: install_mise [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
     # 根据其传统安装逻辑，推测的示例 URL。musl 版本，架构为 x64/arm64。
-    local example_url="https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz"
-    local install_prefix="$HOME/.local" # mise 通常期望安装到特定目录，然后符号链接，但 smart_install 会处理到 $HOME/.local/bin
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        # smart_install_downloaded 会将可执行文件放到 $install_prefix/bin (即 $HOME/.local/bin/mise)
-        # mise 的激活 (eval "$(mise activate zsh)") 仍然需要用户在 .zshrc 中配置，
-        # 或者依赖于 $HOME/.local/bin 在 PATH 中且 mise 能够自激活。
-        # 对于 mise，我们智能安装其二进制文件。其 shell 集成和环境管理是其核心功能，需按其文档操作。
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        if [[ $? -eq 0 ]]; then
-             echo "✅ mise 二进制文件已尝试安装到 $install_prefix/bin。"
-             echo "   请确保根据 mise 文档完成 shell 集成 (例如，在 .zshrc 中添加 'eval "$(mise activate zsh)"')。"
-             return 0
-        else
-            echo "❌ mise 安装失败。"
-            return 1
-        fi
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
+    __install_tool_by_download "mise" "https://github.com/jdx/mise/releases/download/v2024.7.1/mise-v2024.7.1-linux-x64-musl.tar.xz" "$install_prefix"
+    local rc=$?
+    if [[ $rc -eq 0 && $ZSH_TOOLS_QUIET -eq 0 && $ZSH_TOOLS_DRY_RUN -eq 0 ]]; then
+        __tools_info "✅ mise 二进制文件已尝试安装到 $install_prefix/bin。"
+        __tools_info '   请确保根据 mise 文档完成 shell 集成 (例如，在 .zshrc 中添加 eval "$(mise activate zsh)" )。'
     fi
+    return $rc
 }
 
+
 # @brief Install asdf version manager
+# @param $1 Optional install prefix (default $HOME/.local/share/asdf)
+# @option --quiet Suppress progress messages
 # @return 0 on success
 # @example install_asdf
+# @example install_asdf --quiet
 # @category tools
 install_asdf(){
-  green_echo "======================================"
-  green_echo "=========Install asdf========"
-  green_echo "======================================"
-  if test_brew_command; then
+  __tools_parse_or_help "Usage: install_asdf [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+  local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+  local install_prefix="${args[1]:-$ASDF_DIR}"
+  __tools_info "======================================"
+  __tools_info "=========Install asdf========"
+  __tools_info "======================================"
+  if test_brew_command >/dev/null 2>&1; then
     brew install asdf
     return 0
   fi
-  if [[ -d $ASDF_DIR ]]; then
-    green_echo "=========asdf already installed, updating======"
-    cd $ASDF_DIR
+  if [[ -d $install_prefix ]]; then
+    __tools_info "=========asdf already installed, updating======"
+    cd "$install_prefix" || { __tools_error "❌ 无法进入 $install_prefix"; return 1; }
     git pull
-    green_echo "========asdf updated========"
+    __tools_info "========asdf updated========"
   else
-    green_echo "=========installing asdf======"
-    git clone https://github.com/asdf-vm/asdf.git $ASDF_DIR
-    green_echo "=========asdf installed======"
+    __tools_info "=========installing asdf======"
+    git clone https://github.com/asdf-vm/asdf.git "$install_prefix"
+    __tools_info "=========asdf installed======"
   fi
 }
 
 # @brief Install Xray proxy tool intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_xray
+# @example install_xray --quiet
+# @example install_xray /usr/local
 # @category tools
 install_xray(){
-    echo "🚀 智能安装 Xray..."
-    if test_brew_command; then
-        brew install xray
-        return 0
-    fi
+    __tools_parse_or_help "Usage: install_xray [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
     # Xray-core 的资源名通常是 Xray-linux-64.zip 或 Xray-linux-arm64-v8a.zip
-    local example_url="https://github.com/XTLS/Xray-core/releases/download/v1.8.10/Xray-linux-64.zip"
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        # Xray 安装后通常需要配置文件，这超出了智能安装的范围
-        if [[ $? -eq 0 ]]; then
-            echo "✅ Xray 二进制文件已尝试安装到 $install_prefix/bin。"
-            echo "   请记得为 Xray 配置 config.json。"
-            return 0
-        else
-            echo "❌ Xray 安装失败。"
-            return 1
-        fi
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
+    __install_tool_by_download "xray" "https://github.com/XTLS/Xray-core/releases/download/v1.8.10/Xray-linux-64.zip" "$install_prefix"
+    local rc=$?
+    if [[ $rc -eq 0 && $ZSH_TOOLS_QUIET -eq 0 && $ZSH_TOOLS_DRY_RUN -eq 0 ]]; then
+        __tools_info "✅ Xray 二进制文件已尝试安装到 $install_prefix/bin。"
+        __tools_info "   请记得为 Xray 配置 config.json。"
     fi
+    return $rc
 }
 
 # @brief Install sing-box proxy tool intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_sing_box
+# @example install_sing_box --quiet
+# @example install_sing_box /usr/local
 # @category tools
 install_sing_box(){
-    echo "🚀 智能安装 sing-box..."
-    if test_brew_command; then
-        brew install sing-box
-        return 0
-    fi
+    __tools_parse_or_help "Usage: install_sing_box [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
     local example_url="https://github.com/SagerNet/sing-box/releases/download/v1.9.0/sing-box-1.9.0-linux-amd64.tar.gz" # 推测的示例 URL
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        if [[ $? -eq 0 ]]; then
-            echo "✅ sing-box 二进制文件已尝试安装到 $install_prefix/bin。"
-            echo "   请记得为 sing-box 配置 config.json。"
-            return 0
-        else
-            echo "❌ sing-box 安装失败。"
-            return 1
-        fi
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
+    __install_tool_by_download "sing-box" "$example_url" "$install_prefix"
+    local rc=$?
+    if [[ $rc -eq 0 && $ZSH_TOOLS_QUIET -eq 0 && $ZSH_TOOLS_DRY_RUN -eq 0 ]]; then
+        __tools_info "✅ sing-box 二进制文件已尝试安装到 $install_prefix/bin。"
+        __tools_info "   请记得为 sing-box 配置 config.json。"
     fi
+    return $rc
 }
 
 # @brief Install mihomo (Clash Meta) proxy tool intelligently
+# @param $1 Optional install prefix (default $HOME/.local)
 # @return 0 on success
 # @example install_mihomo
+# @example install_mihomo --quiet
+# @example install_mihomo /usr/local
 # @category tools
 install_mihomo(){
-    echo "🚀 智能安装 mihomo (Clash Meta)..."
-    if test_brew_command; then
-        brew install mihomo
-        return 0
-    fi
+    __tools_parse_or_help "Usage: install_mihomo [-q|--quiet] [--dry-run] [-h|--help] [install_prefix]" "$@" || { local _rc=$?; [[ $_rc -eq 2 ]] && return 0; return $_rc; }
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local install_prefix="${args[1]:-$HOME/.local}"
     # mihomo 的资源名通常是 mihomo-linux-amd64-vX.Y.Z.gz
     local example_url="https://github.com/MetaCubeX/mihomo/releases/download/v1.18.4/mihomo-linux-amd64-v1.18.4.gz"
-    local install_prefix="$HOME/.local"
-
-    if command -v batch_smart_download_tools >/dev/null 2>&1; then
-        batch_smart_download_tools "$example_url" "$install_prefix"
-        if [[ $? -eq 0 ]]; then
-            echo "✅ mihomo 二进制文件已尝试安装到 $install_prefix/bin。"
-            echo "   请记得为 mihomo (Clash Meta) 配置 config.yaml 及 Country.mmdb。"
-            return 0
-        else
-            echo "❌ mihomo 安装失败。"
-            return 1
-        fi
-    else
-        echo "⚠️ 核心函数 batch_smart_download_tools 未找到。请确保 utils.zsh 已正确加载。" >&2
-        return 1
+    __install_tool_by_download "mihomo" "$example_url" "$install_prefix"
+    local rc=$?
+    if [[ $rc -eq 0 && $ZSH_TOOLS_QUIET -eq 0 && $ZSH_TOOLS_DRY_RUN -eq 0 ]]; then
+        __tools_info "✅ mihomo 二进制文件已尝试安装到 $install_prefix/bin。"
+        __tools_info "   请记得为 mihomo (Clash Meta) 配置 config.yaml 及 Country.mmdb。"
     fi
+    return $rc
 }
 
 ##
 # @brief 批量安装现代命令行工具
 # @description 智能安装一套现代化的命令行工具：fzf、ripgrep、fd、bat、eza、lazygit、gh、yazi、bottom
-# @return 0 安装完成
+# @description 也可从 stdin 读取工具列表（每行一个），或作为位置参数传入。
+# @param $* Optional list of tools to install (overrides default)
+# @option --quiet Suppress progress messages
+# @option --dry-run Show what would be installed
+# @option --json Emit JSON summary instead of human text
+# @return 0 全部成功, 1 部分失败
 # @example install_batch_modern
+# @example echo -e "fzf\nripgrep" | install_batch_modern
+# @example install_batch_modern fzf bat --quiet
 # @category install
 ##
 install_batch_modern(){
-    echo "🚀 智能批量安装现代命令行工具..."
+    __tools_parse_args "$@"
+    local pa_rc=$?
+    if [[ $pa_rc -eq 2 ]]; then
+        __tools_output "Usage: install_batch_modern [-q] [--json] [--dry-run] [tool...|-]"
+        __tools_output "  Pass '-' as the only argument to read tool names from stdin."
+        return 0
+    fi
+    [[ $pa_rc -ne 0 ]] && return $pa_rc
 
-    local modern_tools=(
-        "fzf"
-        "ripgrep"
-        "fd"
-        "bat"
-        "eza"
-        "lazygit"
-        "gh"
-        "yazi"
-        "bottom"
-    )
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    # Snapshot flags BEFORE nested install_* calls reset them.
+    local _json=$ZSH_TOOLS_JSON _quiet=$ZSH_TOOLS_QUIET _dry=$ZSH_TOOLS_DRY_RUN
+
+    __tools_read_stdin_or_args "${args[@]}"
+
+    local default_tools=(fzf ripgrep fd bat eza lazygit gh yazi bottom)
+    local -a modern_tools
+    if [[ ${#ZSH_TOOLS_INPUT_LINES[@]} -gt 0 ]]; then
+        modern_tools=("${ZSH_TOOLS_INPUT_LINES[@]}")
+    else
+        modern_tools=("${default_tools[@]}")
+    fi
+
+    # Restore quiet for our own info call (nested calls will reset again).
+    ZSH_TOOLS_QUIET=$_quiet
+    __tools_info "🚀 智能批量安装现代命令行工具 (${#modern_tools[@]} 个)..."
+
+    local -a results=()
+    local tool rc total_ok=0 total_fail=0
 
     for tool in "${modern_tools[@]}"; do
-        echo ""
-        echo "📦 安装 $tool..."
+        ZSH_TOOLS_QUIET=$_quiet
+        __tools_info ""
+        __tools_info "📦 安装 $tool..."
+        if [[ $_dry -eq 1 ]]; then
+            __tools_info "🔍 [dry-run] 将安装 $tool"
+            results+=("$tool|dry-run")
+            continue
+        fi
+        rc=0
         if command -v install_smart_tool >/dev/null 2>&1; then
             install_smart_tool "$tool"
+            rc=$?
         else
-            echo "⚠️  智能安装系统不可用，使用传统方法"
+            ZSH_TOOLS_QUIET=$_quiet
+            __tools_warn "⚠️  智能安装系统不可用，使用传统方法"
             case "$tool" in
-                "fzf") install_fzf ;;
-                "ripgrep") install_ripgrep ;;
-                "fd") install_fd ;;
-                "eza") install_eza ;;
-                "lazygit") install_lazygit ;;
-                "gh") install_gh ;;
-                *) echo "❌ 无法安装 $tool" ;;
+                fzf)      install_fzf;     rc=$? ;;
+                ripgrep)  install_ripgrep; rc=$? ;;
+                fd)       install_fd;      rc=$? ;;
+                eza)      install_eza;     rc=$? ;;
+                lazygit)  install_lazygit; rc=$? ;;
+                gh)       install_gh;      rc=$? ;;
+                *)        __tools_error "❌ 无法安装 $tool"; rc=1 ;;
             esac
+        fi
+        if [[ $rc -eq 0 ]]; then
+            results+=("$tool|ok")
+            ((total_ok++))
+        else
+            results+=("$tool|fail")
+            ((total_fail++))
         fi
     done
 
-    echo ""
-    echo "✅ 现代工具安装完成！"
+    if [[ $_json -eq 1 ]]; then
+        __tools_output "{"
+        __tools_output "  \"total\": ${#modern_tools[@]},"
+        __tools_output "  \"ok\": $total_ok,"
+        __tools_output "  \"fail\": $total_fail,"
+        __tools_output "  \"results\": ["
+        local -a json_lines=()
+        local entry t s esc_t esc_s
+        for entry in "${results[@]}"; do
+            IFS='|' read -r t s <<< "$entry"
+            esc_t=$(__tools_json_escape "$t")
+            esc_s=$(__tools_json_escape "$s")
+            json_lines+=("    {\"tool\":\"$esc_t\",\"status\":\"$esc_s\"}")
+        done
+        local i n=${#json_lines[@]}
+        for ((i=1; i<=n; i++)); do
+            if [[ $i -lt $n ]]; then
+                __tools_output "${json_lines[$i]},"
+            else
+                __tools_output "${json_lines[$i]}"
+            fi
+        done
+        __tools_output "  ]"
+        __tools_output "}"
+    else
+        ZSH_TOOLS_QUIET=$_quiet
+        __tools_info ""
+        __tools_info "✅ 现代工具安装完成！($total_ok 成功 / $total_fail 失败 / 共 ${#modern_tools[@]})"
+    fi
+    [[ $total_fail -gt 0 ]] && return 1
+    return 0
 }
 
 # 传统批量安装 (保持向后兼容)
@@ -788,70 +1005,112 @@ install_batch_release(){
 }
 
 # @brief Install modern tools via Rust package manager
+# @description 默认列表 bat/ripgrep/fd-find/eza/bottom/dust/procs/sd/tokei/hyperfine/delta/tealdeer/zoxide/starship。
+# @description 可从 stdin 读取工具列表（每行一个），或作为位置参数传入。
+# @param $* Optional tool list to override defaults
+# @option --quiet Suppress progress messages
+# @option --dry-run Show what would be installed
 # @return 0 on success
 # @example install_modern_tools_rust
+# @example echo "ripgrep" | install_modern_tools_rust
+# @example install_modern_tools_rust ripgrep fd --quiet
 # @category tools
 install_modern_tools_rust() {
-    echo "🦀 安装现代 Rust 工具..."
+    __tools_parse_args "$@"
+    local pa_rc=$?
+    if [[ $pa_rc -eq 2 ]]; then
+        __tools_output "Usage: install_modern_tools_rust [-q] [--dry-run] [tool...|-]"
+        return 0
+    fi
+    [[ $pa_rc -ne 0 ]] && return $pa_rc
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local _quiet=$ZSH_TOOLS_QUIET _dry=$ZSH_TOOLS_DRY_RUN
+    __tools_read_stdin_or_args "${args[@]}"
 
-    local rust_tools=(
-        "bat"
-        "ripgrep"
-        "fd-find"
-        "eza"
-        "bottom"
-        "dust"
-        "procs"
-        "sd"
-        "tokei"
-        "hyperfine"
-        "delta"
-        "tealdeer"
-        "zoxide"
-        "starship"
+    local default_tools=(
+        bat ripgrep fd-find eza bottom dust procs sd tokei
+        hyperfine delta tealdeer zoxide starship
     )
+    local -a rust_tools
+    if [[ ${#ZSH_TOOLS_INPUT_LINES[@]} -gt 0 ]]; then
+        rust_tools=("${ZSH_TOOLS_INPUT_LINES[@]}")
+    else
+        rust_tools=("${default_tools[@]}")
+    fi
 
+    ZSH_TOOLS_QUIET=$_quiet
+    __tools_info "🦀 安装现代 Rust 工具 (${#rust_tools[@]} 个)..."
+
+    local tool
     for tool in "${rust_tools[@]}"; do
-        echo "📦 安装 $tool..."
+        ZSH_TOOLS_QUIET=$_quiet
+        __tools_info "📦 安装 $tool..."
+        if [[ $_dry -eq 1 ]]; then
+            __tools_info "🔍 [dry-run] 将安装 $tool"
+            continue
+        fi
         if command -v install_smart_tool >/dev/null 2>&1; then
             install_smart_tool "$tool"
         else
-            cargo install "$tool" 2>/dev/null || echo "❌ 无法通过 Cargo 安装 $tool"
+            cargo install "$tool" 2>/dev/null || { ZSH_TOOLS_QUIET=$_quiet; __tools_warn "❌ 无法通过 Cargo 安装 $tool"; }
         fi
     done
 
-    echo "✅ Rust 工具安装完成！"
+    ZSH_TOOLS_QUIET=$_quiet
+    __tools_info "✅ Rust 工具安装完成！"
 }
 
 # @brief Install development tools collection
+# @description 默认列表 git/curl/wget/jq/tmux/tree/htop/vim/rsync。
+# @description 可从 stdin 读取工具列表（每行一个），或作为位置参数传入。
+# @param $* Optional tool list to override defaults
+# @option --quiet Suppress progress messages
+# @option --dry-run Show what would be installed
 # @return 0 on success
 # @example install_dev_tools
+# @example echo "git" | install_dev_tools
 # @category tools
 install_dev_tools() {
-    echo "🛠️ 安装开发工具集..."
+    __tools_parse_args "$@"
+    local pa_rc=$?
+    if [[ $pa_rc -eq 2 ]]; then
+        __tools_output "Usage: install_dev_tools [-q] [--dry-run] [tool...|-]"
+        return 0
+    fi
+    [[ $pa_rc -ne 0 ]] && return $pa_rc
+    local args=("${@:$ZSH_TOOLS_OPT_INDEX}")
+    local _quiet=$ZSH_TOOLS_QUIET _dry=$ZSH_TOOLS_DRY_RUN
+    __tools_read_stdin_or_args "${args[@]}"
 
-    local dev_tools=(
-        "git"
-        "curl"
-        "wget"
-        "jq"
-        "tmux"
-        "tree"
-        "htop"
-        "vim"
-        "rsync"
-    )
+    local default_tools=(git curl wget jq tmux tree htop vim rsync)
+    local -a dev_tools
+    if [[ ${#ZSH_TOOLS_INPUT_LINES[@]} -gt 0 ]]; then
+        dev_tools=("${ZSH_TOOLS_INPUT_LINES[@]}")
+    else
+        dev_tools=("${default_tools[@]}")
+    fi
 
+    ZSH_TOOLS_QUIET=$_quiet
+    __tools_info "🛠️ 安装开发工具集 (${#dev_tools[@]} 个)..."
+
+    local tool
     for tool in "${dev_tools[@]}"; do
-        echo "📦 安装 $tool..."
+        ZSH_TOOLS_QUIET=$_quiet
+        __tools_info "📦 安装 $tool..."
+        if [[ $_dry -eq 1 ]]; then
+            __tools_info "🔍 [dry-run] 将安装 $tool"
+            continue
+        fi
         if command -v install_smart_tool >/dev/null 2>&1; then
             install_smart_tool "$tool"
         else
-            echo "⚠️ 请手动安装 $tool"
+            ZSH_TOOLS_QUIET=$_quiet
+            __tools_warn "⚠️ 请手动安装 $tool"
         fi
     done
 
-    echo "✅ 开发工具安装完成！"
+    ZSH_TOOLS_QUIET=$_quiet
+    __tools_info "✅ 开发工具安装完成！"
 }
 
 # 向后兼容别名 (统一命名规范)
@@ -1469,27 +1728,48 @@ export GIT_EXTERNAL_DIFF=difft
 
 # use ip address
 # @brief Show IP addresses cross-platform, table output (Interface | Family | Address)
-# @return 0 on success
+# @option --quiet Suppress header row
+# @option --json Output JSON array of {interface, family, address}
+# @option --tsv Output raw TSV without column alignment
+# @return 0 on success, 1 on unsupported OS
 # @example show-ip-addr
-# @example show-ipv4-addr
-# @example show-ipv6-addr
+# @example show-ipv4-addr --tsv
+# @example show-ipv6-addr --json
 # @category tools
 _show-ip-addr() {
-  local want="$1"  # IPv4 / IPv6 / "" (both)
+  local want="$1"; shift 2>/dev/null
+  __tools_parse_args "$@"
+  local pa_rc=$?
+  if [[ $pa_rc -eq 2 ]]; then
+    __tools_output "Usage: show-ip-addr [-q|--quiet] [--json|--tsv] [-h|--help]"
+    return 0
+  fi
+  [[ $pa_rc -ne 0 ]] && return $pa_rc
+
   local os=$(uname -s)
-  {
-    printf "%s\t%s\t%s\n" "Interface" "Family" "Address"
-    if [[ "$os" == "Linux" ]]; then
-      ip -o addr show 2>/dev/null | while read -r _ iface fam addr _; do
-        [[ "$fam" == "inet" || "$fam" == "inet6" ]] || continue
-        addr=${addr%%/*}
-        [[ "$addr" == "127.0.0.1" || "$addr" == "::1" ]] && continue
-        local fam_norm="IPv6"; [[ "$fam" == "inet" ]] && fam_norm="IPv4"
-        [[ -n "$want" && "$fam_norm" != "$want" ]] && continue
-        printf "%s\t%s\t%s\n" "$iface" "$fam_norm" "$addr"
-      done
-    elif [[ "$os" == "Darwin" ]]; then
-      ifconfig 2>/dev/null | awk -v want="$want" '
+  local -a rows=()
+  local iface fam_norm addr
+
+  if [[ "$os" == "Linux" ]]; then
+    if ! command -v ip >/dev/null 2>&1; then
+      __tools_error "Unsupported: 'ip' command not found"; return 1
+    fi
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      rows+=("$line")
+    done < <(ip -o addr show 2>/dev/null | while read -r _ iface fam addr _; do
+      [[ "$fam" == "inet" || "$fam" == "inet6" ]] || continue
+      addr=${addr%%/*}
+      [[ "$addr" == "127.0.0.1" || "$addr" == "::1" ]] && continue
+      fam_norm="IPv6"; [[ "$fam" == "inet" ]] && fam_norm="IPv4"
+      [[ -n "$want" && "$fam_norm" != "$want" ]] && continue
+      printf "%s\t%s\t%s\n" "$iface" "$fam_norm" "$addr"
+    done)
+  elif [[ "$os" == "Darwin" ]]; then
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      rows+=("$line")
+    done < <(ifconfig 2>/dev/null | awk -v want="$want" '
         /^[a-z0-9]/ { iface=$1; gsub(/:$/,"",iface) }
         /inet [0-9]/ && $2 != "127.0.0.1" {
           if (want == "" || want == "IPv4") print iface "\tIPv4\t" $2
@@ -1497,16 +1777,55 @@ _show-ip-addr() {
         /inet6 / && $2 != "::1" {
           if (want == "" || want == "IPv6") print iface "\tIPv6\t" $2
         }
-      '
+      ')
+  else
+    __tools_error "Unsupported: $os"; return 1
+  fi
+
+  if [[ $ZSH_TOOLS_JSON -eq 1 ]]; then
+    __tools_output "["
+    local -a json_lines=()
+    local row r_iface r_fam r_addr e_i e_f e_a
+    for row in "${rows[@]}"; do
+      IFS=$'\t' read -r r_iface r_fam r_addr <<< "$row"
+      e_i=$(__tools_json_escape "$r_iface")
+      e_f=$(__tools_json_escape "$r_fam")
+      e_a=$(__tools_json_escape "$r_addr")
+      json_lines+=("  {\"interface\":\"$e_i\",\"family\":\"$e_f\",\"address\":\"$e_a\"}")
+    done
+    local i n=${#json_lines[@]}
+    for ((i=1; i<=n; i++)); do
+      if [[ $i -lt $n ]]; then
+        __tools_output "${json_lines[$i]},"
+      else
+        __tools_output "${json_lines[$i]}"
+      fi
+    done
+    __tools_output "]"
+  elif [[ $ZSH_TOOLS_TSV -eq 1 ]]; then
+    [[ $ZSH_TOOLS_QUIET -eq 0 ]] && __tools_output $'Interface\tFamily\tAddress'
+    local row
+    for row in "${rows[@]}"; do
+      __tools_output "$row"
+    done
+  else
+    local fmt_input=""
+    [[ $ZSH_TOOLS_QUIET -eq 0 ]] && fmt_input+=$'Interface\tFamily\tAddress\n'
+    local row
+    for row in "${rows[@]}"; do
+      fmt_input+="$row"$'\n'
+    done
+    if command -v column >/dev/null 2>&1; then
+      printf '%s' "$fmt_input" | column -t -s $'\t'
     else
-      echo "Unsupported: $os" >&2; return 1
+      printf '%s' "$fmt_input"
     fi
-  } | column -t
+  fi
 }
 
-show-ip-addr()   { _show-ip-addr ""; }
-show-ipv4-addr() { _show-ip-addr "IPv4"; }
-show-ipv6-addr() { _show-ip-addr "IPv6"; }
+show-ip-addr()   { _show-ip-addr "" "$@"; }
+show-ipv4-addr() { _show-ip-addr "IPv4" "$@"; }
+show-ipv6-addr() { _show-ip-addr "IPv6" "$@"; }
 
 # backward compat
 show_ip_addr()   { show-ip-addr "$@"; }
