@@ -34,6 +34,9 @@ set rtp+=~/.vim
 " 禁用 vi 兼容模式
 set nocompatible
 
+" 允许隐藏未保存修改的 buffer，使得 buffer 切换不报错
+set hidden
+
 " 设置 Backspace 键模式
 set bs=eol,start,indent
 
@@ -80,8 +83,7 @@ set incsearch
 " 编码设置
 "----------------------------------------------------------------------
 if has('multi_byte')
-	" 内部工作编码
-	set encoding=utf-8
+	" 内部工作编码（已在文件开头设置 utf-8，此处不再重复）
 
 	" 文件默认编码
 	set fileencoding=utf-8
@@ -315,10 +317,7 @@ set noundofile
 " endif
 
 " 打开文件时恢复上一次光标所在位置
-autocmd BufReadPost *
-	\ if line("'\"") > 1 && line("'\"") <= line("$") |
-	\	 exe "normal! g`\"" |
-	\ endif
+" （逻辑已移至文件末尾 augroup RestoreCursor，此处删除避免重复）
 
 " 定义一个 DiffOrig 命令用于查看文件改动
 if !exists(":DiffOrig")
@@ -1387,9 +1386,9 @@ nnoremap <silent><space>tm :call ToggleMouse()<cr>
 "---------------------------------------------------------------------
 " Commetary 
 "---------------------------------------------------------------------
-if exists("g:loaded_commentary") || v:version < 703
-  finish
-endif
+" 原先用 `finish` 会终止整个 .vimrc 加载，导致后续 shada/diffopt/
+" BigFile/TrimWS/RestoreCursor 等配置全部被跳过。改用条件包裹。
+if !exists("g:loaded_commentary") && v:version >= 703
 let g:loaded_commentary = 1
 
 function! s:surroundings() abort
@@ -1501,6 +1500,8 @@ if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
   nmap gcc <Plug>CommentaryLine
   nmap gcu <Plug>Commentary<Plug>Commentary
 endif
+
+endif " end commentary guard
 
 if exists("&shada") | set shada='100,<50,s10,h | elseif exists("&viminfo") | set viminfo='100,<50,s10,h | endif
 
