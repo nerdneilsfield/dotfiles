@@ -1043,16 +1043,23 @@ end
 -----------------------------------------------------------------------
 -- returns true for path is insensitive
 -----------------------------------------------------------------------
+local _path_case_insensitive_cache = nil
 function path_case_insensitive()
+	if _path_case_insensitive_cache ~= nil then
+		return _path_case_insensitive_cache
+	end
 	if windows then
+		_path_case_insensitive_cache = true
 		return true
 	end
 	local eos = os.getenv('OS')
 	eos = eos ~= nil and eos or ''
 	eos = eos:lower()
 	if eos:sub(1, 7) == 'windows' then
+		_path_case_insensitive_cache = true
 		return true
 	end
+	_path_case_insensitive_cache = false
 	return false
 end
 

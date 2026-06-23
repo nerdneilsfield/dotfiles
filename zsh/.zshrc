@@ -2,8 +2,10 @@
 # OpenSpec shell completions configuration
 fpath=("/Users/dengqi/.zsh/completions" $fpath)
 autoload -Uz compinit
-compinit
+# compinit will be called later with -C to use cache
 # OPENSPEC:END
+
+# Performance optimizations: deduplicate PATH, remove echos, precompile regex, cache path_case_insensitive
 
 export ZSH_CONF_DIR="$HOME/.config/zsh"
 export ZSH_PRIVATE_CONF_DIR="$HOME/.config/zsh_private"
@@ -72,19 +74,8 @@ autoload -U promptinit; promptinit
 export PATH="$PATH:$HOME/.rvm/bin"
 
 # if ~/.zsh_self exists, source it
-if [ -f "$HOME/.zsh_self" ]; then
-	echo "~/.zsh_self found, sourcing it"
-	source "$HOME/.zsh_self"
-else
-	echo "~/.zsh_self not found, skipping"
-fi
-
-if [ -f "$HOME/.zsh_local" ]; then
-	echo "~/.zsh_local found, sourcing it"
-	source "$HOME/.zsh_local"
-else
-	echo "~/.zsh_local not found, skipping"
-fi
+[ -f "$HOME/.zsh_self" ] && source "$HOME/.zsh_self"
+[ -f "$HOME/.zsh_local" ] && source "$HOME/.zsh_local"
 
 ## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
@@ -101,3 +92,6 @@ export PATH=/Users/dengqi/.mimocode/bin:$PATH
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Deduplicate PATH entries
+typeset -U path

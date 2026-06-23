@@ -150,6 +150,10 @@ install_kimi_code() {
   _ai_install_script "https://code.kimi.com/kimi-code/install.sh" "Kimi Code"
 }
 
+install_aider() {
+  _ai_install_script "https://aider.chat/install.sh" "Aider"
+}
+
 # @description install mimo code
 install_mimo_code() {
   _ai_install_script "https://mimo.xiaomi.com/install" "Mimo Code"
@@ -283,9 +287,9 @@ _ai_install_or_upgrade_crush_by_eget() {
   fi
 
   case "$install_prefix" in
-    global) eget_bin="/usr/local/bin" ;;
-    local) eget_bin="$HOME/.local/bin" ;;
-    *) eget_bin="${install_prefix}/bin" ;;
+  global) eget_bin="/usr/local/bin" ;;
+  local) eget_bin="$HOME/.local/bin" ;;
+  *) eget_bin="${install_prefix}/bin" ;;
   esac
 
   mkdir -p "$eget_bin" || return 1
@@ -1569,7 +1573,7 @@ mcp_convert_to_print() {
       input="$2"
       shift 2
       ;;
-    --help|-h)
+    --help | -h)
       cat <<'EOF'
 Usage: mcp_convert_to_print --from <auto|cursor|factory|claude|gemini|kimi|opencode|kilo|crush|codex> --to <cursor|factory|claude|gemini|kimi|opencode|kilo|crush|codex> --input <path>
 
@@ -1590,7 +1594,7 @@ EOF
   done
 
   case "$from" in
-  auto|cursor|factory|claude|gemini|kimi|opencode|kilo|crush|codex)
+  auto | cursor | factory | claude | gemini | kimi | opencode | kilo | crush | codex)
     ;;
   *)
     echo "Invalid --from value: $from" >&2
@@ -1600,7 +1604,7 @@ EOF
   esac
 
   case "$target" in
-  cursor|factory|claude|gemini|kimi|opencode|kilo|crush|codex)
+  cursor | factory | claude | gemini | kimi | opencode | kilo | crush | codex)
     ;;
   "")
     echo "Missing required --to" >&2

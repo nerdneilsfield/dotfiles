@@ -3,6 +3,53 @@ import sys
 import re
 from urllib.parse import urlparse
 
+# Pre-compiled patterns for performance
+_COMMON_SUFFIX_RE = [
+    re.compile(p + '$') for p in [
+        r"-x86_64-unknown-linux-gnu\.tar\.gz",
+        r"-aarch64-unknown-linux-gnu\.tar\.gz",
+        r"-x86_64-unknown-linux-musl\.tar\.gz",
+        r"-aarch64-unknown-linux-musl\.tar\.gz",
+        r"-x86_64-apple-darwin\.tar\.gz",
+        r"-aarch64-apple-darwin\.tar\.gz",
+        r"_linux_amd64\.tar\.gz",
+        r"_Linux_x86_64\.tar\.gz",
+        r"_linux_arm64\.tar\.gz",
+        r"_windows_amd64\.zip",
+        r"-win-x64\.zip",
+        r"\.tar\.gz",
+        r"\.tgz",
+        r"\.tar\.bz2",
+        r"\.tbz2",
+        r"\.tar\.xz",
+        r"\.txz",
+        r"\.zip",
+        r"\.gz",
+        r"\.bz2",
+        r"\.xz",
+        r"\.deb",
+        r"\.rpm",
+        r"-x86_64-unknown-linux-gnu",
+        r"-aarch64-unknown-linux-gnu",
+        r"-x86_64-unknown-linux-musl",
+        r"-aarch64-unknown-linux-musl",
+        r"-x86_64-apple-darwin",
+        r"-aarch64-apple-darwin",
+        r"_linux_amd64",
+        r"_Linux_x86_64",
+        r"_linux_arm64",
+        r"-amd64",
+        r"-arm64",
+        r"-x86_64",
+        r"-i686",
+        r"-x64",
+        r"-x86",
+        r"-linux",
+        r"-windows",
+        r"-darwin",
+    ]
+]
+
 def extract_meta(url):
     parsed = urlparse(url)
     path_parts = [p for p in parsed.path.split('/') if p]
@@ -38,26 +85,8 @@ def extract_meta(url):
 
         # 2. Remove common architecture/platform indicators and extensions
         #    Order can be important here. Regex might be more robust but complex.
-        common_suffixes_and_archs = [
-            # Combined arch-platform-extensions (more specific first)
-            r"-x86_64-unknown-linux-gnu\.tar\.gz", r"-aarch64-unknown-linux-gnu\.tar\.gz",
-            r"-x86_64-unknown-linux-musl\.tar\.gz", r"-aarch64-unknown-linux-musl\.tar\.gz",
-            r"-x86_64-apple-darwin\.tar\.gz", r"-aarch64-apple-darwin\.tar\.gz",
-            r"_linux_amd64\.tar\.gz", r"_Linux_x86_64\.tar\.gz", r"_linux_arm64\.tar\.gz",
-            r"_windows_amd64\.zip", r"-win-x64\.zip",
-            r"\.tar\.gz", r"\.tgz", r"\.tar\.bz2", r"\.tbz2", r"\.tar\.xz", r"\.txz", 
-            r"\.zip", r"\.gz", r"\.bz2", r"\.xz", r"\.deb", r"\.rpm",
-            # Arch/platform only (if not caught by combined)
-            r"-x86_64-unknown-linux-gnu", r"-aarch64-unknown-linux-gnu",
-            r"-x86_64-unknown-linux-musl", r"-aarch64-unknown-linux-musl",
-            r"-x86_64-apple-darwin", r"-aarch64-apple-darwin",
-            r"_linux_amd64", r"_Linux_x86_64", r"_linux_arm64",
-            r"-amd64", r"-arm64", r"-x86_64", r"-i686", r"-x64", r"-x86",
-            # OS specific without arch
-            r"-linux", r"-windows", r"-darwin",
-        ]
-        for pattern in common_suffixes_and_archs:
-            temp_name = re.sub(pattern + '$', '', temp_name) # Match at the end of the string
+        for pat in _COMMON_SUFFIX_RE:
+            temp_name = pat.sub('', temp_name)
 
         # 3. Clean up common separators and "v" prefixes that might remain
         #    e.g., if tool is "name-v" and version was "1.0", we might have "name-v"
