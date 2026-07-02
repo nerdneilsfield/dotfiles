@@ -95,3 +95,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Deduplicate PATH entries
 typeset -U path
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/dengqi/.lmstudio/bin"
+# End of LM Studio CLI section
+
