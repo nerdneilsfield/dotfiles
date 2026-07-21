@@ -12,7 +12,7 @@ return {
   { import = "astrocommunity.pack.yaml" },
   { import = "astrocommunity.pack.markdown" },
   { import = "astrocommunity.markdown-and-latex.vimtex" },
-  { import = "astrocommunity.recipes.ai" },
+  -- { import = "astrocommunity.recipes.ai" },
   { import = "astrocommunity.completion.blink-copilot" },
   { import = "astrocommunity.ai.codecompanion-nvim" },
   { import = "astrocommunity.motion.flash-nvim" },
