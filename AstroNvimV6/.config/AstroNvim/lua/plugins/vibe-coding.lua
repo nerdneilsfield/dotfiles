@@ -68,15 +68,4 @@ return {
       },
     },
   },
-  {
-    "saghen/blink.cmp",
-    optional = true,
-    opts = function(_, opts)
-      opts.sources = opts.sources or {}
-      opts.sources.default = require("astrocore").list_insert_unique(
-        opts.sources.default or { "lsp", "path", "snippets", "buffer" },
-        { "copilot" }
-      )
-    end,
-  },
 }
