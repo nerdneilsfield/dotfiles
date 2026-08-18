@@ -100,3 +100,6 @@ typeset -U path
 export PATH="$PATH:/Users/dengqi/.lmstudio/bin"
 # End of LM Studio CLI section
 
+
+# opencodex claude-env hook
+[ -f ~/.opencodex/claude-env.sh ] && source ~/.opencodex/claude-env.sh

@@ -159,6 +159,38 @@ install_mimo_code() {
   _ai_install_script "https://mimo.xiaomi.com/install" "Mimo Code"
 }
 
+install_ai_code_graph_rag() {
+  if command -v uv &>/dev/null; then
+    if command -v code-graph-rag &>/dev/null; then
+      echo "code-graph-rag is already installed, upgrading"
+      uv tool upgrade code-graph-rag --no-cache
+    else
+      uv tool install code-graph-rag --no-cache
+    fi
+  else
+    echo "uv is not installed"
+  fi
+}
+
+install_ai_firecrawl_cli() {
+  #npm install -g firecrawl-cli
+  if command -v npm &>/dev/null; then
+    npm install -g firecrawl-cli
+  else
+    echo "npm is not installed"
+  fi
+}
+
+install_ai_ai_memory() {
+  _install_tool_by_eget akitaonrails/ai-memory local
+}
+
+install_ai_tools() {
+  install_ai_code_graph_rag
+  install_ai_firecrawl_cli
+  install_ai_ai_memory
+}
+
 # @description install anthropic/codex
 install_claude_code() {
   if command -v npm &>/dev/null; then
