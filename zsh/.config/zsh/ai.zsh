@@ -3,6 +3,18 @@ if [[ -d "$HOME/.kimi-code/bin" ]]; then
   export PATH="$HOME/.kimi-code/bin:$PATH"
 fi
 
+# ~/.mimocode/bin/mimo
+if [[ -d "$HOME/.mimocode/bin" ]]; then
+  export PATH="$HOME/.mimocode/bin:$PATH"
+fi
+
+# $HOME/.grok/bin
+if [[ -d "$HOME/.grok/bin" ]]; then
+  export PATH="$HOME/.grok/bin:$PATH"
+  <fpath=(~/.grok/completions/zsh $fpath)
+  autoload -Uz compinit && compinit -C
+fi
+
 # @description install openai/codex
 install_codex() {
   if command -v npm &>/dev/null; then
