@@ -15,6 +15,27 @@ if [[ -d "$HOME/.grok/bin" ]]; then
   autoload -Uz compinit && compinit -C
 fi
 
+install_oh_my_pi() {
+  echo "Installing oh my pi....."
+  if command -v bun &>/dev/null; then
+    bun install -g @oh-my-pi/pi-coding-agent
+    echo "oh-my-pi installed or upgraded"
+  else
+    echo "Please install bun first"
+  fi
+}
+
+install_paseo() {
+  echo "Installing paseo....."
+  if command -v bun &>/dev/null; then
+    bun install -g @getpaseo/cli
+    echo "paseo installed or upgraded"
+  else
+    echo "Please install bun first"
+  fi
+
+}
+
 # @description install openai/codex
 install_codex() {
   if command -v npm &>/dev/null; then
