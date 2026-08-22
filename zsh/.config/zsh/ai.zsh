@@ -45,6 +45,15 @@ install_codex() {
   fi
 }
 
+# @description install openai/codex
+install_opencodex() {
+  if command -v npm &>/dev/null; then
+    npm install -g @bitkyc08/opencodex
+  else
+    echo "npm is not installed"
+  fi
+}
+
 _ai_install_npm_global() {
   local package_name="$1"
   local label="${2:-$1}"
