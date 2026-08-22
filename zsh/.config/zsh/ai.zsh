@@ -215,7 +215,7 @@ install_ai_code_graph_rag() {
   fi
 }
 # code-review-graph
-install_ai_code_graph_rag() {
+install_ai_code_review_graph() {
   if command -v uv &>/dev/null; then
     if command -v code-review-graph &>/dev/null; then
       echo "code-graph-rag is already installed, upgrading"
