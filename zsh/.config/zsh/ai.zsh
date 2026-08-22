@@ -17,11 +17,12 @@ fi
 
 install_oh_my_pi() {
   echo "Installing oh my pi....."
-  if command -v bun &>/dev/null; then
-    bun install -g @oh-my-pi/pi-coding-agent
-    echo "oh-my-pi installed or upgraded"
+  if command -v omp &>/dev/null; then
+    omp update
+    echo "oh-my-pi upgraded"
   else
-    echo "Please install bun first"
+    curl -fsSL https://omp.sh/install | sh
+    echo "oh-my-pi installed"
   fi
 }
 
@@ -46,7 +47,7 @@ install_codex() {
 }
 
 # @description install openai/codex
-install_opencodex() {
+install_ai_opencodex() {
   if command -v npm &>/dev/null; then
     npm install -g @bitkyc08/opencodex
   else
@@ -208,6 +209,19 @@ install_ai_code_graph_rag() {
       uv tool upgrade code-graph-rag --no-cache
     else
       uv tool install code-graph-rag --no-cache
+    fi
+  else
+    echo "uv is not installed"
+  fi
+}
+# code-review-graph
+install_ai_code_graph_rag() {
+  if command -v uv &>/dev/null; then
+    if command -v code-review-graph &>/dev/null; then
+      echo "code-graph-rag is already installed, upgrading"
+      uv tool upgrade code-review-graph --no-cache
+    else
+      uv tool install code-review-graph --no-cache
     fi
   else
     echo "uv is not installed"
