@@ -89,6 +89,9 @@ export PATH=/Users/dengqi/.mimocode/bin:$PATH
 # bun completions
 [ -s "/Users/dengqi/.bun/_bun" ] && source "/Users/dengqi/.bun/_bun"
 
+# Remove broken completion links before compinit scans fpath.
+zsh_fix_completions
+
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"

@@ -9,6 +9,31 @@ green_echo() {
 	echo "\033[32m$*\033[0m"
 }
 
+# @brief Remove dangling completion links and stale compinit dump
+# @return 0 on success, 1 if cleanup fails
+zsh_fix_completions() {
+	emulate -L zsh
+	setopt local_options null_glob
+
+	local dir entry dumpfile removed=0
+	for dir in $fpath; do
+		[[ -d "$dir" ]] || continue
+		for entry in "$dir"/_*(N); do
+			[[ -L "$entry" && ! -e "$entry" ]] || continue
+			command rm -f -- "$entry" || return 1
+			(( removed++ ))
+		done
+	done
+
+	if (( removed )); then
+		dumpfile="${ZSH_COMPDUMP:-${ZDOTDIR:-$HOME}/.zcompdump}"
+		if [[ -e "$dumpfile" || -L "$dumpfile" ]]; then
+			command rm -f -- "$dumpfile" || return 1
+		fi
+		print -r -- "zsh_fix_completions: removed $removed dangling completion link(s)"
+	fi
+}
+
 # @brief Make directory and change to it
 # @param $1 Directory path to create and enter
 # @return 0 on success
