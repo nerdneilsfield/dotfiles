@@ -28,7 +28,7 @@ esac
 
 # 核心模块 - 总是加载
 source "$ZSH_CONF_DIR/alias.zsh"
-source "$ZSH_CONF_DIR/function.zsh"
+(( $+functions[green_echo] )) || source "$ZSH_CONF_DIR/function.zsh"
 source "$ZSH_CONF_DIR/starship.zsh"
 source "$ZSH_CONF_DIR/config.zsh"
 source "$ZSH_CONF_DIR/completion.zsh"

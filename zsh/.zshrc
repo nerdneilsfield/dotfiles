@@ -14,11 +14,14 @@ set -o vi
 
 set +e
 
+# Load helpers before private variables; variables.zsh calls green_echo.
+source "$ZSH_CONF_DIR/utils.zsh"
+source "$ZSH_CONF_DIR/function.zsh"
+
 # if ZSH_PRIVATE_CONF_DIR exists, source it
 if [ -d "$ZSH_PRIVATE_CONF_DIR" ]; then
 	source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
 fi
-source "$ZSH_CONF_DIR/utils.zsh"
 
 source "$ZSH_CONF_DIR/index.zsh"
 
@@ -79,6 +82,7 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 ## set keybinding after plugins
 source "$ZSH_CONF_DIR/keymap.zsh"
+print -r -- "💡 命令行编辑：Ctrl-X Ctrl-E（或 Esc-v）→ ${EDITOR:-vi}"
 
 # kimi-code
 export PATH="/Users/dengqi/.kimi-code/bin:$PATH"

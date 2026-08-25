@@ -33,6 +33,12 @@ else
   }
 fi
 
+# `zle` is a special option and cannot be restored with `setopt`/`options=`.
+__fzf_key_bindings_options=${__fzf_key_bindings_options// zle on/}
+__fzf_key_bindings_options=${__fzf_key_bindings_options// zle off/}
+__fzf_key_bindings_options=${__fzf_key_bindings_options// -o zle/}
+__fzf_key_bindings_options=${__fzf_key_bindings_options// +o zle/}
+
 'builtin' 'emulate' 'zsh' && 'builtin' 'setopt' 'no_aliases'
 
 {

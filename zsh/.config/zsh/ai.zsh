@@ -11,7 +11,7 @@ fi
 # $HOME/.grok/bin
 if [[ -d "$HOME/.grok/bin" ]]; then
   export PATH="$HOME/.grok/bin:$PATH"
-  <fpath=(~/.grok/completions/zsh $fpath)
+  fpath=(~/.grok/completions/zsh $fpath)
   autoload -Uz compinit && compinit -C
 fi
 

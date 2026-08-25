@@ -95,7 +95,7 @@ esac
 
 # bun
 # bun completions
-[ -s "${HOME}/.bun/_bun" ] && source "/home/dengqi/.bun/_bun"
+[ -s "${HOME}/.bun/_bun" ] && source "${HOME}/.bun/_bun"
 
 # bun
 if [ -d "${HOME}/.bun" ]; then
