@@ -7,9 +7,11 @@ pane_frames false
 // 缓冲区行数
 scroll_buffer_size 10000
 
-// 关闭鼠标追踪，避免 SSH 断线后终端残留 mouse mode
+// 启用鼠标
 copy_on_select true
-mouse_mode false
+mouse_mode true
+mouse_scroll_resize false
+mouse_hover_tips false
 support_kitty_keyboard_protocol false
 
 // 镜像会话
@@ -17,6 +19,35 @@ mirror_session true
 
 // 默认模式（锁定模式可避免快捷键冲突）
 default_mode "locked"
+
+// 终端关闭时保留远端会话；重启后可恢复窗格与工作目录
+on_force_close "detach"
+session_serialization true
+serialize_pane_viewport true
+scrollback_lines_to_serialize 10000
+
+keybinds {
+    locked {
+        bind "Alt r" {
+            LaunchOrFocusPlugin "https://github.com/rvcas/room/releases/latest/download/room.wasm" {
+                floating true
+                ignore_case true
+                quick_jump true
+            }
+        }
+        bind "Alt /" {
+            LaunchOrFocusPlugin "https://github.com/karimould/zellij-forgot/releases/latest/download/zellij_forgot.wasm" {
+                floating true
+            }
+        }
+    }
+}
+
+load_plugins {
+    "https://github.com/KiryuuLight/zellij-attention/releases/latest/download/zellij-attention.wasm" {
+        enabled "true"
+    }
+}
 
 // 主题
 theme "nord"
