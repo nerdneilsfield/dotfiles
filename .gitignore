@@ -27,3 +27,19 @@ __pycache__/
 /.serena/
 /skills-lock.json
 .aider*
+
+# 本地 agent 产物：禁止进入仓库
+**/docs/superpowers/
+**/.superpowers/
+
+# 本地缓存与生成物
+**/.cursor/
+**/.continue/
+**/.windsurf/
+**/.idea/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/__pycache__/
+*.py[cod]
+*.log

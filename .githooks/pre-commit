@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+forbidden="$(
+    git diff --cached --name-only --diff-filter=ACMRTUXB |
+        grep -E '(^|/)(docs/superpowers/|\.superpowers/|\.cursor/|\.continue/|\.windsurf/|\.idea/|\.pytest_cache/|\.mypy_cache/|\.ruff_cache/|__pycache__/)|(^|/)\.aider[^/]*$|(^|/)[^/]*\.py[cod]$|(^|/)[^/]*\.log$|^\.(agents|crush|factory|serena)/|^skills-lock\.json$' || true
+)"
+
+if [ -n "$forbidden" ]; then
+    printf '%s\n' 'commit blocked: local-only paths are staged:' >&2
+    printf '%s\n' "$forbidden" >&2
+    exit 1
+fi
