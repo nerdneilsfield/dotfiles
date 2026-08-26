@@ -31,6 +31,9 @@ __pycache__/
 # 本地 agent 产物：禁止进入仓库
 **/docs/superpowers/
 **/.superpowers/
+**/plans/
+**/planning/
+**/.plans/
 
 # 本地缓存与生成物
 **/.cursor/

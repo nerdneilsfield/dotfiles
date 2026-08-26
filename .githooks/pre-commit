@@ -3,7 +3,7 @@ set -eu
 
 forbidden="$(
     git diff --cached --name-only --diff-filter=ACMRTUXB |
-        grep -E '(^|/)(docs/superpowers/|\.superpowers/|\.cursor/|\.continue/|\.windsurf/|\.idea/|\.pytest_cache/|\.mypy_cache/|\.ruff_cache/|__pycache__/)|(^|/)\.aider[^/]*$|(^|/)[^/]*\.py[cod]$|(^|/)[^/]*\.log$|^\.(agents|crush|factory|serena)/|^skills-lock\.json$' || true
+        grep -E '(^|/)(docs/superpowers/|\.superpowers/|plans?/|planning/|\.plans/|\.cursor/|\.continue/|\.windsurf/|\.idea/|\.pytest_cache/|\.mypy_cache/|\.ruff_cache/|__pycache__/)|(^|/)\.aider[^/]*$|(^|/)[^/]*\.py[cod]$|(^|/)[^/]*\.log$|^\.(agents|crush|factory|serena)/|^skills-lock\.json$' || true
 )"
 
 if [ -n "$forbidden" ]; then
