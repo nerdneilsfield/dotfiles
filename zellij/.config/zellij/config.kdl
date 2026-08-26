@@ -7,9 +7,9 @@ pane_frames false
 // 缓冲区行数
 scroll_buffer_size 10000
 
-// 鼠标选择和复制
+// 关闭鼠标追踪，避免 SSH 断线后终端残留 mouse mode
 copy_on_select true
-mouse_mode true
+mouse_mode false
 
 // 镜像会话
 mirror_session true
