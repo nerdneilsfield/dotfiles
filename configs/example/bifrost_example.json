@@ -1,0 +1,257 @@
+{
+  "$schema": "https://www.getbifrost.ai/schema",
+  "version": 2,
+  "encryption_key": "env.BIFROST_ENCRYPTION_KEY",
+  "client": {
+    "drop_excess_requests": false,
+    "enforce_auth_on_inference": true
+  },
+  "providers": {
+    "glm": {
+      "keys": [
+        {
+          "name": "glm-primary",
+          "value": "env.GLM_CP_API_KEY",
+          "models": [
+            "*"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "network_config": {
+        "base_url": "https://open.bigmodel.cn/api/paas/v4",
+        "default_request_timeout_in_seconds": 180,
+        "max_retries": 2,
+        "extra_headers": {
+          "User-Agent": "RooCode/3.54.0"
+        }
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "chat_completion": true,
+          "chat_completion_stream": true
+        },
+        "request_path_overrides": {
+          "chat_completion": "/chat/completions",
+          "chat_completion_stream": "/chat/completions"
+        }
+      }
+    },
+    "kimi": {
+      "keys": [
+        {
+          "name": "kimi-primary",
+          "value": "env.KIMI_CP_API_KEY",
+          "models": [
+            "*"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "network_config": {
+        "base_url": "https://api.kimi.com/coding/v1",
+        "default_request_timeout_in_seconds": 180,
+        "max_retries": 2,
+        "extra_headers": {
+          "User-Agent": "RooCode/3.54.0"
+        }
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "chat_completion": true,
+          "chat_completion_stream": true
+        },
+        "request_path_overrides": {
+          "chat_completion": "/chat/completions",
+          "chat_completion_stream": "/chat/completions"
+        }
+      }
+    },
+    "ark": {
+      "keys": [
+        {
+          "name": "ark-primary",
+          "value": "env.ARK_CP_API_KEY",
+          "models": [
+            "*"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "network_config": {
+        "base_url": "https://ark.cn-beijing.volces.com/api/coding/v3",
+        "default_request_timeout_in_seconds": 180,
+        "max_retries": 2,
+        "extra_headers": {
+          "User-Agent": "RooCode/3.54.0"
+        }
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "chat_completion": true,
+          "chat_completion_stream": true
+        },
+        "request_path_overrides": {
+          "chat_completion": "/chat/completions",
+          "chat_completion_stream": "/chat/completions"
+        }
+      }
+    },
+    "minimax": {
+      "keys": [
+        {
+          "name": "minimax-primary",
+          "value": "env.MINIMAX_CP_API_KEY",
+          "models": [
+            "*"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "network_config": {
+        "base_url": "https://api.minimaxi.com/v1",
+        "default_request_timeout_in_seconds": 180,
+        "max_retries": 2,
+        "extra_headers": {
+          "User-Agent": "RooCode/3.54.0"
+        }
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "chat_completion": true,
+          "chat_completion_stream": true
+        },
+        "request_path_overrides": {
+          "chat_completion": "/chat/completions",
+          "chat_completion_stream": "/chat/completions"
+        }
+      }
+    }
+  },
+  "governance": {
+    "auth_config": {
+      "is_enabled": true,
+      "admin_username": "env.BIFROST_ADMIN_USERNAME",
+      "admin_password": "env.BIFROST_ADMIN_PASSWORD"
+    },
+    "virtual_keys": [
+      {
+        "id": "vk-test",
+        "name": "test",
+        "value": "env.BIFROST_VK_TEST",
+        "is_active": true,
+        "provider_configs": [
+          {
+            "provider": "glm",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "kimi",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "ark",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "minimax",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "vk-nuaa",
+        "name": "nuaa",
+        "value": "env.BIFROST_VK_NUAA",
+        "is_active": true,
+        "provider_configs": [
+          {
+            "provider": "glm",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "kimi",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "ark",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "minimax",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          },
+          {
+            "provider": "cliproxy",
+            "allowed_models": [
+              "*"
+            ],
+            "key_ids": [
+              "*"
+            ],
+            "weight": 1.0
+          }
+        ]
+      }
+    ]
+  },
+  "config_store": {
+    "enabled": true,
+    "type": "sqlite",
+    "config": {
+      "path": "/app/data/config.db"
+    }
+  }
+}
