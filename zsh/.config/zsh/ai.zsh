@@ -265,10 +265,14 @@ install_kilo_cli() {
   fi
 }
 
+uninstall_old_pi_agent() {
+  npm uninstall -g @mariozechner/pi-coding-agent
+}
+
 # @description install pi-coding-agent
 install_pi_agent() {
   if command -v npm &>/dev/null; then
-    npm install -g @mariozechner/pi-coding-agent
+    npm install -g @earendil-works/pi-coding-agent
   else
     echo "npm is not installed"
   fi
