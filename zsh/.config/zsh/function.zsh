@@ -617,26 +617,32 @@ check_in_china() {
 }
 
 # @brief Copy current directory path or file path to clipboard
-# @param $1 Optional file/directory name to append to current path
+# @param $1 Optional path to copy; relative paths are resolved from current directory
 # @return 0 on success
 # @example copypath myfile.txt
 # @category filesystem
 copypath() {
+	local target_path
+
 	if [ $# -gt 0 ]; then
+		# :A makes the path absolute and normalizes . and .. without prefixing
+		# an already absolute path with $PWD.
+		target_path="${1:A}"
+
 		if [ "$(uname 2>/dev/null)" = "Linux" ]; then
-			echo "$(pwd)/$@" | xclip -selection clipboard
+			print -rn -- "$target_path" | xclip -selection clipboard
 		fi
 
 		if [ "$(uname 2>/dev/null)" = "Darwin" ]; then
-			echo "$(pwd)/$@" | pbcopy
+			print -rn -- "$target_path" | pbcopy
 		fi
 	else
 		if [ "$(uname 2>/dev/null)" = "Linux" ]; then
-			pwd | xclip -selection clipboard
+			print -rn -- "$PWD" | xclip -selection clipboard
 		fi
 
 		if [ "$(uname 2>/dev/null)" = "Darwin" ]; then
-			pwd | pbcopy
+			print -rn -- "$PWD" | pbcopy
 		fi
 	fi
 }
