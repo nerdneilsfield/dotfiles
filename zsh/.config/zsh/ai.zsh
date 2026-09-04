@@ -2130,3 +2130,16 @@ mcp_generate_add_commands() {
     rm -f "$src_json"
   fi
 }
+
+# kimi-code
+if [[ -d "${HOME}/.kimi-code/bin" ]]; then
+  export PATH="${HOME}/.kimi-code/bin:${PATH}"
+fi
+
+# mimocode
+if [[ -d "${HOME}/.mimocode/bin" ]]; then
+  export PATH=$HOME/.mimocode/bin:$PATH
+fi
+
+# opencodex claude-env hook
+[ -f ~/.opencodex/claude-env.sh ] && source ~/.opencodex/claude-env.sh

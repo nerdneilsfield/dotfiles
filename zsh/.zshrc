@@ -1,6 +1,6 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
-fpath=("/Users/dengqi/.zsh/completions" $fpath)
+fpath=("${HOME}/.zsh/completions" "${fpath}")
 autoload -Uz compinit
 # compinit will be called later with -C to use cache
 # OPENSPEC:END
@@ -32,12 +32,10 @@ source "$ZSH_CONF_DIR/index.zsh"
 # source "$ZSH_CONF_DIR/zplug.zsh"
 source "$ZSH_CONF_DIR/zinit.zsh"
 autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
+((${+_comps})) && _comps[zinit]=_zinit
 ## wtf? auto completion need this guy
 source "$ZSH_CONF_DIR/tools.zsh"
 autoload -U compinit && compinit -C
-
-
 
 # system specified configuration
 # if [ "$(uname 2> /dev/null)" = "Linux" ]; then
@@ -65,13 +63,12 @@ autoload -U compinit && compinit -C
 # eval "$(lua $ZSH_CONF_DIR/z.lua --init zsh fzf)" #  once enhanced)"
 ##eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh  once enhanced)"
 
-
 ## check tools
 source "$ZSH_CONF_DIR/editor.zsh"
 ## Set Spaceship ZSH as a prompt
-autoload -U promptinit; promptinit
+autoload -U promptinit
+promptinit
 # prompt -p spaceship
-
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
@@ -84,14 +81,8 @@ export PATH="$PATH:$HOME/.rvm/bin"
 source "$ZSH_CONF_DIR/keymap.zsh"
 print -r -- "💡 命令行编辑：Ctrl-X Ctrl-E（或 Esc-v）→ ${EDITOR:-vi}"
 
-# kimi-code
-export PATH="/Users/dengqi/.kimi-code/bin:$PATH"
-
-# mimocode
-export PATH=/Users/dengqi/.mimocode/bin:$PATH
-
 # bun completions
-[ -s "/Users/dengqi/.bun/_bun" ] && source "/Users/dengqi/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # Remove broken completion links before compinit scans fpath.
 zsh_fix_completions
@@ -101,12 +92,10 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Deduplicate PATH entries
-typeset -U path
+#typeset -U path
 
 # Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/dengqi/.lmstudio/bin"
+if [[ -d "${HOME}/.lmstudio/bin" ]]; then
+	export PATH="$PATH:/$HOME/.lmstudio/bin"
+fi
 # End of LM Studio CLI section
-
-
-# opencodex claude-env hook
-[ -f ~/.opencodex/claude-env.sh ] && source ~/.opencodex/claude-env.sh
