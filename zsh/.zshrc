@@ -1,6 +1,10 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
+# `fpath` is tied to exported `FPATH`.  A parent shell may pass it as a
+# space-separated string, which Zsh then treats as one invalid path entry.
+# Normalize it before loading any autoloaded Zsh functions.
 typeset -U fpath
+fpath=("${(@s: :)${(j: :)fpath}}")
 fpath=("${HOME}/.zsh/completions" "${fpath[@]}")
 autoload -Uz compinit
 # compinit -C
