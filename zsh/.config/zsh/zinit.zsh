@@ -1,18 +1,15 @@
-
 export ZINIT_PATH="$HOME/.zinit/bin"
 
 # 避免与 zoxide 的 zi 命令冲突
 # 这里我们保持 zinit 的 zi 命令，因为我们已经将 zoxide 的交互式命令改为 zx
 # 如果需要完全禁用 zinit 别名，可以设置: export ZINIT[NO_ALIASES]=1
 
-
-
 # ==================================================================
 # Install zinit if not exist
 # ==================================================================
 if [ ! -f "$ZINIT_PATH/zinit.zsh" ]; then
 	echo "Installing zinit ..."
-	[ ! -d "$ZINIT_PATH" ] && mkdir -p "$ZINIT" 2> /dev/null
+	[ ! -d "$ZINIT_PATH" ] && mkdir -p "$ZINIT" 2>/dev/null
 	if [ -x "$(which git)" ]; then
 		#setpx
 		git clone --depth 1 https://ghproxy.dengqi.org/https://github.com/zdharma-continuum/zinit.git $ZINIT_PATH
@@ -24,7 +21,7 @@ if [ ! -f "$ZINIT_PATH/zinit.zsh" ]; then
 		echo ""
 		echo "ERROR: downloading zinit failed !!"
 		exit 1
-	fi;
+	fi
 	# zplug install
 fi
 
@@ -32,7 +29,6 @@ fi
 # source zplug
 # ==================================================================
 source "$ZINIT_PATH/zinit.zsh"
-
 
 # ==================================================================
 # claim plugins
@@ -55,11 +51,11 @@ zinit light zsh-users/zsh-completions
 
 # Convenient update functions
 function zinit-update-all() {
-    echo "🔄 Updating zinit itself..."
-    zinit self-update
-    echo "🔄 Updating all plugins..."
-    zinit update --all
-    echo "✅ All updates completed!"
+	echo "🔄 Updating zinit itself..."
+	zinit self-update
+	echo "🔄 Updating all plugins..."
+	zinit update --all
+	echo "✅ All updates completed!"
 }
 
 alias zup='zinit-update-all'

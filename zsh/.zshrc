@@ -1,7 +1,9 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
-fpath=("${HOME}/.zsh/completions" "${fpath}")
+typeset -U fpath
+fpath=("${HOME}/.zsh/completions" "${fpath[@]}")
 autoload -Uz compinit
+# compinit -C
 # compinit will be called later with -C to use cache
 # OPENSPEC:END
 
@@ -14,28 +16,29 @@ set -o vi
 
 set +e
 
+export TERM=xterm-256color
+
 # Load helpers before private variables; variables.zsh calls green_echo.
-source "$ZSH_CONF_DIR/utils.zsh"
-source "$ZSH_CONF_DIR/function.zsh"
+source "${ZSH_CONF_DIR}/utils.zsh"
+source "${ZSH_CONF_DIR}/function.zsh"
 
 # if ZSH_PRIVATE_CONF_DIR exists, source it
 if [ -d "$ZSH_PRIVATE_CONF_DIR" ]; then
 	source "$ZSH_PRIVATE_CONF_DIR/variables.zsh"
 fi
 
-source "$ZSH_CONF_DIR/index.zsh"
+source "${ZSH_CONF_DIR}/index.zsh"
 
 ## # import z.lua
-## eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh)"    # ZSH 初始化
+## eval "$(lua ${ZSH_CONF_DIR}/z.lua  --init zsh)"    # ZSH 初始化
 
 ## install plugins
-# source "$ZSH_CONF_DIR/zplug.zsh"
-source "$ZSH_CONF_DIR/zinit.zsh"
+# source "${ZSH_CONF_DIR}/zplug.zsh"
+source "${ZSH_CONF_DIR}/zinit.zsh"
 autoload -Uz _zinit
 ((${+_comps})) && _comps[zinit]=_zinit
 ## wtf? auto completion need this guy
-source "$ZSH_CONF_DIR/tools.zsh"
-autoload -U compinit && compinit -C
+source "${ZSH_CONF_DIR}/tools.zsh"
 
 # system specified configuration
 # if [ "$(uname 2> /dev/null)" = "Linux" ]; then
@@ -64,7 +67,7 @@ autoload -U compinit && compinit -C
 ##eval "$(lua $ZSH_CONF_DIR/z.lua  --init zsh  once enhanced)"
 
 ## check tools
-source "$ZSH_CONF_DIR/editor.zsh"
+source "${ZSH_CONF_DIR}/editor.zsh"
 ## Set Spaceship ZSH as a prompt
 autoload -U promptinit
 promptinit
@@ -78,7 +81,7 @@ export PATH="$PATH:$HOME/.rvm/bin"
 [ -f "$HOME/.zsh_local" ] && source "$HOME/.zsh_local"
 
 ## set keybinding after plugins
-source "$ZSH_CONF_DIR/keymap.zsh"
+source "${ZSH_CONF_DIR}/keymap.zsh"
 print -r -- "💡 命令行编辑：Ctrl-X Ctrl-E（或 Esc-v）→ ${EDITOR:-vi}"
 
 # bun completions
@@ -99,3 +102,4 @@ if [[ -d "${HOME}/.lmstudio/bin" ]]; then
 	export PATH="$PATH:/$HOME/.lmstudio/bin"
 fi
 # End of LM Studio CLI section
+autoload -Uz compinit && compinit -C
