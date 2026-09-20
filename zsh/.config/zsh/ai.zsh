@@ -19,10 +19,10 @@ install_oh_my_pi() {
   echo "Installing oh my pi....."
   if command -v omp &>/dev/null; then
     omp update
-    echo "oh-my-pi upgraded"
+    echo "omp upgraded"
   else
     curl -fsSL https://omp.sh/install | sh
-    echo "oh-my-pi installed"
+    echo "omp installed"
   fi
 }
 
@@ -41,6 +41,14 @@ install_paseo() {
 install_codex() {
   if command -v npm &>/dev/null; then
     npm install -g @openai/codex
+  else
+    echo "npm is not installed"
+  fi
+}
+
+install_command_code() {
+  if command -v npm &>/dev/null; then
+    npm install -g command-code@latest
   else
     echo "npm is not installed"
   fi
