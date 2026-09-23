@@ -2,7 +2,7 @@
 _conditional_source() {
   local file="$1"
   local condition="$2"
-  
+
   if [[ -f "$ZSH_CONF_DIR/$file" ]] && eval "$condition"; then
     source "$ZSH_CONF_DIR/$file"
   fi
@@ -10,25 +10,25 @@ _conditional_source() {
 
 # 平台特定配置 - 基于系统类型加载
 case "$(uname -s)" in
-  "Darwin")
-    _conditional_source "config.macos.zsh" "true"
-    ;;
-  "Linux")
-    _conditional_source "config.linux.zsh" "true"
-    ;;
-  *)
-    # 检查是否为 MSYS2/Cygwin
-    if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
-      _conditional_source "config.msys2.zsh" "true"
-    elif [[ "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
-      _conditional_source "config.msys2.zsh" "true"  # MSYS2 配置也适用于 Cygwin
-    fi
-    ;;
+"Darwin")
+  _conditional_source "config.macos.zsh" "true"
+  ;;
+"Linux")
+  _conditional_source "config.linux.zsh" "true"
+  ;;
+*)
+  # 检查是否为 MSYS2/Cygwin
+  if [[ "$(uname -o 2>/dev/null)" == "Msys" ]]; then
+    _conditional_source "config.msys2.zsh" "true"
+  elif [[ "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+    _conditional_source "config.msys2.zsh" "true" # MSYS2 配置也适用于 Cygwin
+  fi
+  ;;
 esac
 
 # 核心模块 - 总是加载
 source "$ZSH_CONF_DIR/alias.zsh"
-(( $+functions[green_echo] )) || source "$ZSH_CONF_DIR/function.zsh"
+(($+functions[green_echo])) || source "$ZSH_CONF_DIR/function.zsh"
 source "$ZSH_CONF_DIR/starship.zsh"
 source "$ZSH_CONF_DIR/config.zsh"
 source "$ZSH_CONF_DIR/completion.zsh"
@@ -36,7 +36,6 @@ source "$ZSH_CONF_DIR/shell.zsh"
 source "$ZSH_CONF_DIR/help.zsh"
 source "$ZSH_CONF_DIR/ai.zsh"
 source "$ZSH_CONF_DIR/installers.zsh"
-
 
 # 基于工具存在性的条件加载
 _conditional_source "docker.zsh" "command -v docker >/dev/null 2>&1"
@@ -52,7 +51,6 @@ _conditional_source "cc.zsh" "command -v gcc >/dev/null 2>&1 || command -v clang
 _conditional_source "cuda.zsh" "command -v nvcc >/dev/null 2>&1 || [[ -d /usr/local/cuda ]]"
 _conditional_source "wasm.zsh" "command -v wasmtime >/dev/null 2>&1 || command -v wasmer >/dev/null 2>&1"
 _conditional_source "zig.zsh" "command -v zig >/dev/null 2>&1"
-
 
 # 特殊硬件/系统相关 - 只在特定环境加载
 _conditional_source "hdl.zsh" "[[ -d /opt/xilinx ]] || [[ -d /opt/intel/quartus ]]"
@@ -77,6 +75,8 @@ source "$ZSH_CONF_DIR/package_manager.zsh"
 source "$ZSH_CONF_DIR/install_catalog.zsh"
 source "$ZSH_CONF_DIR/install_router.zsh"
 source "$ZSH_CONF_DIR/install_aliases.zsh"
+
+source "$ZSH_CONF_DIR/server.zsh"
 
 # 帮助系统 - 总是加载
 source "$ZSH_CONF_DIR/help_system.zsh"
