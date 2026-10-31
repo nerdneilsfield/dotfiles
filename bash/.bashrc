@@ -11,6 +11,10 @@
 # 如果不是交互式 shell，直接返回
 [[ $- != *i* ]] && return
 
+# agent 启动的 shell：不要交互式确认、欢迎横幅和花哨提示符
+IS_AGENT_SHELL=
+[[ -n "${AGENT}${OPENCODE}${CLAUDECODE}${CODEX_SANDBOX}${CURSOR_AGENT}" ]] && IS_AGENT_SHELL=1
+
 # 设置默认编辑器
 export EDITOR='vim'
 export VISUAL='vim'
@@ -190,7 +194,12 @@ __prompt_command() {
     fi
 }
 
-PROMPT_COMMAND=__prompt_command
+if [[ -z "$IS_AGENT_SHELL" ]]; then
+    PROMPT_COMMAND=__prompt_command
+else
+    PS1='\w \$ '
+    unset PROMPT_COMMAND
+fi
 
 # ----------------------------------------------------------------------------
 # 实用别名 - 基础命令增强
@@ -218,11 +227,13 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
-# 安全操作
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-alias ln='ln -i'
+# 安全操作（agent 无法回答确认提示，会卡住）
+if [[ -z "$IS_AGENT_SHELL" ]]; then
+    alias rm='rm -i'
+    alias cp='cp -i'
+    alias mv='mv -i'
+    alias ln='ln -i'
+fi
 
 # 其他常用命令
 alias df='df -h'
@@ -267,7 +278,9 @@ alias gca='git commit --amend'
 alias gp='git push'
 alias gpl='git pull'
 alias gd='git diff'
+alias gds='git diff --stat'
 alias gdc='git diff --cached'
+alias gdd='git -c diff.external=difft diff'
 alias gl='git log --oneline --graph --decorate --all'
 alias glog='git log --oneline --decorate --graph'
 alias gb='git branch'
@@ -334,8 +347,8 @@ ff() {
     find . -type f -iname "*$1*"
 }
 
-# 查找目录
-fd() {
+# 查找目录（不再命名为 fd，避免覆盖 fd-find）
+fdd() {
     find . -type d -iname "*$1*"
 }
 
@@ -659,7 +672,7 @@ fi
 # 欢迎信息
 # ----------------------------------------------------------------------------
 
-if [ -n "$PS1" ]; then
+if [ -n "$PS1" ] && [[ -z "$IS_AGENT_SHELL" ]]; then
     echo -e "${C_BOLD_CYAN}"
     echo "================================"
     echo "  欢迎使用增强版 Bash Shell"
