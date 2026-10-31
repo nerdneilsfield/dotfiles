@@ -1,0 +1,8 @@
+# 备份
+.bashrc.bak
+.bashrc.bak.*
+
+# 本机覆盖配置与运行时文件
+.bashrc.local
+.bash_history
+.bash_sessions/

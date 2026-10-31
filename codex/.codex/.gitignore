@@ -1,0 +1,38 @@
+# 凭据
+/auth.json
+
+# 本机配置与备份
+/config_local.toml
+/config.toml.bak
+/config.toml.*.bak
+/config.toml.*-backup
+
+# 运行时数据：会话、历史、日志、缓存
+/sessions/
+/archived_sessions/
+/history.jsonl
+/log/
+/logs/
+/cache/
+/tmp/
+/.tmp/
+/attachments/
+/generated_images/
+/browser/
+/dictation-history/
+/shell_snapshots/
+/.cw/
+
+# 运行时状态
+/*.sqlite
+/*.sqlite-shm
+/*.sqlite-wal
+/*.sqlite-journal
+/.codex-global-state.json*
+/..codex-global-state.json*
+/.app-server-state-reconciled-v1
+/.personality_migration
+/.sandbox_migration
+/.sqlite-maintenance.lock
+/version.json
+/models_cache.json

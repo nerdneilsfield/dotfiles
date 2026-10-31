@@ -1,0 +1,15 @@
+# 凭据与设备标识
+/credentials/
+/device_id
+
+# 可能含 token 的本机配置
+/mcp.json
+
+# 运行时数据
+/sessions/
+/logs/
+/telemetry/
+/user-history/
+/kimi.json
+/latest_version.txt
+/.migrated-to-kimi-code

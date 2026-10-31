@@ -1,0 +1,9 @@
+# .zshrc 备份（安装器和脚本生成）
+.zshrc.bak
+.zshrc.bak.*
+.zshrc.pre-*
+
+# zsh 运行时文件
+.zsh_history
+.zcompdump*
+*.zwc

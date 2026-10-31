@@ -1,0 +1,5 @@
+# tpm 插件和 resurrect 保存的会话
+/.tmux/plugins/
+/.tmux/resurrect/
+.tmux.conf.bak
+.tmux.conf.bak.*

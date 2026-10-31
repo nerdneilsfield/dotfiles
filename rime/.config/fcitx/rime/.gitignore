@@ -1,0 +1,7 @@
+# rime 部署产物和用户词库
+/build/
+/sync/
+*.userdb/
+/user.yaml
+/installation.yaml
+/*.bin

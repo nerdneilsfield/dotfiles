@@ -46,3 +46,6 @@ __pycache__/
 **/__pycache__/
 *.py[cod]
 *.log
+
+# ctags 进程锁
+tags.lock

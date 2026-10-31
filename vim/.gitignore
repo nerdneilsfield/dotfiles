@@ -1,0 +1,10 @@
+# vim 运行时文件
+.viminfo
+.netrwhist
+.tags
+*.swp
+*.swo
+*.un~
+*.vim_bak
+.vimrc.bak
+.vimrc.bak.*

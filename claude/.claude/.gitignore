@@ -1,0 +1,24 @@
+# 运行时数据：会话、历史、缓存
+/history.jsonl
+/projects/
+/sessions/
+/todos/
+/shell-snapshots/
+/statsig/
+/ide/
+/debug/
+/cache/
+/backups/
+/paste-cache/
+/plugins/
+/stats-cache.json
+/.last-cleanup
+/orca-agent-view.json
+
+# 本机覆盖配置与备份
+/settings.local.json
+/settings.json.bak
+/settings.json.*.bak
+
+# 凭据
+/.credentials.json

@@ -1,0 +1,8 @@
+# emacs 运行时文件
+/.local/
+/auto-save-list/
+/eln-cache/
+*.elc
+*~
+\#*\#
+.\#*
