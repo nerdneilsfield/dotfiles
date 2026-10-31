@@ -8,6 +8,11 @@ if [[ -d "$HOME/.mimocode/bin" ]]; then
   export PATH="$HOME/.mimocode/bin:$PATH"
 fi
 
+# ~/.minimax/bin (MiniMax Code)
+if [[ -d "$HOME/.minimax/bin" ]]; then
+  export PATH="$HOME/.minimax/bin:$PATH"
+fi
+
 # $HOME/.grok/bin
 if [[ -d "$HOME/.grok/bin" ]]; then
   export PATH="$HOME/.grok/bin:$PATH"
@@ -28,6 +33,7 @@ install_oh_my_pi() {
 
 install_paseo() {
   echo "Installing paseo....."
+  _ai_brew_install cask paseo && return 0
   if command -v bun &>/dev/null; then
     bun install -g @getpaseo/cli
     echo "paseo installed or upgraded"
@@ -39,11 +45,8 @@ install_paseo() {
 
 # @description install openai/codex
 install_codex() {
-  if command -v npm &>/dev/null; then
-    npm install -g @openai/codex
-  else
-    echo "npm is not installed"
-  fi
+  _ai_brew_install cask codex && return 0
+  _ai_install_npm_global "@openai/codex" "Codex"
 }
 
 install_command_code() {
@@ -54,7 +57,7 @@ install_command_code() {
   fi
 }
 
-# @description install openai/codex
+# @description install opencodex
 install_ai_opencodex() {
   if command -v npm &>/dev/null; then
     npm install -g @bitkyc08/opencodex
@@ -99,6 +102,22 @@ _ai_install_uv_tool() {
     uv tool upgrade "${package%%\[*}" --no-cache
   else
     uv tool install "$package" --no-cache
+  fi
+}
+
+# @description install or upgrade a Homebrew formula/cask; returns 1 when brew is unusable so callers can fall back
+# @param $1 kind: formula|cask
+# @param $2 package name
+_ai_brew_install() {
+  local kind="$1"
+  local name="$2"
+  command -v brew &>/dev/null || return 1
+  [[ "$kind" == "cask" && "$(uname -s)" != "Darwin" ]] && return 1
+  if brew list "--${kind}" "$name" &>/dev/null; then
+    echo "${name} is already installed via Homebrew, upgrading"
+    brew upgrade "--${kind}" "$name" || true
+  else
+    brew install "--${kind}" "$name"
   fi
 }
 
@@ -184,6 +203,7 @@ stow_agents_skills() {
 }
 
 install_kimi_cli() {
+  _ai_brew_install formula kimi-cli && return 0
   if command -v uv &>/dev/null; then
     if command -v kimi &>/dev/null; then
       echo "kimi is already installed, upgrading"
@@ -202,6 +222,7 @@ install_kimi_code() {
 }
 
 install_aider() {
+  _ai_brew_install formula aider && return 0
   _ai_install_script "https://aider.chat/install.sh" "Aider"
 }
 
@@ -226,7 +247,7 @@ install_ai_code_graph_rag() {
 install_ai_code_review_graph() {
   if command -v uv &>/dev/null; then
     if command -v code-review-graph &>/dev/null; then
-      echo "code-graph-rag is already installed, upgrading"
+      echo "code-review-graph is already installed, upgrading"
       uv tool upgrade code-review-graph --no-cache
     else
       uv tool install code-review-graph --no-cache
@@ -257,11 +278,8 @@ install_ai_tools() {
 
 # @description install anthropic/codex
 install_claude_code() {
-  if command -v npm &>/dev/null; then
-    npm install -g @anthropic-ai/claude-code
-  else
-    echo "npm is not installed"
-  fi
+  _ai_brew_install cask claude-code && return 0
+  _ai_install_npm_global "@anthropic-ai/claude-code" "Claude Code"
 }
 
 # @description install anthropic/codex
@@ -279,29 +297,29 @@ uninstall_old_pi_agent() {
 
 # @description install pi-coding-agent
 install_pi_agent() {
-  if command -v npm &>/dev/null; then
-    npm install -g @earendil-works/pi-coding-agent
-  else
-    echo "npm is not installed"
-  fi
-
+  _ai_brew_install formula pi-coding-agent && return 0
+  _ai_install_npm_global "@earendil-works/pi-coding-agent" "pi"
 }
 
 install_gemini_cli() {
+  _ai_brew_install formula gemini-cli && return 0
   _ai_install_npm_global "@google/gemini-cli" "Gemini CLI"
 }
 
 install_qwen_code() {
+  _ai_brew_install formula qwen-code && return 0
   _ai_install_npm_global "@qwen-code/qwen-code" "Qwen Code"
 }
 
 # @description install openspec cli
 install_openspec_cli() {
+  _ai_brew_install formula openspec && return 0
   _ai_install_npm_global "@fission-ai/openspec" "OpenSpec CLI"
 }
 
 # @description install factory droid cli
 install_factory_droid() {
+  _ai_brew_install cask droid && return 0
   _ai_install_script "https://app.factory.ai/cli" "Factory Droid CLI"
 }
 
@@ -317,6 +335,14 @@ install_goose_cli() {
 
 # @description install opencode cli
 install_opencode_cli() {
+  if command -v brew &>/dev/null; then
+    # anomalyco/tap/opencode-v2 与核心 opencode formula 冲突，已装 v2 时只升级它
+    if brew list --formula opencode-v2 &>/dev/null; then
+      brew upgrade anomalyco/tap/opencode-v2 || true
+      return 0
+    fi
+    _ai_brew_install formula opencode && return 0
+  fi
   if command -v npm &>/dev/null; then
     # official package name is `opencode`
     _ai_install_npm_global "${OPENCODE_CLI_NPM_PACKAGE:-opencode}" "OpenCode CLI"
@@ -411,12 +437,99 @@ install_crush_cli() {
 
 # @description install cursor cli
 install_cursor_cli() {
+  _ai_brew_install cask cursor-cli && return 0
   _ai_install_script "https://cursor.com/install" "Cursor CLI"
 }
 
 # @description install grok cli
 install_grok_cli() {
+  _ai_brew_install cask grok-build && return 0
   _ai_install_script "https://x.ai/cli/install.sh" "Grok CLI"
+}
+
+# @description install T3 Code desktop app (macOS only)
+install_t3_code() {
+  _ai_brew_install cask t3-code
+}
+
+# @description install Orca desktop app (macOS only); plain "orca" cask is the unrelated Plotly Orca
+install_orca() {
+  _ai_brew_install cask stablyai/orca/orca
+}
+
+# @description install OpenChamber (desktop on macOS, web CLI elsewhere)
+install_openchamber() {
+  _ai_brew_install cask openchamber && return 0
+  _ai_install_npm_global "@openchamber/web" "OpenChamber"
+}
+
+# @description install OmO (oh-my-openagent native omo binary)
+install_omo() {
+  _ai_install_script "https://get.omo.dev/install.sh" "OmO"
+}
+
+# @description install DeepSeek Harness CLI (dsh)
+install_dsh() {
+  _ai_install_npm_global "@deepseek-ai/dsh" "DeepSeek Harness (dsh)"
+}
+
+# @description install Z Code CLI (zcode)
+install_zcode_cli() {
+  _ai_install_npm_global "zcode-app-cli@latest" "Z Code CLI"
+}
+
+# @description install jcode (Rust coding agent harness)
+install_jcode() {
+  _ai_brew_install formula jcode && return 0
+  _ai_install_script "https://jcode.sh/install" "jcode"
+}
+
+# @description install prime-agent (Prime Intellect)
+install_prime_agent() {
+  _ai_install_script "https://app.primeintellect.ai/prime-agent/install.sh" "Prime Agent" "sh"
+}
+
+# @description install Google Antigravity CLI (agy)
+install_antigravity_cli() {
+  _ai_brew_install cask antigravity-cli && return 0
+  _ai_install_script "https://antigravity.google/cli/install.sh" "Antigravity CLI"
+}
+
+# @description install MiniMax Code (mcode)
+install_minimax_code() {
+  _ai_install_script "https://filecdn.minimax.chat/public/install.sh" "MiniMax Code"
+}
+
+# @description install GitHub Copilot CLI
+install_copilot_cli() {
+  _ai_brew_install cask copilot-cli && return 0
+  _ai_install_npm_global "@github/copilot" "GitHub Copilot CLI"
+}
+
+# @description install Sourcegraph Amp
+install_amp_cli() {
+  _ai_install_npm_global "@sourcegraph/amp" "Amp CLI"
+}
+
+# @description install Augment Code CLI (auggie)
+install_auggie_cli() {
+  _ai_install_npm_global "@augmentcode/auggie" "Auggie CLI"
+}
+
+# @description install all agent CLIs that use the official one-line installers
+install_ai_agents() {
+  local fn
+  for fn in \
+    install_codex install_claude_code install_gemini_cli install_qwen_code \
+    install_opencode_cli install_pi_agent install_kilo_cli install_copilot_cli \
+    install_amp_cli install_auggie_cli install_command_code \
+    install_kimi_code install_mimo_code install_grok_cli install_cursor_cli \
+    install_factory_droid install_crush_cli install_jcode install_prime_agent \
+    install_antigravity_cli install_minimax_code install_oh_my_pi install_omo \
+    install_dsh install_zcode_cli install_t3_code install_orca install_openchamber; do
+    echo "==> ${fn}"
+    "$fn" || echo "!! ${fn} failed, continuing"
+  done
 }
 
 # @description install headroom-ai (uv tool)
@@ -455,37 +568,81 @@ install_extra_ai_tools() {
   install_caveman_cli || true
 }
 
-update_ai_tools() {
-  if command -v npm &>/dev/null; then
-    npm update -g @openai/codex
-    npm update -g @anthropic-ai/claude-code
-    npm update -g @google/gemini-cli
-    npm update -g @kilocode/cli || true
-    npm update -g @qwen-code/qwen-code
-    npm update -g @mariozechner/pi-coding-agent || true
-    npm update -g "${OPENCODE_CLI_NPM_PACKAGE:-opencode}" || true
-    npm update -g @fission-ai/openspec || true
+# @description upgrade via brew when brew manages the package, otherwise via npm
+# @param $1 kind: formula|cask|none (none = npm only)
+# @param $2 brew name
+# @param $3 npm package
+_ai_update_pkg() {
+  local kind="$1" brew_name="$2" npm_pkg="$3"
+  if [[ "$kind" != "none" ]] && command -v brew &>/dev/null &&
+    brew list "--${kind}" "$brew_name" &>/dev/null; then
+    brew upgrade "--${kind}" "$brew_name" || true
+  elif [[ -z "$npm_pkg" ]]; then
+    return 0
+  elif command -v npm &>/dev/null; then
+    npm update -g "$npm_pkg" || true
   else
-    echo "npm is not installed; skipping npm-based AI tools"
+    echo "skip ${npm_pkg}: not managed by brew and npm is not installed"
   fi
+}
+
+update_ai_tools() {
+  _ai_update_pkg cask codex @openai/codex
+  _ai_update_pkg cask claude-code @anthropic-ai/claude-code
+  _ai_update_pkg formula gemini-cli @google/gemini-cli
+  _ai_update_pkg none "" @kilocode/cli
+  _ai_update_pkg formula qwen-code @qwen-code/qwen-code
+  _ai_update_pkg formula pi-coding-agent @earendil-works/pi-coding-agent
+  _ai_update_pkg formula openspec @fission-ai/openspec
+  _ai_update_pkg cask copilot-cli @github/copilot
+  _ai_update_pkg none "" @sourcegraph/amp
+  _ai_update_pkg none "" @augmentcode/auggie
+  _ai_update_pkg none "" command-code
 
   command -v crush &>/dev/null && install_crush_cli || true
 
   command -v cursor-agent &>/dev/null && cursor-agent update || true
-  command -v opencode &>/dev/null && opencode upgrade || true
+  if command -v brew &>/dev/null && brew list --formula opencode-v2 &>/dev/null; then
+    brew upgrade anomalyco/tap/opencode-v2 || true
+  elif command -v brew &>/dev/null && brew list --formula opencode &>/dev/null; then
+    brew upgrade opencode || true
+  else
+    command -v opencode &>/dev/null && opencode upgrade || true
+  fi
   command -v goose &>/dev/null && goose --version >/dev/null || true
-  command -v grok &>/dev/null && install_grok_cli || true
+  if command -v brew &>/dev/null && brew list --cask grok-build &>/dev/null; then
+    brew upgrade --cask grok-build || true
+  else
+    command -v grok &>/dev/null && install_grok_cli || true
+  fi
+  command -v jcode &>/dev/null && install_jcode || true
+  command -v prime-agent &>/dev/null && prime-agent update || true
+  command -v agy &>/dev/null && install_antigravity_cli || true
+  command -v mcode &>/dev/null && install_minimax_code || true
+  command -v omp &>/dev/null && omp update || true
+  command -v omo &>/dev/null && omo update || true
+  _ai_update_pkg none "" @deepseek-ai/dsh
+  _ai_update_pkg none "" zcode-app-cli
+  _ai_update_pkg cask t3-code ""
+  _ai_update_pkg cask stablyai/orca/orca ""
+  _ai_update_pkg cask openchamber @openchamber/web
 }
 
 reinstall_ai_tools() {
   if command -v npm &>/dev/null; then
-    npm uninstall -g @openai/codex @anthropic-ai/claude-code @google/gemini-cli @kilocode/cli @qwen-code/qwen-code @mariozechner/pi-coding-agent opencode @fission-ai/openspec
+    npm uninstall -g @openai/codex @anthropic-ai/claude-code @google/gemini-cli @kilocode/cli @qwen-code/qwen-code @earendil-works/pi-coding-agent opencode @fission-ai/openspec @github/copilot @sourcegraph/amp @augmentcode/auggie command-code
   else
     echo "npm is not installed; skipping npm-based AI tools reinstall"
   fi
 
-  command -v crush &>/dev/null && install_crush_cli || true
-  update_ai_tools
+  local fn
+  for fn in \
+    install_codex install_claude_code install_gemini_cli install_qwen_code \
+    install_pi_agent install_opencode_cli install_openspec_cli install_kilo_cli \
+    install_copilot_cli install_amp_cli install_auggie_cli install_command_code \
+    install_crush_cli; do
+    "$fn" || echo "!! ${fn} failed, continuing"
+  done
 }
 
 # @description install aichat
@@ -494,6 +651,9 @@ reinstall_ai_tools() {
 # @example install_aichat
 # @category ai
 install_aichat() {
+  if [[ -z "$1" ]] && _ai_brew_install formula aichat; then
+    return 0
+  fi
   local install_prefix="$HOME/.local"
   # if have $1, use $1 as install_prefix
   if [ -n "$1" ]; then
@@ -2138,16 +2298,6 @@ mcp_generate_add_commands() {
     rm -f "$src_json"
   fi
 }
-
-# kimi-code
-if [[ -d "${HOME}/.kimi-code/bin" ]]; then
-  export PATH="${HOME}/.kimi-code/bin:${PATH}"
-fi
-
-# mimocode
-if [[ -d "${HOME}/.mimocode/bin" ]]; then
-  export PATH=$HOME/.mimocode/bin:$PATH
-fi
 
 # opencodex claude-env hook
 [ -f ~/.opencodex/claude-env.sh ] && source ~/.opencodex/claude-env.sh

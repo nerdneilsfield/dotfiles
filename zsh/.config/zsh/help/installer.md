@@ -79,7 +79,30 @@ INSTALL_VERBOSE=1 install_route yazi
 - `install_crush_cli`
 - `install_cursor_cli`
 - `install_grok_cli`
+- `install_jcode`
+- `install_prime_agent`
+- `install_antigravity_cli`
+- `install_minimax_code`
+- `install_oh_my_pi`（omp）
+- `install_omo`（oh-my-openagent 的原生 `omo`，包名是 `omo-ai`，npm 上的 `omo` 是无关包）
+- `install_dsh`（DeepSeek Harness，`@deepseek-ai/dsh`；brew 的 `dsh` 是无关的分布式 shell）
+- `install_zcode_cli`（智谱 Z Code，`zcode-app-cli`，非官方社区包）
+- `install_t3_code`（cask `t3-code`）
+- `install_orca`（cask `stablyai/orca/orca`；brew 里不带 tap 的 `orca` 是无关的 Plotly Orca）
+- `install_openchamber`（cask `openchamber`，非 macOS 回退到 `@openchamber/web`）
+- `install_copilot_cli`
+- `install_amp_cli`
+- `install_auggie_cli`
+- `install_command_code`
 - `install_aichat`
+
+安装顺序：有 Homebrew 且 brew 里有对应 formula/cask 时优先用 brew（cask 仅 macOS），否则回退到 npm / uv / 官方安装脚本。`update_ai_tools` 也按同样规则升级：brew 管理的包用 `brew upgrade`，其余用 `npm update -g`。
+
+一次装齐所有 agent（单个失败不会中断）：
+
+```zsh
+install_ai_agents
+```
 
 批量更新：
 
