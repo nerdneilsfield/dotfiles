@@ -1722,8 +1722,11 @@ install_modern_tools_brew(){
 alias install_modertools_jq="install_jq_from_source"
 
 #=======================
-#=====git diff difft====
-export GIT_EXTERNAL_DIFF=difft
+# git diff 保持标准 unified 格式，供 agent 读取和 apply；
+# 人工查看结构化 diff 时用 gdd（difftastic）。
+unset GIT_EXTERNAL_DIFF
+alias gdd='git -c diff.external=difft diff'
+alias gds='git diff --stat'
 
 
 # use ip address

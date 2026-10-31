@@ -71,7 +71,7 @@ alias dce='docker compose exec'
 alias da='docker exec -it'
 
 # git
-alias gd='git dif'
+alias gd='git diff'
 alias ga='git add .'
 alias gc='git commit -m'
 alias g='lazygit'
@@ -114,7 +114,7 @@ alias now='date +%s'
 alias dateunix='date +%s'
 alias sz="source $HOME/.zshrc"
 alias j='z'
-alias rg='rg --column --line-number --hidden --sort path --no-heading --color=always --smart-case -- '
+alias rg='rg --smart-case'
 
 # macos only
 alias refresh-dns='sudo killall -HUP mDNSResponder'

@@ -86,7 +86,8 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 ## set keybinding after plugins
 source "${ZSH_CONF_DIR}/keymap.zsh"
-print -r -- "💡 命令行编辑：Ctrl-X Ctrl-E（或 Esc-v）→ ${EDITOR:-vi}"
+[[ -o interactive && -t 1 && -z "${AGENT}${OPENCODE}${CLAUDECODE}" ]] &&
+	print -r -- "💡 命令行编辑：Ctrl-X Ctrl-E（或 Esc-v）→ ${EDITOR:-vi}"
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
@@ -107,3 +108,9 @@ if [[ -d "${HOME}/.lmstudio/bin" ]]; then
 fi
 # End of LM Studio CLI section
 autoload -Uz compinit && compinit -C
+
+# Added by MiniMax Code
+export PATH="/Users/dengqi/.minimax/bin:$PATH"
+
+# MiniMax Code CLI
+export PATH="/Users/dengqi/.minimax-code/bin:$PATH"
