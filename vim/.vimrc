@@ -296,6 +296,15 @@ set noswapfile
 " 禁用 undo文件
 set noundofile
 
+" agent 或其他进程改了磁盘文件时自动重新载入（缓冲区有未保存修改时不会覆盖）
+set autoread
+augroup AutoReadFromDisk
+  autocmd!
+  autocmd FocusGained,BufEnter,CursorHold,CursorHoldI *
+        \ if mode() !~# '[cR!]' && getcmdwintype() ==# '' | silent! checktime | endif
+  autocmd FileChangedShellPost * echohl WarningMsg | echo "文件已在磁盘上更新，已重新载入" | echohl None
+augroup END
+
 
 "----------------------------------------------------------------------
 " 配置微调
@@ -1508,7 +1517,7 @@ endif " end commentary guard
 if exists("&shada") | set shada='100,<50,s10,h | elseif exists("&viminfo") | set viminfo='100,<50,s10,h | endif
 
 
-if exists('&diffopt') | set diffopt+=internal | silent! set diffopt+=indent-heuristic | silent! set diffopt+=linematch:60 | endif
+if exists('&diffopt') | set diffopt+=internal | silent! set diffopt+=indent-heuristic | silent! set diffopt+=linematch:60 | silent! set diffopt+=algorithm:histogram | endif
 
 
 if exists("&inccommand") | set inccommand=nosplit | endif
