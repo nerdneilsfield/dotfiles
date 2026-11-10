@@ -1844,6 +1844,9 @@ show_ipv6_addr() { show-ipv6-addr "$@"; }
 # ffmpeg 重编码成 mp4。--remux-video 和 --recode-video 不能同时给。
 # 720/1080 用 -S res:N：不超过该分辨率，竖屏按短边算；没有更低的就取最小的。
 # 字幕默认中文和英文，并带上自动字幕。no-keep-subs 让内嵌后不留单独字幕文件。
+# 不用 zh.*,en.*：它会命中 YouTube 翻译轨（zh-Hant-zh-Hans、en-zh-Hans）。
+# 这些轨连续请求会 429，yt-dlp 随后中断整个下载。只收中文和英文自己的语言标签。
+# --sub-langs 按逗号拆开，正则里面不能再写逗号。
 # 写在 URL 后面的参数原样传给 yt-dlp，后写的 -S / --sub-langs 会盖过这里的默认值。
 
 __ytdlp_require() {
@@ -1870,7 +1873,7 @@ __ytdlp_video_cmd() {
     local -a args=(
         --embed-subs
         --write-auto-subs
-        --sub-langs "zh.*,en.*"
+        --sub-langs 'zh(-Hans|-Hant|-CN|-TW|-HK|-SG|-MO)?,en(-[A-Za-z][A-Za-z])?'
         --embed-thumbnail
         --convert-thumbnails jpg
         --embed-chapters
@@ -1915,11 +1918,13 @@ __ytdlp_video() {
     return $rc
 }
 
+##
 # @brief 下载最高清视频，内嵌中英文字幕、封面和章节，导出 mp4
 # @param $@ 视频 URL，以及额外的 yt-dlp 参数
 # @example ytdl 'https://www.youtube.com/watch?v=...'
 # @example ytdl URL --sub-langs all
-# @category tools
+# @category media
+##
 ytdl() {
     if [[ $# -eq 0 ]]; then
         __tools_error "Usage: ytdl <url>... [yt-dlp options]"
@@ -1933,10 +1938,12 @@ ytdl() {
     __ytdlp_video "" "$@"
 }
 
+##
 # @brief 下载不超过 720p 的视频，内嵌字幕、封面和声音，导出 mp4
 # @param $@ 视频 URL，以及额外的 yt-dlp 参数
 # @example ytdl-720 'https://www.youtube.com/watch?v=...'
-# @category tools
+# @category media
+##
 ytdl-720() {
     if [[ $# -eq 0 ]]; then
         __tools_error "Usage: ytdl-720 <url>... [yt-dlp options]"
@@ -1950,10 +1957,12 @@ ytdl-720() {
     __ytdlp_video 720 "$@"
 }
 
+##
 # @brief 下载不超过 1080p 的视频，内嵌字幕、封面和声音，导出 mp4
 # @param $@ 视频 URL，以及额外的 yt-dlp 参数
 # @example ytdl-1080 'https://www.youtube.com/watch?v=...'
-# @category tools
+# @category media
+##
 ytdl-1080() {
     if [[ $# -eq 0 ]]; then
         __tools_error "Usage: ytdl-1080 <url>... [yt-dlp options]"
@@ -1967,10 +1976,12 @@ ytdl-1080() {
     __ytdlp_video 1080 "$@"
 }
 
+##
 # @brief 只下载音频并转成 mp3（VBR 最高质量）
 # @param $@ 视频 URL，以及额外的 yt-dlp 参数
 # @example ytdl-mp3 'https://www.youtube.com/watch?v=...'
-# @category tools
+# @category media
+##
 ytdl-mp3() {
     if [[ $# -eq 0 ]]; then
         __tools_error "Usage: ytdl-mp3 <url>... [yt-dlp options]"
@@ -1984,6 +1995,400 @@ ytdl-mp3() {
     __ytdlp_require || return 1
     # -t mp3 即 -f 'ba[acodec^=mp3]/ba/b' -x --audio-format mp3；默认音质是 5，这里改成 0。
     command yt-dlp -t mp3 --audio-quality 0 "$@"
+}
+
+# ===================================================================
+# ffmpeg / ImageMagick
+# ===================================================================
+# 输出文件换扩展名，放在输入旁边。-q 改默认质量，-f 覆盖已有文件。
+# -- 后面的参数原样传给工具，放在输出文件名前面，后写的同类参数会盖过 -q。
+# 截取用 -s 起点、-t 时长。gif 另有 -r 帧率和 -w 宽度。
+
+# @brief Split wrapper flags from input files
+# @description Writes __MEDIA_Q, __MEDIA_FORCE, __MEDIA_EXTRA and __MEDIA_FILES.
+# @param $1 default quality
+# @param $@ user arguments
+# @return 0 ok, 1 error, 2 help
+# @category tools
+__media_parse() {
+    typeset -g __MEDIA_Q=$1 __MEDIA_FORCE=0
+    typeset -ga __MEDIA_EXTRA=() __MEDIA_FILES=()
+    shift
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h|--help) return 2 ;;
+            -f|--force) __MEDIA_FORCE=1; shift ;;
+            -q|--quality)
+                if [[ $# -lt 2 ]]; then
+                    __tools_error "缺少 -q 的值"
+                    return 1
+                fi
+                __MEDIA_Q=$2
+                shift 2
+                ;;
+            --)
+                shift
+                __MEDIA_EXTRA=("$@")
+                break
+                ;;
+            -*)
+                __tools_error "未知参数: $1 （工具自己的参数写在 -- 后面）"
+                return 1
+                ;;
+            *)
+                __MEDIA_FILES+=("$1")
+                shift
+                ;;
+        esac
+    done
+    if [[ ${#__MEDIA_FILES} -eq 0 ]]; then
+        __tools_error "缺少输入文件"
+        return 1
+    fi
+}
+
+# @param $1 min
+# @param $2 max
+# @param $3 value
+# @param $4 name shown in the error, default 质量
+# @category tools
+__media_quality() {
+    local lo=$1 hi=$2 q=$3 name=${4:-质量}
+    if [[ ! $q =~ '^[0-9]+$' ]] || (( 10#$q < lo || 10#$q > hi )); then
+        __tools_error "${name}要在 ${lo}-${hi} 之间，收到: ${q}"
+        return 1
+    fi
+}
+
+# @param $1 input
+# @param $2 new extension, without the dot
+# @category tools
+__media_out() {
+    local in=$1 ext=$2 force=$3 suffix=$4
+    local out="${in:r}${suffix}.${ext}"
+    if [[ $out == $in ]]; then
+        __tools_error "输出和输入是同一个文件: ${in}"
+        return 1
+    fi
+    if [[ -e $out && $force -eq 0 ]]; then
+        __tools_error "已存在: ${out} （-f 覆盖）"
+        return 1
+    fi
+    print -r -- "$out"
+}
+
+__ffmpeg_require() {
+    if ! command -v ffmpeg >/dev/null 2>&1; then
+        __tools_error "ffmpeg 未安装"
+        return 1
+    fi
+}
+
+__magick_require() {
+    if ! command -v magick >/dev/null 2>&1; then
+        __tools_error "magick 未安装"
+        return 1
+    fi
+}
+
+##
+# @brief 把视频或音频转成 mp3
+# @param $@ [-q 0-9] [-f] [-- ffmpeg 参数] 文件...
+# @example mp4-to-mp3 video.mp4
+# @example mp4-to-mp3 -q 4 video.mp4 -- -ar 44100
+# @category media
+##
+mp4-to-mp3() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: mp4-to-mp3 [-q 0-9] [-f] [-- ffmpeg 参数] <file>..."
+        return 1
+    fi
+    __media_parse 0 "$@"
+    local rc=$? q=$__MEDIA_Q force=$__MEDIA_FORCE
+    local -a extra=("${__MEDIA_EXTRA[@]}") files=("${__MEDIA_FILES[@]}")
+    if [[ $rc -eq 2 ]]; then
+        __tools_output "Usage: mp4-to-mp3 [-q 0-9] [-f] [-- ffmpeg 参数] <file>..."
+        __tools_output "  抽出音频转成 mp3。默认 -q:a 0（VBR 最高，0 最好，9 最小）。"
+        __tools_output "  -f 覆盖已有文件。-- 后面的参数传给 ffmpeg，放在输出文件名前面。"
+        return 0
+    fi
+    [[ $rc -eq 0 ]] || return $rc
+    __ffmpeg_require || return 1
+    __media_quality 0 9 "$q" || return 1
+
+    local f out yn=()
+    [[ $force -eq 1 ]] && yn=(-y)
+    for f in "${files[@]}"; do
+        [[ -f $f ]] || { __tools_error "不是文件: ${f}"; return 1; }
+        out=$(__media_out "$f" mp3 "$force") || return 1
+        command ffmpeg -hide_banner -nostdin "${yn[@]}" -i "$f" -vn -c:a libmp3lame -q:a "$q" "${extra[@]}" "$out" || return 1
+    done
+}
+
+# @brief Convert an image with magick. Empty quality omits -quality.
+# @param $1 output extension
+# @param $2 quality, empty to omit
+# @param $3 1 to overwrite
+# @param $@ input files, then a literal --, then magick args
+# @category tools
+__img_convert() {
+    local ext=$1 q=$2 force=$3
+    shift 3
+    local -a files=() extra=()
+    while [[ $# -gt 0 ]]; do
+        if [[ $1 == -- ]]; then
+            shift
+            extra=("$@")
+            break
+        fi
+        files+=("$1")
+        shift
+    done
+    __magick_require || return 1
+    local f out
+    local -a qargs=()
+    [[ -n $q ]] && qargs=(-quality "$q")
+    for f in "${files[@]}"; do
+        [[ -f $f ]] || { __tools_error "不是文件: ${f}"; return 1; }
+        out=$(__media_out "$f" "$ext" "$force") || return 1
+        command magick "$f" "${qargs[@]}" "${extra[@]}" "$out" || return 1
+    done
+}
+
+# @param $1 extension
+# @param $2 default quality, empty if none
+# @param $3 quality min when -q is set
+# @param $4 quality max
+# @param $5 one-line description for -h
+# @category tools
+__img_cmd() {
+    local ext=$1 default_q=$2 lo=$3 hi=$4 desc=$5
+    local name=$6
+    shift 6
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: ${name} [-q ${lo}-${hi}] [-f] [-- magick 参数] <file>..."
+        return 1
+    fi
+    __media_parse "$default_q" "$@"
+    local rc=$? q=$__MEDIA_Q force=$__MEDIA_FORCE
+    local -a extra=("${__MEDIA_EXTRA[@]}") files=("${__MEDIA_FILES[@]}")
+    if [[ $rc -eq 2 ]]; then
+        __tools_output "Usage: ${name} [-q ${lo}-${hi}] [-f] [-- magick 参数] <file>..."
+        __tools_output "  ${desc}"
+        __tools_output "  -f 覆盖已有文件。-- 后面的参数传给 magick，放在输出文件名前面。"
+        return 0
+    fi
+    [[ $rc -eq 0 ]] || return $rc
+    if [[ -n $q ]]; then
+        __media_quality "$lo" "$hi" "$q" || return 1
+    fi
+    __img_convert "$ext" "$q" "$force" "${files[@]}" -- "${extra[@]}"
+}
+
+##
+# @brief 把图片转成 jpg，默认质量 90
+# @example png-to-jpg shot.png
+# @example png-to-jpg -q 80 shot.png -- -resize 50%
+# @category media
+##
+png-to-jpg() { __img_cmd jpg 90 0 100 "转成 jpg，默认质量 90。" png-to-jpg "$@"; }
+
+##
+# @brief 把图片转成 webp，默认质量 80
+# @example png-to-webp shot.png
+# @category media
+##
+png-to-webp() { __img_cmd webp 80 0 100 "转成 webp，默认质量 80。" png-to-webp "$@"; }
+
+##
+# @brief 把图片转成 png。默认不传 -quality，-q 才传
+# @example jpg-to-png shot.jpg
+# @category media
+##
+jpg-to-png() { __img_cmd png "" 0 100 "转成 png。默认不设质量；-q 传给 magick -quality。" jpg-to-png "$@"; }
+
+# @brief Parse clip flags. allow is a set of letters: q, r, w.
+# @description Writes __MEDIA_START, __MEDIA_DUR, __MEDIA_FORCE, __MEDIA_Q,
+#   __MEDIA_FPS, __MEDIA_WIDTH, __MEDIA_EXTRA and __MEDIA_FILES.
+# @param $1 allowed flags
+# @param $2 default start
+# @param $3 default duration, empty to omit
+# @category tools
+__clip_parse() {
+    local allow=$1
+    typeset -g __MEDIA_START=$2 __MEDIA_DUR=$3 __MEDIA_FORCE=0
+    typeset -g __MEDIA_Q=0 __MEDIA_FPS=10 __MEDIA_WIDTH=480
+    typeset -ga __MEDIA_EXTRA=() __MEDIA_FILES=()
+    shift 3
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h|--help) return 2 ;;
+            -f|--force) __MEDIA_FORCE=1; shift ;;
+            -s|--start)
+                [[ $# -ge 2 ]] || { __tools_error "缺少 -s 的值"; return 1; }
+                __MEDIA_START=$2
+                shift 2
+                ;;
+            -t|--time)
+                [[ $# -ge 2 ]] || { __tools_error "缺少 -t 的值"; return 1; }
+                __MEDIA_DUR=$2
+                shift 2
+                ;;
+            -q|--quality)
+                [[ $allow == *q* ]] || { __tools_error "未知参数: $1 （工具自己的参数写在 -- 后面）"; return 1; }
+                [[ $# -ge 2 ]] || { __tools_error "缺少 -q 的值"; return 1; }
+                __MEDIA_Q=$2
+                shift 2
+                ;;
+            -r|--fps)
+                [[ $allow == *r* ]] || { __tools_error "未知参数: $1 （工具自己的参数写在 -- 后面）"; return 1; }
+                [[ $# -ge 2 ]] || { __tools_error "缺少 -r 的值"; return 1; }
+                __MEDIA_FPS=$2
+                shift 2
+                ;;
+            -w|--width)
+                [[ $allow == *w* ]] || { __tools_error "未知参数: $1 （工具自己的参数写在 -- 后面）"; return 1; }
+                [[ $# -ge 2 ]] || { __tools_error "缺少 -w 的值"; return 1; }
+                __MEDIA_WIDTH=$2
+                shift 2
+                ;;
+            --)
+                shift
+                __MEDIA_EXTRA=("$@")
+                break
+                ;;
+            -*)
+                __tools_error "未知参数: $1 （工具自己的参数写在 -- 后面）"
+                return 1
+                ;;
+            *)
+                __MEDIA_FILES+=("$1")
+                shift
+                ;;
+        esac
+    done
+    if [[ ${#__MEDIA_FILES} -eq 0 ]]; then
+        __tools_error "缺少输入文件"
+        return 1
+    fi
+}
+
+# @param $1 copy, mp3, or gif
+# @param $@ quality force start duration fps width, then files, then --, then ffmpeg args
+# @category tools
+__clip_run() {
+    local mode=$1 q=$2 force=$3 start=$4 dur=$5 fps=$6 width=$7
+    shift 7
+    local -a files=() extra=()
+    while [[ $# -gt 0 ]]; do
+        if [[ $1 == -- ]]; then
+            shift
+            extra=("$@")
+            break
+        fi
+        files+=("$1")
+        shift
+    done
+    __ffmpeg_require || return 1
+
+    local f out ext
+    local -a yn=() ss=() tt=()
+    [[ $force -eq 1 ]] && yn=(-y)
+    [[ -n $start ]] && ss=(-ss "$start")
+    [[ -n $dur ]] && tt=(-t "$dur")
+    for f in "${files[@]}"; do
+        [[ -f $f ]] || { __tools_error "不是文件: ${f}"; return 1; }
+        case $mode in
+            copy)
+                ext=${f:e}
+                [[ -n $ext ]] || ext=mp4
+                out=$(__media_out "$f" "$ext" "$force" -cut) || return 1
+                command ffmpeg -hide_banner -nostdin "${yn[@]}" "${ss[@]}" -i "$f" "${tt[@]}" -c copy "${extra[@]}" "$out" || return 1
+                ;;
+            mp3)
+                out=$(__media_out "$f" mp3 "$force" -cut) || return 1
+                command ffmpeg -hide_banner -nostdin "${yn[@]}" "${ss[@]}" -i "$f" "${tt[@]}" -vn -c:a libmp3lame -q:a "$q" "${extra[@]}" "$out" || return 1
+                ;;
+            gif)
+                out=$(__media_out "$f" gif "$force") || return 1
+                command ffmpeg -hide_banner -nostdin "${yn[@]}" "${ss[@]}" -i "$f" "${tt[@]}" -an \
+                    -vf "fps=${fps},scale=${width}:-2:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
+                    "${extra[@]}" "$out" || return 1
+                ;;
+        esac
+    done
+}
+
+##
+# @brief 按时间截取视频，默认直接复制，不重新编码
+# @example mp4-cut -s 00:01:30 -t 10 video.mp4
+# @category media
+##
+mp4-cut() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: mp4-cut [-s 起点] [-t 时长] [-f] [-- ffmpeg 参数] <file>..."
+        return 1
+    fi
+    __clip_parse "" 0 "" "$@"
+    local rc=$?
+    if [[ $rc -eq 2 ]]; then
+        __tools_output "Usage: mp4-cut [-s 起点] [-t 时长] [-f] [-- ffmpeg 参数] <file>..."
+        __tools_output "  截取视频。起点默认 0，不写 -t 就一直到结尾。输出为 原名-cut.原扩展名。"
+        __tools_output "  默认 -c copy。-f 覆盖已有文件。-- 后面的参数传给 ffmpeg。"
+        return 0
+    fi
+    [[ $rc -eq 0 ]] || return $rc
+    __clip_run copy 0 "$__MEDIA_FORCE" "$__MEDIA_START" "$__MEDIA_DUR" 10 480 \
+        "${__MEDIA_FILES[@]}" -- "${__MEDIA_EXTRA[@]}"
+}
+
+##
+# @brief 按时间截取音频并转成 mp3
+# @example mp3-cut -s 5 -t 15 talk.mp4
+# @category media
+##
+mp3-cut() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: mp3-cut [-s 起点] [-t 时长] [-q 0-9] [-f] [-- ffmpeg 参数] <file>..."
+        return 1
+    fi
+    __clip_parse q 0 "" "$@"
+    local rc=$?
+    if [[ $rc -eq 2 ]]; then
+        __tools_output "Usage: mp3-cut [-s 起点] [-t 时长] [-q 0-9] [-f] [-- ffmpeg 参数] <file>..."
+        __tools_output "  截取音频转成 mp3。起点默认 0，不写 -t 就一直到结尾。默认 -q:a 0。"
+        __tools_output "  输出为 原名-cut.mp3。-f 覆盖已有文件。-- 后面的参数传给 ffmpeg。"
+        return 0
+    fi
+    [[ $rc -eq 0 ]] || return $rc
+    __media_quality 0 9 "$__MEDIA_Q" || return 1
+    __clip_run mp3 "$__MEDIA_Q" "$__MEDIA_FORCE" "$__MEDIA_START" "$__MEDIA_DUR" 10 480 \
+        "${__MEDIA_FILES[@]}" -- "${__MEDIA_EXTRA[@]}"
+}
+
+##
+# @brief 把视频片段转成 gif。默认前 5 秒、10 帧、宽 480
+# @example mp4-to-gif -s 3 -t 4 -w 320 video.mp4
+# @category media
+##
+mp4-to-gif() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: mp4-to-gif [-s 起点] [-t 时长] [-r 帧率] [-w 宽度] [-f] [-- ffmpeg 参数] <file>..."
+        return 1
+    fi
+    __clip_parse rw 0 5 "$@"
+    local rc=$?
+    if [[ $rc -eq 2 ]]; then
+        __tools_output "Usage: mp4-to-gif [-s 起点] [-t 时长] [-r 帧率] [-w 宽度] [-f] [-- ffmpeg 参数] <file>..."
+        __tools_output "  截取视频并做成 gif。默认从 0 秒起取 5 秒，10 帧，宽度 480，高度按比例。"
+        __tools_output "  -f 覆盖已有文件。-- 后面的参数传给 ffmpeg，可以盖过默认滤镜。"
+        return 0
+    fi
+    [[ $rc -eq 0 ]] || return $rc
+    __media_quality 1 60 "$__MEDIA_FPS" "帧率" || return 1
+    __media_quality 2 1920 "$__MEDIA_WIDTH" "宽度" || return 1
+    __clip_run gif 0 "$__MEDIA_FORCE" "$__MEDIA_START" "$__MEDIA_DUR" "$__MEDIA_FPS" "$__MEDIA_WIDTH" \
+        "${__MEDIA_FILES[@]}" -- "${__MEDIA_EXTRA[@]}"
 }
 
 if [[ -f $HOME/.local/bin/mise ]]; then

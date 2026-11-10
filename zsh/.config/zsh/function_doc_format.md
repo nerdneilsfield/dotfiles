@@ -39,6 +39,7 @@ function_name() {
 - `tool` - 工具辅助函数
 - `security` - 安全相关函数
 - `cache` - 缓存相关函数
+- `media` - 下载、转码和截取
 
 ### 📝 **示例**
 

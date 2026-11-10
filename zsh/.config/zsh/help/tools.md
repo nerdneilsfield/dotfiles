@@ -11,6 +11,7 @@
 
 - 运行 `show-help`，在列表中选择 `tools/<tool>` 查看单个工具
 - 也可选择 `commands/<name>` 查看常用命令速查
+- 下载、转码和截取：`show-help media`
 
 ## 文件与查找
 

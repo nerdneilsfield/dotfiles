@@ -37,7 +37,7 @@ show_functions() {
     else
         echo "❌ 未找到匹配的函数文档"
         if [[ -n "$category_filter" ]]; then
-            echo "💡 可用分类: install, config, check, network, tool, security, cache"
+            echo "💡 可用分类: install, config, check, network, tool, security, cache, media"
         fi
     fi
 
@@ -109,13 +109,13 @@ _parse_function_docs() {
     }
 
     in_doc && /^# @category/ {
-        category = substr($0, 12)
+        category = substr($0, 13)
         next
     }
 
-    # 检测函数定义
-    !in_doc && /^[a-zA-Z_][a-zA-Z0-9_]*\(\)/ {
-        match($0, /^[a-zA-Z_][a-zA-Z0-9_]*/)
+    # 检测函数定义。命令名可以带连字符，例如 ytdl-1080、mp4-to-mp3。
+    !in_doc && /^[a-zA-Z_][a-zA-Z0-9_-]*\(\)/ {
+        match($0, /^[a-zA-Z_][a-zA-Z0-9_-]*/)
         func_name = substr($0, RSTART, RLENGTH)
 
         # 如果有分类过滤器，检查是否匹配
@@ -171,6 +171,7 @@ _format_function_docs() {
                 "tool") echo "🛠️  工具辅助函数" ;;
                 "security") echo "🔒 安全相关函数" ;;
                 "cache") echo "💾 缓存相关函数" ;;
+                "media") echo "🎬 媒体相关函数" ;;
                 *) echo "📁 其他函数" ;;
             esac
             echo "$(printf '%*s' 50 '' | tr ' ' '-')"
@@ -358,7 +359,7 @@ show_help() {
             echo "  show_help search <keyword>      # 搜索函数"
             echo ""
             echo "🏷️  可用分类:"
-            echo "  install, config, check, network, tool, security, cache"
+            echo "  install, config, check, network, tool, security, cache, media"
             echo ""
             echo "💡 快捷别名:"
             echo "  show_functions [category]       # 显示函数"

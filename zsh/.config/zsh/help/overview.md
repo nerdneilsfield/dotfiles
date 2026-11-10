@@ -88,6 +88,7 @@
 
 - `help/overview.md`（本文件）
 - `help/installer.md`（安装路由与策略）
+- `help/media.md`（yt-dlp 下载、转码和截取）
 - `help/tools.md` + `help/tools/*.md`（工具说明）
 - `help/commands/*.md`（系统命令速查）
 - `help/vim.md` / `help/neovim.md` / `help/emacs.md` / `help/helix.md`

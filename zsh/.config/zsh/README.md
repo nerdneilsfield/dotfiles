@@ -224,6 +224,20 @@ testconn                       # 等同于 test_connectivity
 printpx                        # 等同于 show_proxy_status
 ```
 
+### 媒体
+
+下载、转码和截取。完整说明是 `show-help media`。
+
+```bash
+ytdl-1080 URL                 # 不超过 1080p，内嵌中英文字幕、封面和章节
+ytdl-mp3 URL                  # 只提取音频，mp3
+mp4-to-mp3 video.mp4          # 抽出音轨
+png-to-jpg shot.png           # 图片转换，还有 png-to-webp、jpg-to-png
+mp4-cut -s 00:01:30 -t 10 video.mp4
+mp3-cut -s 5 -t 15 talk.mp4
+mp4-to-gif -t 4 -w 320 video.mp4
+```
+
 ### 智能包管理系统
 
 配置自动检测平台和包管理器，优先使用原生包管理器：
@@ -448,7 +462,7 @@ show_help
 # 查看所有函数文档
 show_functions
 
-# 按分类查看函数 (install|config|check|network|tool|security|cache)
+# 按分类查看函数 (install|config|check|network|tool|security|cache|media)
 show_functions install     # 查看安装相关函数
 show_functions network     # 查看网络相关函数
 
@@ -470,6 +484,7 @@ show_readme "安装与配置"    # 显示特定章节
 - `tool` - 工具辅助函数 (show_help, search_functions 等)
 - `security` - 安全相关函数 (security_audit, validate_url 等)
 - `cache` - 缓存相关函数 (cache_*, clear_zsh_cache 等)
+- `media` - 下载、转码和截取 (ytdl, mp4-to-mp3, mp4-cut 等)
 
 ### 💡 **快捷别名**
 
