@@ -1840,6 +1840,8 @@ show_ipv6_addr() { show-ipv6-addr "$@"; }
 # ===================================================================
 # 最高清沿用 yt-dlp 默认排序（分辨率优先）。不用 -t mp4：那个预设把 H.264
 # 排在分辨率前面，4K 只有 AV1/VP9 时会落到更低的 H.264。
+# 能复制进 mp4 就复制。yt-dlp 报 Postprocessing 时再下一次，合并成 mkv 后用
+# ffmpeg 重编码成 mp4。--remux-video 和 --recode-video 不能同时给。
 # 720/1080 用 -S res:N：不超过该分辨率，竖屏按短边算；没有更低的就取最小的。
 # 字幕默认中文和英文，并带上自动字幕。no-keep-subs 让内嵌后不留单独字幕文件。
 # 写在 URL 后面的参数原样传给 yt-dlp，后写的 -S / --sub-langs 会盖过这里的默认值。
@@ -1855,18 +1857,17 @@ __ytdlp_require() {
     fi
 }
 
-# @brief Download video as mp4 with embedded subs, thumbnail and chapters
-# @param $1 Max short-side resolution, empty for best available
+# @brief Run yt-dlp for an mp4 with embedded subs, thumbnail and chapters
+# @param $1 copy or recode
+# @param $2 Max short-side resolution, empty for best available
 # @param $@ URL and extra yt-dlp options
 # @category tools
-__ytdlp_video() {
-    local max_res="$1"
-    shift
-    __ytdlp_require || return 1
+__ytdlp_video_cmd() {
+    local mode="$1"
+    local max_res="$2"
+    shift 2
 
     local -a args=(
-        --merge-output-format mp4
-        --remux-video mp4
         --embed-subs
         --write-auto-subs
         --sub-langs "zh.*,en.*"
@@ -1876,10 +1877,42 @@ __ytdlp_video() {
         --embed-metadata
         --compat-options no-keep-subs
     )
+    if [[ "$mode" == recode ]]; then
+        # mkv 能装下任意编码。重编码发生在内嵌字幕、章节和封面之前。
+        args+=(--merge-output-format mkv --recode-video mp4 --force-overwrites)
+    else
+        args+=(--merge-output-format mp4 --remux-video mp4)
+    fi
     if [[ -n "$max_res" ]]; then
         args+=(-S "res:${max_res}")
     fi
     command yt-dlp "${args[@]}" "$@"
+}
+
+# @brief Download video as mp4, re-encoding with ffmpeg only if copy fails
+# @param $1 Max short-side resolution, empty for best available
+# @param $@ URL and extra yt-dlp options
+# @category tools
+__ytdlp_video() {
+    local max_res="$1"
+    shift
+    __ytdlp_require || return 1
+
+    local log rc
+    log=$(mktemp)
+    __ytdlp_video_cmd copy "$max_res" "$@" 2> >(tee "$log" >&2)
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+        rm -f "$log"
+        return 0
+    fi
+    if grep -q "Postprocessing:" "$log"; then
+        __tools_warn "复制进 mp4 失败，改用 ffmpeg 重新编码"
+        __ytdlp_video_cmd recode "$max_res" "$@"
+        rc=$?
+    fi
+    rm -f "$log"
+    return $rc
 }
 
 # @brief 下载最高清视频，内嵌中英文字幕、封面和章节，导出 mp4
@@ -1894,7 +1927,7 @@ ytdl() {
     fi
     if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
         __tools_output "Usage: ytdl <url>... [yt-dlp options]"
-        __tools_output "  最高清视频加声音，内嵌中英文（含自动）字幕、封面和章节，容器为 mp4。"
+        __tools_output "  最高清视频加声音，内嵌中英文（含自动）字幕、封面和章节，容器为 mp4。复制失败时用 ffmpeg 重编码。"
         return 0
     fi
     __ytdlp_video "" "$@"
@@ -1911,7 +1944,7 @@ ytdl-720() {
     fi
     if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
         __tools_output "Usage: ytdl-720 <url>... [yt-dlp options]"
-        __tools_output "  不超过 720p（竖屏按短边）的视频加声音，内嵌中英文字幕、封面和章节，容器为 mp4。"
+        __tools_output "  不超过 720p（竖屏按短边）的视频加声音，内嵌中英文字幕、封面和章节，容器为 mp4。复制失败时用 ffmpeg 重编码。"
         return 0
     fi
     __ytdlp_video 720 "$@"
@@ -1928,7 +1961,7 @@ ytdl-1080() {
     fi
     if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
         __tools_output "Usage: ytdl-1080 <url>... [yt-dlp options]"
-        __tools_output "  不超过 1080p（竖屏按短边）的视频加声音，内嵌中英文字幕、封面和章节，容器为 mp4。"
+        __tools_output "  不超过 1080p（竖屏按短边）的视频加声音，内嵌中英文字幕、封面和章节，容器为 mp4。复制失败时用 ffmpeg 重编码。"
         return 0
     fi
     __ytdlp_video 1080 "$@"
