@@ -1835,6 +1835,123 @@ show_ip_addr()   { show-ip-addr "$@"; }
 show_ipv4_addr() { show-ipv4-addr "$@"; }
 show_ipv6_addr() { show-ipv6-addr "$@"; }
 
+# ===================================================================
+# yt-dlp
+# ===================================================================
+# 最高清沿用 yt-dlp 默认排序（分辨率优先）。不用 -t mp4：那个预设把 H.264
+# 排在分辨率前面，4K 只有 AV1/VP9 时会落到更低的 H.264。
+# 720/1080 用 -S res:N：不超过该分辨率，竖屏按短边算；没有更低的就取最小的。
+# 字幕默认中文和英文，并带上自动字幕。no-keep-subs 让内嵌后不留单独字幕文件。
+# 写在 URL 后面的参数原样传给 yt-dlp，后写的 -S / --sub-langs 会盖过这里的默认值。
+
+__ytdlp_require() {
+    if ! command -v yt-dlp >/dev/null 2>&1; then
+        __tools_error "yt-dlp 未安装"
+        return 1
+    fi
+    if ! command -v ffmpeg >/dev/null 2>&1; then
+        __tools_error "ffmpeg 未安装。合并成 mp4、内嵌字幕和封面、转 mp3 都需要它"
+        return 1
+    fi
+}
+
+# @brief Download video as mp4 with embedded subs, thumbnail and chapters
+# @param $1 Max short-side resolution, empty for best available
+# @param $@ URL and extra yt-dlp options
+# @category tools
+__ytdlp_video() {
+    local max_res="$1"
+    shift
+    __ytdlp_require || return 1
+
+    local -a args=(
+        --merge-output-format mp4
+        --remux-video mp4
+        --embed-subs
+        --write-auto-subs
+        --sub-langs "zh.*,en.*"
+        --embed-thumbnail
+        --convert-thumbnails jpg
+        --embed-chapters
+        --embed-metadata
+        --compat-options no-keep-subs
+    )
+    if [[ -n "$max_res" ]]; then
+        args+=(-S "res:${max_res}")
+    fi
+    command yt-dlp "${args[@]}" "$@"
+}
+
+# @brief 下载最高清视频，内嵌中英文字幕、封面和章节，导出 mp4
+# @param $@ 视频 URL，以及额外的 yt-dlp 参数
+# @example ytdl 'https://www.youtube.com/watch?v=...'
+# @example ytdl URL --sub-langs all
+# @category tools
+ytdl() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: ytdl <url>... [yt-dlp options]"
+        return 1
+    fi
+    if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
+        __tools_output "Usage: ytdl <url>... [yt-dlp options]"
+        __tools_output "  最高清视频加声音，内嵌中英文（含自动）字幕、封面和章节，容器为 mp4。"
+        return 0
+    fi
+    __ytdlp_video "" "$@"
+}
+
+# @brief 下载不超过 720p 的视频，内嵌字幕、封面和声音，导出 mp4
+# @param $@ 视频 URL，以及额外的 yt-dlp 参数
+# @example ytdl-720 'https://www.youtube.com/watch?v=...'
+# @category tools
+ytdl-720() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: ytdl-720 <url>... [yt-dlp options]"
+        return 1
+    fi
+    if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
+        __tools_output "Usage: ytdl-720 <url>... [yt-dlp options]"
+        __tools_output "  不超过 720p（竖屏按短边）的视频加声音，内嵌中英文字幕、封面和章节，容器为 mp4。"
+        return 0
+    fi
+    __ytdlp_video 720 "$@"
+}
+
+# @brief 下载不超过 1080p 的视频，内嵌字幕、封面和声音，导出 mp4
+# @param $@ 视频 URL，以及额外的 yt-dlp 参数
+# @example ytdl-1080 'https://www.youtube.com/watch?v=...'
+# @category tools
+ytdl-1080() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: ytdl-1080 <url>... [yt-dlp options]"
+        return 1
+    fi
+    if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
+        __tools_output "Usage: ytdl-1080 <url>... [yt-dlp options]"
+        __tools_output "  不超过 1080p（竖屏按短边）的视频加声音，内嵌中英文字幕、封面和章节，容器为 mp4。"
+        return 0
+    fi
+    __ytdlp_video 1080 "$@"
+}
+
+# @brief 只下载音频并转成 mp3（VBR 最高质量）
+# @param $@ 视频 URL，以及额外的 yt-dlp 参数
+# @example ytdl-mp3 'https://www.youtube.com/watch?v=...'
+# @category tools
+ytdl-mp3() {
+    if [[ $# -eq 0 ]]; then
+        __tools_error "Usage: ytdl-mp3 <url>... [yt-dlp options]"
+        return 1
+    fi
+    if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
+        __tools_output "Usage: ytdl-mp3 <url>... [yt-dlp options]"
+        __tools_output "  只提取音频，转成 mp3，VBR 质量 0（最高）。"
+        return 0
+    fi
+    __ytdlp_require || return 1
+    # -t mp3 即 -f 'ba[acodec^=mp3]/ba/b' -x --audio-format mp3；默认音质是 5，这里改成 0。
+    command yt-dlp -t mp3 --audio-quality 0 "$@"
+}
 
 if [[ -f $HOME/.local/bin/mise ]]; then
   eval "$(mise activate zsh)"
