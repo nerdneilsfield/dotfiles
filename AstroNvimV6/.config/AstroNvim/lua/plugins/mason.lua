@@ -12,7 +12,6 @@ return {
         "eslint-lsp",
         "eslint_d",
         "prettierd",
-        "docker-compose-language-service",
         "lemminx",
         "markdownlint",
         "yamllint",

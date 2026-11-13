@@ -7,7 +7,6 @@ return {
       servers = {
         "texlab",
         "ts_ls",
-        "docker_compose_language_service",
         "lemminx",
       },
     },

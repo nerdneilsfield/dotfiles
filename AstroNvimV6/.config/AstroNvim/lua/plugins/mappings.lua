@@ -1,10 +1,28 @@
+local function open_config_help()
+  local readme = vim.fs.joinpath(vim.fn.stdpath "config", "README.md")
+  if vim.fn.filereadable(readme) == 0 then
+    vim.notify("找不到使用说明: " .. readme, vim.log.levels.ERROR)
+    return
+  end
+  if vim.fn.executable "glow" == 0 then
+    vim.notify("找不到 glow，请先安装: brew install glow", vim.log.levels.WARN)
+    return
+  end
+  require("astrocore").toggle_term_cmd("glow --tui " .. vim.fn.shellescape(readme))
+end
+
 return {
   {
     "AstroNvim/astrocore",
     ---@type AstroCoreOpts
     opts = {
+      commands = {
+        ConfigHelp = { open_config_help, desc = "Open config help with glow" },
+      },
       mappings = {
         n = {
+          ["<Leader>?"] = { open_config_help, desc = "Open config help" },
+
           ["<Leader>bn"] = { "<cmd>tabnew<cr>", desc = "New tab" },
           ["<Leader>bD"] = {
             function()
@@ -57,7 +75,7 @@ return {
           ["<Leader>wm"] = { "<C-w>o", desc = "Max the window" },
           ["<Leader>wt"] = {
             function()
-              if vim.fn.exists(":Trouble") == 2 then
+              if vim.fn.exists ":Trouble" == 2 then
                 vim.cmd "Trouble diagnostics toggle"
               end
             end,
@@ -79,6 +97,7 @@ return {
         },
         v = {
           ["<Leader>a"] = { desc = "AI" },
+          ["<Leader>?"] = { open_config_help, desc = "Open config help" },
         },
       },
     },

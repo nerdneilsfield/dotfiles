@@ -12,7 +12,11 @@ return {
   { import = "astrocommunity.pack.yaml" },
   { import = "astrocommunity.pack.markdown" },
   { import = "astrocommunity.markdown-and-latex.vimtex" },
-  -- { import = "astrocommunity.recipes.ai" },
-  { import = "astrocommunity.ai.codecompanion-nvim" },
+  -- CodeCompanion 改在 plugins/vibe-coding.lua 里声明，避免打开文件就自动加载。
+  -- { import = "astrocommunity.ai.codecompanion-nvim" },
   { import = "astrocommunity.motion.flash-nvim" },
+  { import = "astrocommunity.diagnostics.trouble-nvim" },
+  { import = "astrocommunity.editing-support.undotree" },
+  { import = "astrocommunity.editing-support.conform-nvim" },
+  { import = "astrocommunity.lsp.nvim-lint" },
 }

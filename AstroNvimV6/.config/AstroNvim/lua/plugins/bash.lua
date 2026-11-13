@@ -4,7 +4,8 @@ return {
     optional = true,
     opts = {
       formatters_by_ft = {
-        bash = { "shfmt" },
+        sh = { "shfmt" },
+        zsh = { "shfmt" },
       },
     },
   },
@@ -13,7 +14,8 @@ return {
     optional = true,
     opts = {
       linters_by_ft = {
-        bash = { "shellcheck" },
+        sh = { "shellcheck" },
+        zsh = { "shellcheck" },
       },
     },
   },
